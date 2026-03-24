@@ -48,8 +48,11 @@ const Navbar = () => {
               <a href="#mission" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>Mission</a>
               <a href="#features" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>Features</a>
               <a href="#how-it-works" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>How It Works</a>
+              <Link to="/match" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full" size="sm">Marketplace</Button>
+              </Link>
               <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full" size="sm">Get Started</Button>
+                <Button className="w-full" size="sm">Dashboard</Button>
               </Link>
             </div>
           </motion.div>
