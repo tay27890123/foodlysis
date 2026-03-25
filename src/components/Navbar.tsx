@@ -27,7 +27,10 @@ const Navbar = () => {
             <Button variant="outline" size="sm">Marketplace</Button>
           </Link>
           <Link to="/dashboard">
-            <Button size="sm">Dashboard</Button>
+            <Button variant="outline" size="sm">Market</Button>
+          </Link>
+          <Link to="/logistics">
+            <Button size="sm">Logistics</Button>
           </Link>
         </div>
 
@@ -52,7 +55,10 @@ const Navbar = () => {
                 <Button variant="outline" className="w-full" size="sm">Marketplace</Button>
               </Link>
               <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full" size="sm">Dashboard</Button>
+                <Button variant="outline" className="w-full" size="sm">Market</Button>
+              </Link>
+              <Link to="/logistics" onClick={() => setMobileOpen(false)}>
+                <Button className="w-full" size="sm">Logistics</Button>
               </Link>
             </div>
           </motion.div>
