@@ -1,7 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock } from "lucide-react";
+import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,22 +37,11 @@ const FoodMap = () => {
   const [activeLayer, setActiveLayer] = useState<DataLayer>("production");
   const isMobile = useIsMobile();
 
-  const { data: stateMetrics = [], isLoading, dataUpdatedAt } = useQuery({
+  const { data: stateMetrics = [], isLoading } = useQuery({
     queryKey: ["stateMetrics"],
     queryFn: fetchStateMetrics,
     staleTime: 5 * 60_000,
   });
-
-  const [lastUpdated, setLastUpdated] = useState<string>("");
-  useEffect(() => {
-    if (dataUpdatedAt) {
-      const fmt = new Intl.DateTimeFormat("en-MY", {
-        dateStyle: "medium",
-        timeStyle: "short",
-      }).format(new Date(dataUpdatedAt));
-      setLastUpdated(fmt);
-    }
-  }, [dataUpdatedAt]);
 
   // Convert StateMetrics → StateData for the map
   const stateData: StateData[] = useMemo(
@@ -99,12 +88,6 @@ const FoodMap = () => {
             Food Security Command Center
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">Interactive choropleth map — click any state for detailed metrics.</p>
-          {lastUpdated && (
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground/70">
-              <Clock className="h-3 w-3" />
-              Last updated: {lastUpdated}
-            </p>
-          )}
         </motion.div>
 
         {/* Data Layer Toggle */}
