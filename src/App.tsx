@@ -9,6 +9,7 @@ import LogisticsDashboard from "./pages/LogisticsDashboard.tsx";
 import Match from "./pages/Match.tsx";
 import Admin from "./pages/Admin.tsx";
 import Insights from "./pages/Insights.tsx";
+import FoodMap from "./pages/FoodMap.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -26,6 +27,7 @@ const App = () => (
           <Route path="/match" element={<Match />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/insights" element={<Insights />} />
+          <Route path="/food-map" element={<FoodMap />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

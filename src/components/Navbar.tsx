@@ -32,6 +32,9 @@ const Navbar = () => {
           <Link to="/insights">
             <Button variant="outline" size="sm">Insights</Button>
           </Link>
+          <Link to="/food-map">
+            <Button variant="outline" size="sm">Food Map</Button>
+          </Link>
           <Link to="/logistics">
             <Button size="sm">Logistics</Button>
           </Link>
@@ -62,6 +65,9 @@ const Navbar = () => {
               </Link>
               <Link to="/insights" onClick={() => setMobileOpen(false)}>
                 <Button variant="outline" className="w-full" size="sm">Insights</Button>
+              </Link>
+              <Link to="/food-map" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full" size="sm">Food Map</Button>
               </Link>
               <Link to="/logistics" onClick={() => setMobileOpen(false)}>
                 <Button className="w-full" size="sm">Logistics</Button>
