@@ -99,6 +99,12 @@ const FoodMap = () => {
             Food Security Command Center
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">Interactive choropleth map — click any state for detailed metrics.</p>
+          {lastUpdated && (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground/70">
+              <Clock className="h-3 w-3" />
+              Last updated: {lastUpdated}
+            </p>
+          )}
         </motion.div>
 
         {/* Data Layer Toggle */}
