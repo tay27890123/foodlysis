@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown } from "lucide-react";
