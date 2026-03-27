@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown } from "lucide-react";
+import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
