@@ -1,5 +1,5 @@
-import { useState, memo, useCallback } from "react";
-import { ComposableMap, Geographies, Geography } from "react-simple-maps";
+import { useState, useCallback } from "react";
+import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { motion, AnimatePresence } from "framer-motion";
 
 export type StateStatus = "surplus" | "shortage" | "balanced" | "warning";
@@ -39,6 +39,26 @@ const HC_KEY_TO_ID: Record<string, string> = {
   "my-sa": "sabah",
   "my-sk": "sarawak",
   "my-la": "labuan",
+};
+
+// Center coordinates [lon, lat] for state labels
+const STATE_CENTERS: Record<string, [number, number]> = {
+  perlis: [100.19, 6.45],
+  kedah: [100.5, 5.95],
+  penang: [100.25, 5.37],
+  perak: [101.0, 4.6],
+  kelantan: [102.0, 5.3],
+  terengganu: [103.1, 4.9],
+  pahang: [102.5, 3.8],
+  selangor: [101.5, 3.3],
+  kl: [101.69, 3.14],
+  putrajaya: [101.7, 2.93],
+  negeriSembilan: [102.0, 2.75],
+  melaka: [102.25, 2.2],
+  johor: [103.5, 1.85],
+  sabah: [117.0, 5.4],
+  sarawak: [113.0, 2.5],
+  labuan: [115.2, 5.3],
 };
 
 const TOPO_URL = "/malaysia-states.topo.json";
@@ -84,10 +104,10 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
         style={{ width: "100%", height: "auto", maxHeight: "520px" }}
       >
         {/* Water labels behind geography */}
-        <text x={80} y={380} fill="hsl(210 60% 50% / 0.10)" fontSize={8} fontWeight={600}>
+        <text x={80} y={380} fill="hsl(210, 60%, 50%, 0.10)" fontSize={8} fontWeight={600}>
           STRAIT OF MALACCA
         </text>
-        <text x={420} y={120} fill="hsl(210 60% 50% / 0.10)" fontSize={8} fontWeight={600}>
+        <text x={420} y={120} fill="hsl(210, 60%, 50%, 0.10)" fontSize={8} fontWeight={600}>
           SOUTH CHINA SEA
         </text>
 
@@ -98,8 +118,6 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
               if (!id) return null;
 
               const data = getStateData(id);
-              const status = data?.status || "balanced";
-              const defaultColors = statusColors[status];
               const colors = choroplethColors?.[id] || null;
               const isHovered = hoveredState === id;
               const isSelected = selectedState === id;
@@ -155,43 +173,27 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
           }
         </Geographies>
 
-        {/* State labels */}
-        <Geographies geography={TOPO_URL}>
-          {({ geographies }) =>
-            geographies.map((geo) => {
-              const id = getIdFromGeo(geo);
-              if (!id) return null;
-              const data = getStateData(id);
-              const props = geo.properties;
-              const lat = props?.latitude;
-              const lon = props?.longitude || props?.["hc-middle-lon"];
-              // Skip label rendering if no coordinates
-              if (!lat || !lon) return null;
-
-              const name = data?.name || props?.name || id;
-              const isSmall = ["kl", "labuan", "penang", "perlis", "melaka", "putrajaya"].includes(id);
-
-              return (
-                <text
-                  key={`label-${id}`}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  fill="hsl(150 15% 92%)"
-                  fontSize={isSmall ? 3 : 4.5}
-                  fontWeight={600}
-                  className="pointer-events-none select-none"
-                  style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}
-                  // Use hc-middle coordinates for better centering
-                  x={0}
-                  y={0}
-                  transform={`translate(0, 0)`}
-                >
-                  {name}
-                </text>
-              );
-            })
-          }
-        </Geographies>
+        {/* State name labels using Marker */}
+        {Object.entries(STATE_CENTERS).map(([id, coords]) => {
+          const data = getStateData(id);
+          const name = data?.name || id;
+          const isSmall = ["kl", "labuan", "penang", "perlis", "melaka", "putrajaya"].includes(id);
+          return (
+            <Marker key={`label-${id}`} coordinates={coords}>
+              <text
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill="hsl(150, 15%, 92%)"
+                fontSize={isSmall ? 3.5 : 5}
+                fontWeight={600}
+                className="pointer-events-none select-none"
+                style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}
+              >
+                {name}
+              </text>
+            </Marker>
+          );
+        })}
       </ComposableMap>
 
       {/* Hover tooltip */}
