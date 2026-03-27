@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock } from "lucide-react";
+import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock, Percent } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,6 +30,7 @@ const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; descripti
   { id: "production", label: "Agri Production", icon: BarChart3, description: "Crop volume (tonnes)" },
   { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Price index hotspots" },
   { id: "surplus", label: "Surplus Listings", icon: ShoppingCart, description: "Marketplace availability" },
+  { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level" },
 ];
 
 const FoodMap = () => {
