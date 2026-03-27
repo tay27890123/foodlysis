@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown } from "lucide-react";
+import { MapPin, TrendingUp, TrendingDown, AlertTriangle, ShieldCheck, Wheat, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -87,7 +87,13 @@ const FoodMap = () => {
             <MapPin className="h-7 w-7 text-primary" />
             Food Security Command Center
           </h1>
-          <p className="mt-1 text-sm text-muted-foreground">Interactive choropleth map — click any state for detailed metrics.</p>
+          <div className="mt-1 flex flex-wrap items-center gap-3">
+            <p className="text-sm text-muted-foreground">Interactive choropleth map — click any state for detailed metrics.</p>
+            <span className="flex items-center gap-1.5 text-xs text-muted-foreground/70 border border-border/30 rounded-full px-2.5 py-1">
+              <Clock className="h-3 w-3" />
+              Last updated: {new Date().toLocaleDateString("en-MY", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </span>
+          </div>
         </motion.div>
 
         {/* Data Layer Toggle */}
