@@ -37,11 +37,22 @@ const FoodMap = () => {
   const [activeLayer, setActiveLayer] = useState<DataLayer>("production");
   const isMobile = useIsMobile();
 
-  const { data: stateMetrics = [], isLoading } = useQuery({
+  const { data: stateMetrics = [], isLoading, dataUpdatedAt } = useQuery({
     queryKey: ["stateMetrics"],
     queryFn: fetchStateMetrics,
     staleTime: 5 * 60_000,
   });
+
+  const [lastUpdated, setLastUpdated] = useState<string>("");
+  useEffect(() => {
+    if (dataUpdatedAt) {
+      const fmt = new Intl.DateTimeFormat("en-MY", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(new Date(dataUpdatedAt));
+      setLastUpdated(fmt);
+    }
+  }, [dataUpdatedAt]);
 
   // Convert StateMetrics → StateData for the map
   const stateData: StateData[] = useMemo(
