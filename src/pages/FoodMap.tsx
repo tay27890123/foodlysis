@@ -245,6 +245,7 @@ function StateDashboard({ selected, activeLayer, states, onSelect }: {
                   <MetricBox label="Demand" value={`${selected.demand.toLocaleString()} t`} accent="destructive" />
                   <MetricBox label="Food CPI" value={selected.cpiIndex.toFixed(1)} sub={`${selected.cpiChange >= 0 ? "+" : ""}${selected.cpiChange.toFixed(1)}%`} accent={selected.cpiChange > 1.5 ? "secondary" : "primary"} />
                   <MetricBox label="Surplus Listings" value={String(selected.surplusListings)} accent="primary" />
+                  <MetricBox label="SSL %" value={`${(selected.demand > 0 ? (selected.production / selected.demand) * 100 : 0).toFixed(1)}%`} accent={(selected.production / selected.demand) >= 1 ? "primary" : (selected.production / selected.demand) >= 0.7 ? "secondary" : "destructive"} />
                 </div>
 
                 {/* Production vs Demand bars */}
