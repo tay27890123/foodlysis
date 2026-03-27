@@ -4,7 +4,7 @@ const BASE_URL = "https://api.data.gov.my/opendosm/";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-export type DataLayer = "production" | "cpi" | "surplus";
+export type DataLayer = "production" | "cpi" | "surplus" | "ssl";
 
 export interface StateMetrics {
   id: string;
@@ -131,6 +131,8 @@ export function getChoroplethValue(state: StateMetrics, layer: DataLayer): numbe
       return state.cpiIndex;
     case "surplus":
       return state.surplusListings;
+    case "ssl":
+      return state.demand > 0 ? (state.production / state.demand) * 100 : 0;
   }
 }
 
@@ -163,6 +165,14 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
         stroke: `hsl(165 55% ${l + 18}% / 0.85)`,
       };
     }
+    case "ssl": {
+      // SSL: <70% red, 70-100% amber, >100% green
+      const hue = t < 0.5 ? t * 2 * 50 : 50 + (t - 0.5) * 2 * 102; // 0→red, 0.5→amber, 1→green
+      return {
+        fill: `hsl(${hue} 60% 30% / 0.45)`,
+        stroke: `hsl(${hue} 60% 48% / 0.85)`,
+      };
+    }
   }
 }
 
@@ -174,5 +184,9 @@ export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): stri
       return `CPI ${state.cpiIndex.toFixed(1)} (${state.cpiChange >= 0 ? "+" : ""}${state.cpiChange.toFixed(1)}%)`;
     case "surplus":
       return `${state.surplusListings} listings`;
+    case "ssl": {
+      const ssl = state.demand > 0 ? (state.production / state.demand) * 100 : 0;
+      return `SSL ${ssl.toFixed(1)}%`;
+    }
   }
 }
