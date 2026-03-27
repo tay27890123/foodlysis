@@ -177,7 +177,7 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
   return (
     <div className="relative w-full">
       {/* Two-panel layout: West (55%) + East (45%) */}
-      <div className="flex items-center w-full" style={{ maxHeight: "520px" }}>
+      <div className="flex items-center w-full" style={{ maxHeight: "440px" }}>
         {/* Peninsular Malaysia */}
         <div className="flex-[55] relative">
           <ComposableMap
