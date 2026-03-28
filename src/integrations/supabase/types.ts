@@ -14,7 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          business_name: string
+          created_at: string
+          id: string
+          location_state: string
+          role: string
+        }
+        Insert: {
+          business_name: string
+          created_at?: string
+          id: string
+          location_state: string
+          role: string
+        }
+        Update: {
+          business_name?: string
+          created_at?: string
+          id?: string
+          location_state?: string
+          role?: string
+        }
+        Relationships: []
+      }
+      surplus_listings: {
+        Row: {
+          category: string
+          created_at: string
+          discounted_price: number
+          id: string
+          original_price: number
+          product_name: string
+          quantity_kg: number
+          status: string
+          supplier_id: string
+          urgency_level: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          discounted_price: number
+          id?: string
+          original_price: number
+          product_name: string
+          quantity_kg: number
+          status?: string
+          supplier_id: string
+          urgency_level?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          discounted_price?: number
+          id?: string
+          original_price?: number
+          product_name?: string
+          quantity_kg?: number
+          status?: string
+          supplier_id?: string
+          urgency_level?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "surplus_listings_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
