@@ -144,27 +144,34 @@ async function fetchStateCrops(): Promise<Map<string, number>> {
 export async function fetchStateMetrics(): Promise<StateMetrics[]> {
   const liveProduction = await fetchStateCrops();
 
-  // Merge live data into mock base
   return MOCK_STATE_DATA.map((state) => {
     const liveProd = liveProduction.get(state.id);
-    const production = liveProd ? Math.round(liveProd / 1000) : state.production; // convert to approx tonnes
-
-    // Recalculate status based on live data
-    const ratio = production / state.demand;
-    let status: StateStatus = state.status;
+    
+    // Update crops category with live data if available
+    const categories = { ...state.categories };
     if (liveProd) {
+      categories.crops = { ...categories.crops, production: Math.round(liveProd / 1000) };
+    }
+
+    // Recalculate totals from categories
+    const production = Object.values(categories).reduce((sum, c) => sum + c.production, 0);
+    const demand = Object.values(categories).reduce((sum, c) => sum + c.demand, 0);
+
+    // Recalculate status
+    const ratio = production / demand;
+    let status: StateStatus = state.status;
+    if (liveProd || true) { // always recalculate from totals
       if (ratio >= 1.3) status = "surplus";
       else if (ratio >= 0.9) status = "balanced";
       else if (ratio >= 0.7) status = "warning";
       else status = "shortage";
     }
 
-    // Determine status from CPI for warning zones
     if (state.cpiChange > 2.0 && status !== "shortage") {
       status = "warning";
     }
 
-    return { ...state, production, status };
+    return { ...state, categories, production, demand, status };
   });
 }
 
@@ -236,8 +243,11 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
 
 export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): string {
   switch (layer) {
-    case "production":
-      return `${state.production.toLocaleString()} t`;
+    case "production": {
+      // Count categories in surplus vs deficit
+      const surplusCats = Object.values(state.categories).filter(c => c.production >= c.demand).length;
+      return `${state.production.toLocaleString()}t (${surplusCats}/6 surplus)`;
+    }
     case "cpi":
       return `CPI ${state.cpiIndex.toFixed(1)} (${state.cpiChange >= 0 ? "+" : ""}${state.cpiChange.toFixed(1)}%)`;
     case "surplus":
