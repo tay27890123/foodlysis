@@ -20,6 +20,25 @@ export interface SurplusListing {
 }
 
 export const useSurplusListings = () => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("surplus_listings_realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "surplus_listings" },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["surplus_listings"] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+
   return useQuery({
     queryKey: ["surplus_listings"],
     queryFn: async () => {
