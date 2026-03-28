@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -80,8 +80,16 @@ const SurplusCard = ({ listing, index }: { listing: SurplusListing; index: numbe
 };
 
 const Match = () => {
+  const [searchParams] = useSearchParams();
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState<Category>("All");
+  const [stateFilter, setStateFilter] = useState<string>("");
+
+  // Pre-filter from query param (e.g. from Food Map)
+  useEffect(() => {
+    const stateParam = searchParams.get("state");
+    if (stateParam) setStateFilter(stateParam);
+  }, [searchParams]);
   const { user, profile } = useAuth();
   const { data: listings, isLoading } = useSurplusListings();
   const queryClient = useQueryClient();
@@ -90,11 +98,12 @@ const Match = () => {
     const matchSearch = l.product_name.toLowerCase().includes(search.toLowerCase()) ||
       (l.profiles?.business_name ?? "").toLowerCase().includes(search.toLowerCase());
     const matchCategory = category === "All" || l.category === category;
-    return matchSearch && matchCategory;
+    const matchState = !stateFilter || (l.profiles?.location_state ?? "").toLowerCase().includes(stateFilter.toLowerCase());
+    return matchSearch && matchCategory && matchState;
   });
 
-  const hasFilters = search || category !== "All";
-  const clearFilters = () => { setSearch(""); setCategory("All"); };
+  const hasFilters = search || category !== "All" || stateFilter;
+  const clearFilters = () => { setSearch(""); setCategory("All"); setStateFilter(""); };
 
   return (
     <div className="min-h-screen bg-background">
@@ -155,9 +164,17 @@ const Match = () => {
         </motion.div>
 
         <div className="flex items-center justify-between mb-5">
-          <p className="text-sm text-muted-foreground">
-            Showing <span className="font-medium text-foreground">{filtered.length}</span> listing{filtered.length !== 1 ? "s" : ""}
-          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm text-muted-foreground">
+              Showing <span className="font-medium text-foreground">{filtered.length}</span> listing{filtered.length !== 1 ? "s" : ""}
+            </p>
+            {stateFilter && (
+              <Badge variant="outline" className="gap-1 text-xs">
+                <MapPin className="h-3 w-3" /> {stateFilter}
+                <button onClick={() => setStateFilter("")} className="ml-1 hover:text-destructive"><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
+          </div>
           {hasFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
               <X className="h-3 w-3" /> Clear filters
