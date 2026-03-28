@@ -260,47 +260,6 @@ export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): stri
   }
 }
 
-/** Derive a status per state based on the active layer's metric */
-export function getLayerStatus(state: StateMetrics, layer: DataLayer): StateStatus {
-  switch (layer) {
-    case "foodSupply": {
-      const ratio = state.demand > 0 ? state.production / state.demand : 1;
-      if (ratio >= 1.3) return "surplus";
-      if (ratio >= 0.9) return "balanced";
-      if (ratio >= 0.7) return "warning";
-      return "shortage";
-    }
-    case "cpi": {
-      if (state.cpiChange <= 0) return "surplus";      // deflation = good
-      if (state.cpiChange <= 1.0) return "balanced";
-      if (state.cpiChange <= 2.0) return "warning";
-      return "shortage";                                // high inflation
-    }
-    case "ssl": {
-      const ssl = state.demand > 0 ? (state.production / state.demand) * 100 : 0;
-      if (ssl >= 120) return "surplus";
-      if (ssl >= 80) return "balanced";
-      if (ssl >= 50) return "warning";
-      return "shortage";
-    }
-    case "weather": {
-      const map: Record<WeatherRisk, StateStatus> = {
-        normal: "surplus",
-        advisory: "balanced",
-        warning: "warning",
-        danger: "shortage",
-      };
-      return map[state.weatherRisk];
-    }
-    case "surplus": {
-      if (state.surplusListings >= 15) return "surplus";
-      if (state.surplusListings >= 8) return "balanced";
-      if (state.surplusListings >= 3) return "warning";
-      return "shortage";
-    }
-  }
-}
-
 export const WEATHER_RISK_CONFIG: Record<WeatherRisk, { label: string; color: string; icon: string }> = {
   normal: { label: "Normal", color: "hsl(152 60% 42%)", icon: "☀️" },
   advisory: { label: "Advisory", color: "hsl(210 60% 50%)", icon: "🌦️" },
