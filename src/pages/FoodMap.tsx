@@ -13,6 +13,7 @@ import {
   getChoroplethValue,
   getChoroplethColor,
   getLayerMetricLabel,
+  getLayerStatus,
   FOOD_CATEGORIES,
   type DataLayer,
   type StateMetrics,
@@ -69,12 +70,15 @@ const FoodMap = () => {
   const selected = stateMetrics.find((s) => s.id === selectedId) || null;
   const handleStateClick = (state: StateData) => setSelectedId(state.id);
 
-  const summaryStats = useMemo(() => ({
-    surplus: stateData.filter((s) => s.status === "surplus").length,
-    balanced: stateData.filter((s) => s.status === "balanced").length,
-    warning: stateData.filter((s) => s.status === "warning").length,
-    shortage: stateData.filter((s) => s.status === "shortage").length,
-  }), [stateData]);
+  const summaryStats = useMemo(() => {
+    const statuses = stateMetrics.map((s) => getLayerStatus(s, activeLayer));
+    return {
+      surplus: statuses.filter((s) => s === "surplus").length,
+      balanced: statuses.filter((s) => s === "balanced").length,
+      warning: statuses.filter((s) => s === "warning").length,
+      shortage: statuses.filter((s) => s === "shortage").length,
+    };
+  }, [stateMetrics, activeLayer]);
 
   return (
     <div className="min-h-screen bg-background">
