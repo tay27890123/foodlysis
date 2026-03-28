@@ -127,7 +127,6 @@ const FoodMap = () => {
             </div>
           ))}
         </motion.div>
-        </motion.div>
 
         {isLoading ? (
           <div className="flex items-center justify-center py-32">
