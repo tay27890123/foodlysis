@@ -266,3 +266,74 @@ export const WEATHER_RISK_CONFIG: Record<WeatherRisk, { label: string; color: st
   warning: { label: "Warning", color: "hsl(40 85% 55%)", icon: "⛈️" },
   danger: { label: "Danger", color: "hsl(0 72% 51%)", icon: "🌊" },
 };
+
+// ── Layer-specific summary cards ───────────────────────────────────────────────
+
+export interface SummaryCard {
+  key: string;
+  label: string;
+  count: number;
+  fill: string;
+  stroke: string;
+  icon: string;
+}
+
+export function getLayerSummaryCards(states: StateMetrics[], layer: DataLayer): SummaryCard[] {
+  switch (layer) {
+    case "foodSupply":
+      return [
+        { key: "surplus", label: "Surplus", count: states.filter(s => s.status === "surplus").length, fill: "hsl(152 60% 42% / 0.35)", stroke: "hsl(152 60% 55%)", icon: "📈" },
+        { key: "balanced", label: "Balanced", count: states.filter(s => s.status === "balanced").length, fill: "hsl(210 60% 50% / 0.3)", stroke: "hsl(210 60% 60%)", icon: "⚖️" },
+        { key: "warning", label: "Warning", count: states.filter(s => s.status === "warning").length, fill: "hsl(40 85% 55% / 0.3)", stroke: "hsl(40 85% 60%)", icon: "⚠️" },
+        { key: "shortage", label: "Shortage", count: states.filter(s => s.status === "shortage").length, fill: "hsl(0 72% 51% / 0.3)", stroke: "hsl(0 72% 58%)", icon: "📉" },
+      ];
+    case "cpi": {
+      const low = states.filter(s => s.cpiIndex < 130).length;
+      const mod = states.filter(s => s.cpiIndex >= 130 && s.cpiIndex < 135).length;
+      const high = states.filter(s => s.cpiIndex >= 135 && s.cpiIndex < 140).length;
+      const crit = states.filter(s => s.cpiIndex >= 140).length;
+      return [
+        { key: "low", label: "Low (<130)", count: low, fill: "hsl(152 55% 35% / 0.4)", stroke: "hsl(152 55% 50%)", icon: "💚" },
+        { key: "moderate", label: "Moderate", count: mod, fill: "hsl(100 45% 40% / 0.35)", stroke: "hsl(100 45% 55%)", icon: "💛" },
+        { key: "high", label: "High (135+)", count: high, fill: "hsl(30 70% 45% / 0.35)", stroke: "hsl(30 70% 55%)", icon: "🔶" },
+        { key: "critical", label: "Critical (140+)", count: crit, fill: "hsl(0 65% 45% / 0.35)", stroke: "hsl(0 65% 55%)", icon: "🔴" },
+      ];
+    }
+    case "ssl": {
+      const high = states.filter(s => { const ssl = s.demand > 0 ? (s.production / s.demand) * 100 : 0; return ssl >= 100; }).length;
+      const adequate = states.filter(s => { const ssl = s.demand > 0 ? (s.production / s.demand) * 100 : 0; return ssl >= 70 && ssl < 100; }).length;
+      const low = states.filter(s => { const ssl = s.demand > 0 ? (s.production / s.demand) * 100 : 0; return ssl >= 40 && ssl < 70; }).length;
+      const critical = states.filter(s => { const ssl = s.demand > 0 ? (s.production / s.demand) * 100 : 0; return ssl < 40; }).length;
+      return [
+        { key: "high", label: "Self-Sufficient", count: high, fill: "hsl(152 60% 35% / 0.4)", stroke: "hsl(152 60% 50%)", icon: "🟢" },
+        { key: "adequate", label: "Adequate (70%+)", count: adequate, fill: "hsl(80 50% 40% / 0.35)", stroke: "hsl(80 50% 55%)", icon: "🟡" },
+        { key: "low", label: "Low (40-70%)", count: low, fill: "hsl(30 65% 45% / 0.35)", stroke: "hsl(30 65% 55%)", icon: "🟠" },
+        { key: "critical", label: "Critical (<40%)", count: critical, fill: "hsl(0 70% 45% / 0.35)", stroke: "hsl(0 70% 55%)", icon: "🔴" },
+      ];
+    }
+    case "weather": {
+      const normal = states.filter(s => s.weatherRisk === "normal").length;
+      const advisory = states.filter(s => s.weatherRisk === "advisory").length;
+      const warning = states.filter(s => s.weatherRisk === "warning").length;
+      const danger = states.filter(s => s.weatherRisk === "danger").length;
+      return [
+        { key: "normal", label: "Clear", count: normal, fill: "hsl(152 55% 35% / 0.4)", stroke: "hsl(152 55% 50%)", icon: "☀️" },
+        { key: "advisory", label: "Advisory", count: advisory, fill: "hsl(210 60% 45% / 0.35)", stroke: "hsl(210 60% 55%)", icon: "🌦️" },
+        { key: "warning", label: "Warning", count: warning, fill: "hsl(40 80% 50% / 0.35)", stroke: "hsl(40 80% 58%)", icon: "⛈️" },
+        { key: "danger", label: "Danger", count: danger, fill: "hsl(0 72% 48% / 0.35)", stroke: "hsl(0 72% 55%)", icon: "🌊" },
+      ];
+    }
+    case "surplus": {
+      const hot = states.filter(s => s.surplusListings >= 15).length;
+      const active = states.filter(s => s.surplusListings >= 5 && s.surplusListings < 15).length;
+      const low = states.filter(s => s.surplusListings >= 1 && s.surplusListings < 5).length;
+      const none = states.filter(s => s.surplusListings === 0).length;
+      return [
+        { key: "hot", label: "Hot (15+)", count: hot, fill: "hsl(165 60% 38% / 0.4)", stroke: "hsl(165 60% 52%)", icon: "🔥" },
+        { key: "active", label: "Active (5-14)", count: active, fill: "hsl(165 45% 35% / 0.35)", stroke: "hsl(165 45% 50%)", icon: "📦" },
+        { key: "low", label: "Low (1-4)", count: low, fill: "hsl(200 40% 35% / 0.3)", stroke: "hsl(200 40% 50%)", icon: "📋" },
+        { key: "none", label: "No Listings", count: none, fill: "hsl(220 20% 30% / 0.25)", stroke: "hsl(220 20% 45%)", icon: "🚫" },
+      ];
+    }
+  }
+}
