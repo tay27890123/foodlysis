@@ -94,7 +94,7 @@ const Insights = () => {
           </Link>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="font-display text-3xl font-bold">Food Supply Insights</h1>
+              <h1 className="font-display text-3xl font-bold"><h1 className="font-display text-3xl font-bold">Malaysia Market Insights</h1></h1>
               <p className="mt-2 text-muted-foreground">
                 Live market intelligence powered by{" "}
                 <a href="https://open.dosm.gov.my" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
