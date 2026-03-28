@@ -70,12 +70,7 @@ const FoodMap = () => {
   const selected = stateMetrics.find((s) => s.id === selectedId) || null;
   const handleStateClick = (state: StateData) => setSelectedId(state.id);
 
-  const summaryStats = useMemo(() => ({
-    surplus: stateData.filter((s) => s.status === "surplus").length,
-    balanced: stateData.filter((s) => s.status === "balanced").length,
-    warning: stateData.filter((s) => s.status === "warning").length,
-    shortage: stateData.filter((s) => s.status === "shortage").length,
-  }), [stateData]);
+  const summaryCards = useMemo(() => getLayerSummaryCards(stateMetrics, activeLayer), [stateMetrics, activeLayer]);
 
   return (
     <div className="min-h-screen bg-background">
