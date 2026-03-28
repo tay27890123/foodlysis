@@ -156,8 +156,9 @@ export async function fetchDashboardData(): Promise<DashboardData> {
   const weatherInsights: DashboardWeatherInsight[] = [];
   const seenLocations = new Set<string>();
   for (const w of weatherData) {
-    if (seenLocations.has(w.location)) continue;
-    seenLocations.add(w.location);
+    const locationName = typeof w.location === "object" ? w.location.location_name : String(w.location);
+    if (seenLocations.has(locationName)) continue;
+    seenLocations.add(locationName);
 
     const forecast = w.summary_forecast || w.afternoon_forecast || w.morning_forecast || "Fair";
     const { condition, iconType } = mapForecastToCondition(forecast);
@@ -175,7 +176,7 @@ export async function fetchDashboardData(): Promise<DashboardData> {
       impact = "Optimal harvest conditions";
     }
 
-    weatherInsights.push({ region: w.location, temp, condition, impact, iconType });
+    weatherInsights.push({ region: locationName, temp, condition, impact, iconType });
     if (weatherInsights.length >= 6) break;
   }
 
