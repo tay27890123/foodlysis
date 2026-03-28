@@ -307,8 +307,3 @@ export const WEATHER_RISK_CONFIG: Record<WeatherRisk, { label: string; color: st
   warning: { label: "Warning", color: "hsl(40 85% 55%)", icon: "⛈️" },
   danger: { label: "Danger", color: "hsl(0 72% 51%)", icon: "🌊" },
 };
-  normal: { label: "Normal", color: "hsl(152 60% 42%)", icon: "☀️" },
-  advisory: { label: "Advisory", color: "hsl(210 60% 50%)", icon: "🌦️" },
-  warning: { label: "Warning", color: "hsl(40 85% 55%)", icon: "⛈️" },
-  danger: { label: "Danger", color: "hsl(0 72% 51%)", icon: "🌊" },
-};
