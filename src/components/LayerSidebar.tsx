@@ -14,7 +14,19 @@ import {
   type DataLayer,
   type StateMetrics,
   type FoodCategory,
+  type CategoryData,
 } from "@/services/stateLevelData";
+
+const DEFAULT_CAT: CategoryData = { production: 0, demand: 0, cpiIndex: 100, cpiChange: 0, ssl: 0 };
+
+function safeCategories(state: StateMetrics): Record<FoodCategory, CategoryData> {
+  if (!state.categories) {
+    const empty = {} as Record<FoodCategory, CategoryData>;
+    for (const c of FOOD_CATEGORIES) empty[c.id] = DEFAULT_CAT;
+    return empty;
+  }
+  return state.categories;
+}
 import { supabase } from "@/integrations/supabase/client";
 
 interface LayerSidebarProps {
@@ -82,7 +94,7 @@ function FoodSupplyPanel({ state }: { state: StateMetrics }) {
         {/* Category breakdown */}
         <div className="space-y-1.5">
           {FOOD_CATEGORIES.map((cat) => {
-            const d = state.categories[cat.id];
+            const d = safeCategories(state)[cat.id];
             const ratio = d.demand > 0 ? d.production / d.demand : 1;
             const status = ratio >= 1.2 ? "Surplus" : ratio >= 0.8 ? "Balanced" : "Deficit";
             const statusColor = ratio >= 1.2 ? "text-primary" : ratio >= 0.8 ? "text-blue-400" : "text-destructive";
@@ -122,7 +134,7 @@ function FoodSupplyPanel({ state }: { state: StateMetrics }) {
 
 function CPIPanel({ state }: { state: StateMetrics }) {
   // Sort categories by CPI change (worst first)
-  const sorted = [...FOOD_CATEGORIES].sort((a, b) => state.categories[b.id].cpiChange - state.categories[a.id].cpiChange);
+  const sorted = [...FOOD_CATEGORIES].sort((a, b) => safeCategories(state)[b.id].cpiChange - safeCategories(state)[a.id].cpiChange);
 
   return (
     <Card className="border-border/40 bg-card/60 backdrop-blur-sm">
@@ -147,7 +159,7 @@ function CPIPanel({ state }: { state: StateMetrics }) {
         <div className="space-y-1">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Price Pressure by Category</p>
           {sorted.map((cat) => {
-            const d = state.categories[cat.id];
+            const d = safeCategories(state)[cat.id];
             const isUp = d.cpiChange > 0;
             return (
               <div key={cat.id} className="flex items-center justify-between rounded-md border border-border/30 bg-muted/20 px-2.5 py-1.5">
@@ -170,7 +182,7 @@ function CPIPanel({ state }: { state: StateMetrics }) {
           <p className="text-xs text-secondary font-semibold mb-0.5">💡 Price Alert</p>
           <p className="text-[11px] text-muted-foreground leading-relaxed">
             {state.cpiChange > 1.5
-              ? `${state.name} is experiencing above-average food inflation. ${sorted[0].label} showing highest pressure at +${state.categories[sorted[0].id].cpiChange.toFixed(1)}% MoM.`
+              ? `${state.name} is experiencing above-average food inflation. ${sorted[0].label} showing highest pressure at +${safeCategories(state)[sorted[0].id].cpiChange.toFixed(1)}% MoM.`
               : `Food prices in ${state.name} remain stable. Overall inflation within acceptable range.`}
           </p>
         </div>
@@ -183,8 +195,8 @@ function CPIPanel({ state }: { state: StateMetrics }) {
 
 function SSLPanel({ state }: { state: StateMetrics }) {
   const overallSSL = state.demand > 0 ? (state.production / state.demand) * 100 : 0;
-  const sorted = [...FOOD_CATEGORIES].sort((a, b) => state.categories[a.id].ssl - state.categories[b.id].ssl);
-  const critical = sorted.filter((c) => state.categories[c.id].ssl < 80);
+  const sorted = [...FOOD_CATEGORIES].sort((a, b) => safeCategories(state)[a.id].ssl - safeCategories(state)[b.id].ssl);
+  const critical = sorted.filter((c) => safeCategories(state)[c.id].ssl < 80);
 
   return (
     <Card className="border-border/40 bg-card/60 backdrop-blur-sm">
@@ -220,7 +232,7 @@ function SSLPanel({ state }: { state: StateMetrics }) {
         <div className="space-y-1.5">
           <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">SSL by Food Category</p>
           {FOOD_CATEGORIES.map((cat) => {
-            const ssl = state.categories[cat.id].ssl;
+            const ssl = safeCategories(state)[cat.id].ssl;
             const color = ssl >= 100 ? "bg-primary" : ssl >= 70 ? "bg-secondary" : "bg-destructive";
             const textColor = ssl >= 100 ? "text-primary" : ssl >= 70 ? "text-secondary" : "text-destructive";
             return (
