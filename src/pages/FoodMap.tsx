@@ -113,22 +113,20 @@ const FoodMap = () => {
           })}
         </motion.div>
 
-        {/* Summary strip */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
-          {(["surplus", "balanced", "warning", "shortage"] as StateStatus[]).map((s) => {
-            const colors = statusColors[s];
-            return (
-              <div key={s} className="flex items-center gap-2.5 rounded-lg border border-border/40 bg-card/50 backdrop-blur-sm p-3">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md" style={{ background: colors.fill }}>
-                  <span className={`h-2.5 w-2.5 rounded-full ${colors.dot}`} />
-                </div>
-                <div>
-                  <p className="text-lg font-bold text-foreground leading-tight">{summaryStats[s]}</p>
-                  <p className="text-[11px] font-medium" style={{ color: colors.stroke }}>{colors.label}</p>
-                </div>
+        {/* Summary strip — layer-aware */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} key={activeLayer} className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+          {summaryCards.map((card) => (
+            <div key={card.key} className="flex items-center gap-2.5 rounded-lg border border-border/40 bg-card/50 backdrop-blur-sm p-3">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md" style={{ background: card.fill }}>
+                <span className="text-sm">{card.icon}</span>
               </div>
-            );
-          })}
+              <div>
+                <p className="text-lg font-bold text-foreground leading-tight">{card.count}</p>
+                <p className="text-[11px] font-medium" style={{ color: card.stroke }}>{card.label}</p>
+              </div>
+            </div>
+          ))}
+        </motion.div>
         </motion.div>
 
         {isLoading ? (
