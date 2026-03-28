@@ -112,6 +112,8 @@ const MOCK_STATE_DATA: StateMetrics[] = [
     categories: cat(1800, 900, 1000, 700, 1100, 600, 200, 300, 1200, 700, 500, 400) },
   { id: "labuan", name: "Labuan", production: 80, demand: 200, cpiIndex: 137.4, cpiChange: 1.9, surplusListings: 0, mainCrops: ["Marine Fish"], notes: "Island territory — marine fisheries only significant local production.", status: "shortage", weatherRisk: "normal", weatherLabel: "Clear skies",
     categories: cat(5, 30, 5, 40, 50, 50, 2, 20, 10, 40, 8, 20) },
+  { id: "putrajaya", name: "Putrajaya", production: 20, demand: 350, cpiIndex: 141.2, cpiChange: 2.5, surplusListings: 0, mainCrops: [], notes: "Administrative capital — fully import-dependent.", status: "shortage", weatherRisk: "normal", weatherLabel: "Clear skies",
+    categories: cat(2, 60, 3, 80, 2, 50, 1, 40, 5, 70, 7, 50) },
 ];
 
 // ── Fetch state-level crop data ────────────────────────────────────────────────
@@ -244,7 +246,7 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
 export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): string {
   switch (layer) {
     case "production": {
-      // Count categories in surplus vs deficit
+      if (!state.categories) return `${state.production.toLocaleString()}t`;
       const surplusCats = Object.values(state.categories).filter(c => c.production >= c.demand).length;
       return `${state.production.toLocaleString()}t (${surplusCats}/6 surplus)`;
     }
