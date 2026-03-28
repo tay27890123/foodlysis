@@ -1,15 +1,20 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Cloud, Sun, CloudRain, Thermometer, Wind,
   Truck, MapPin, TrendingUp, TrendingDown,
-  Package, Leaf, ArrowLeft, BarChart3
+  Package, Leaf, ArrowLeft, BarChart3, LogIn
 } from "lucide-react";
 import { motion } from "framer-motion";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer, BarChart, Bar
+  Tooltip, ResponsiveContainer,
 } from "recharts";
+import { useAuth } from "@/hooks/useAuth";
+import { useSurplusListings } from "@/hooks/useSurplusListings";
+import AddListingModal from "@/components/AddListingModal";
+import { useQueryClient } from "@tanstack/react-query";
 
 const supplyData = [
   { day: "Mon", supply: 420, demand: 380 },
@@ -35,13 +40,6 @@ const weatherForecast = [
   { region: "Johor Bahru", temp: "31°C", condition: "Sunny", icon: Sun, impact: "Optimal routes" },
 ];
 
-const surplusListings = [
-  { product: "Tomatoes", qty: "2.5 MT", supplier: "Tanah Rata Farm", price: "RM 2.80/kg", urgency: "high" },
-  { product: "Kangkung", qty: "1.2 MT", supplier: "Shah Alam Greens", price: "RM 3.50/kg", urgency: "medium" },
-  { product: "Dragon Fruit", qty: "3.0 MT", supplier: "Batu Pahat Orchard", price: "RM 8.00/kg", urgency: "low" },
-  { product: "Cabbage", qty: "4.1 MT", supplier: "Kundasang Valley", price: "RM 1.90/kg", urgency: "high" },
-];
-
 const priceChanges = [
   { item: "Tomatoes", change: -8, price: "RM 2.80" },
   { item: "Chili Padi", change: 15, price: "RM 14.50" },
@@ -53,7 +51,17 @@ const Card = ({ children, className = "" }: { children: React.ReactNode; classNa
   <div className={`glass-card p-5 ${className}`}>{children}</div>
 );
 
+const urgencyStyles: Record<string, string> = {
+  High: "bg-destructive/10 text-destructive",
+  Medium: "bg-secondary/10 text-secondary",
+  Low: "bg-primary/10 text-primary",
+};
+
 const Dashboard = () => {
+  const { user, profile, signOut } = useAuth();
+  const { data: listings, isLoading } = useSurplusListings();
+  const queryClient = useQueryClient();
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -72,18 +80,31 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">Supplier View</Button>
-            <Button size="sm">Buyer View</Button>
+            {user ? (
+              <>
+                {profile && (
+                  <Badge variant="outline" className="text-xs">
+                    {profile.role === "supplier" ? "🌾" : "🛒"} {profile.business_name}
+                  </Badge>
+                )}
+                {profile?.role === "supplier" && (
+                  <AddListingModal onSuccess={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
+                )}
+                <Button variant="outline" size="sm" onClick={signOut}>Sign Out</Button>
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button size="sm" className="gap-2">
+                  <LogIn className="h-4 w-4" /> Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </header>
 
       <main className="container py-8">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <h1 className="font-display text-3xl font-bold mb-1">Market Overview</h1>
           <p className="text-muted-foreground">Real-time supply chain intelligence for Peninsular Malaysia</p>
         </motion.div>
@@ -91,23 +112,16 @@ const Dashboard = () => {
         {/* Quick stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {[
-            { label: "Active Listings", value: "342", icon: Package, change: "+12%" },
+            { label: "Active Listings", value: listings?.length?.toString() ?? "0", icon: Package, change: "" },
             { label: "Routes Active", value: "28", icon: Truck, change: "+5%" },
             { label: "Avg Temp", value: "31°C", icon: Thermometer, change: "" },
             { label: "Wind (KL)", value: "12 km/h", icon: Wind, change: "" },
           ].map((stat, i) => (
-            <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
-            >
+            <motion.div key={stat.label} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
               <Card>
                 <div className="flex items-center justify-between mb-2">
                   <stat.icon className="h-4 w-4 text-muted-foreground" />
-                  {stat.change && (
-                    <span className="text-xs text-primary font-medium">{stat.change}</span>
-                  )}
+                  {stat.change && <span className="text-xs text-primary font-medium">{stat.change}</span>}
                 </div>
                 <div className="font-display text-2xl font-bold">{stat.value}</div>
                 <div className="text-xs text-muted-foreground">{stat.label}</div>
@@ -117,7 +131,6 @@ const Dashboard = () => {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6 mb-8">
-          {/* Supply vs Demand chart */}
           <Card className="lg:col-span-2">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-display font-semibold flex items-center gap-2">
@@ -130,21 +143,13 @@ const Dashboard = () => {
                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(160 15% 16%)" />
                 <XAxis dataKey="day" tick={{ fill: "hsl(150 10% 55%)", fontSize: 12 }} />
                 <YAxis tick={{ fill: "hsl(150 10% 55%)", fontSize: 12 }} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "hsl(160 18% 10%)",
-                    border: "1px solid hsl(160 15% 16%)",
-                    borderRadius: "8px",
-                    color: "hsl(150 15% 92%)",
-                  }}
-                />
+                <Tooltip contentStyle={{ backgroundColor: "hsl(160 18% 10%)", border: "1px solid hsl(160 15% 16%)", borderRadius: "8px", color: "hsl(150 15% 92%)" }} />
                 <Area type="monotone" dataKey="supply" stroke="hsl(152 60% 42%)" fill="hsl(152 60% 42% / 0.2)" strokeWidth={2} />
                 <Area type="monotone" dataKey="demand" stroke="hsl(40 80% 50%)" fill="hsl(40 80% 50% / 0.1)" strokeWidth={2} />
               </AreaChart>
             </ResponsiveContainer>
           </Card>
 
-          {/* Price changes */}
           <Card>
             <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
               <TrendingUp className="h-4 w-4 text-primary" /> Price Movement
@@ -167,7 +172,6 @@ const Dashboard = () => {
         </div>
 
         <div className="grid lg:grid-cols-2 gap-6 mb-8">
-          {/* Weather */}
           <Card>
             <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
               <Cloud className="h-4 w-4 text-primary" /> Weather Insights
@@ -188,7 +192,6 @@ const Dashboard = () => {
             </div>
           </Card>
 
-          {/* Routes */}
           <Card>
             <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
               <MapPin className="h-4 w-4 text-primary" /> Active Routes
@@ -215,52 +218,75 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        {/* Surplus listings */}
+        {/* Surplus listings from DB */}
         <Card>
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display font-semibold flex items-center gap-2">
               <Package className="h-4 w-4 text-primary" /> Live Surplus Listings
             </h3>
-            <Button variant="outline" size="sm">View All</Button>
+            <Link to="/match">
+              <Button variant="outline" size="sm">View All</Button>
+            </Link>
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-muted-foreground text-left">
-                  <th className="pb-3 font-medium">Product</th>
-                  <th className="pb-3 font-medium">Quantity</th>
-                  <th className="pb-3 font-medium">Supplier</th>
-                  <th className="pb-3 font-medium">Price</th>
-                  <th className="pb-3 font-medium">Urgency</th>
-                  <th className="pb-3 font-medium"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {surplusListings.map((listing) => (
-                  <tr key={listing.product} className="border-b border-border/50 last:border-0">
-                    <td className="py-3 font-medium">{listing.product}</td>
-                    <td className="py-3 text-muted-foreground">{listing.qty}</td>
-                    <td className="py-3 text-muted-foreground">{listing.supplier}</td>
-                    <td className="py-3">{listing.price}</td>
-                    <td className="py-3">
-                      <span className={`text-xs px-2 py-1 rounded-full ${
-                        listing.urgency === "high"
-                          ? "bg-destructive/10 text-destructive"
-                          : listing.urgency === "medium"
-                          ? "bg-secondary/10 text-secondary"
-                          : "bg-primary/10 text-primary"
-                      }`}>
-                        {listing.urgency}
-                      </span>
-                    </td>
-                    <td className="py-3">
-                      <Button size="sm" variant="outline">Bid</Button>
-                    </td>
+
+          {isLoading ? (
+            <div className="text-center py-12 text-muted-foreground">Loading listings...</div>
+          ) : !listings || listings.length === 0 ? (
+            <div className="text-center py-12">
+              <Package className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
+              <h3 className="font-display text-lg font-semibold mb-1">No active surplus listings right now</h3>
+              <p className="text-sm text-muted-foreground mb-4">Be the first to list!</p>
+              {!user && (
+                <Link to="/auth">
+                  <Button size="sm">Sign in to post</Button>
+                </Link>
+              )}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border text-muted-foreground text-left">
+                    <th className="pb-3 font-medium">Product</th>
+                    <th className="pb-3 font-medium">Quantity</th>
+                    <th className="pb-3 font-medium">Supplier</th>
+                    <th className="pb-3 font-medium">Price</th>
+                    <th className="pb-3 font-medium">Urgency</th>
+                    <th className="pb-3 font-medium"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {listings.slice(0, 5).map((listing) => {
+                    const discount = listing.original_price > 0
+                      ? Math.round((1 - listing.discounted_price / listing.original_price) * 100)
+                      : 0;
+                    return (
+                      <tr key={listing.id} className="border-b border-border/50 last:border-0">
+                        <td className="py-3 font-medium">{listing.product_name}</td>
+                        <td className="py-3 text-muted-foreground">{(listing.quantity_kg / 1000).toFixed(1)} MT</td>
+                        <td className="py-3 text-muted-foreground">{listing.profiles?.business_name ?? "Unknown"}</td>
+                        <td className="py-3">
+                          <span className="text-xs text-muted-foreground line-through mr-1">RM {listing.original_price.toFixed(2)}</span>
+                          <span className="text-primary font-medium">RM {listing.discounted_price.toFixed(2)}/kg</span>
+                          {discount > 0 && (
+                            <Badge className="ml-2 bg-primary/15 text-primary border-primary/30 text-[10px]">-{discount}%</Badge>
+                          )}
+                        </td>
+                        <td className="py-3">
+                          <span className={`text-xs px-2 py-1 rounded-full ${urgencyStyles[listing.urgency_level] ?? ""}`}>
+                            {listing.urgency_level}
+                          </span>
+                        </td>
+                        <td className="py-3">
+                          <Button size="sm" variant="outline">Bid</Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </Card>
       </main>
     </div>
