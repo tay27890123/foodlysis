@@ -16,9 +16,11 @@ import {
   getChoroplethColor,
   getLayerMetricLabel,
   WEATHER_RISK_CONFIG,
+  FOOD_CATEGORIES,
   type DataLayer,
   type StateMetrics,
   type WeatherRisk,
+  type FoodCategory,
 } from "@/services/stateLevelData";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -30,7 +32,7 @@ const statusIcon: Record<StateStatus, React.ElementType> = {
 };
 
 const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; description: string }[] = [
-  { id: "production", label: "Agri Production", icon: BarChart3, description: "Crop volume (tonnes)" },
+  { id: "production", label: "Food Supply", icon: BarChart3, description: "Full supply system (all categories)" },
   { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Price index hotspots" },
   { id: "surplus", label: "Surplus Listings", icon: ShoppingCart, description: "Marketplace availability" },
   { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level" },
@@ -288,10 +290,49 @@ function StateDashboard({ selected, activeLayer, states, onSelect }: {
                   </div>
                 )}
 
-                {/* Production vs Demand bars */}
+                {/* Category Breakdown */}
+                <div className="space-y-1.5">
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider mb-1">Supply by Category</p>
+                  {FOOD_CATEGORIES.map(({ id: catId, label, icon }) => {
+                    const c = selected.categories[catId];
+                    const catMax = Math.max(c.production, c.demand, 1);
+                    const ratio = c.demand > 0 ? c.production / c.demand : 1;
+                    const statusLabel = ratio >= 1.3 ? "Surplus" : ratio >= 0.9 ? "Balanced" : ratio >= 0.7 ? "Warning" : "Deficit";
+                    const statusColor = ratio >= 1.3 ? "text-primary" : ratio >= 0.9 ? "text-blue-400" : ratio >= 0.7 ? "text-secondary" : "text-destructive";
+                    return (
+                      <div key={catId} className="rounded-md border border-border/30 bg-muted/10 p-2">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-medium flex items-center gap-1.5">
+                            <span className="text-sm">{icon}</span> {label}
+                          </span>
+                          <span className={`text-[10px] font-bold ${statusColor}`}>{statusLabel}</span>
+                        </div>
+                        <div className="flex gap-1 h-1.5">
+                          <div className="flex-1 rounded-full bg-muted overflow-hidden" title={`Production: ${c.production}t`}>
+                            <motion.div className="h-full rounded-full bg-primary" initial={{ width: 0 }} animate={{ width: `${(c.production / catMax) * 100}%` }} transition={{ duration: 0.4 }} />
+                          </div>
+                          <div className="flex-1 rounded-full bg-muted overflow-hidden" title={`Demand: ${c.demand}t`}>
+                            <motion.div className="h-full rounded-full bg-destructive" initial={{ width: 0 }} animate={{ width: `${(c.demand / catMax) * 100}%` }} transition={{ duration: 0.4 }} />
+                          </div>
+                        </div>
+                        <div className="flex justify-between text-[9px] text-muted-foreground mt-0.5">
+                          <span>Prod: {c.production.toLocaleString()}t</span>
+                          <span>Dem: {c.demand.toLocaleString()}t</span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div className="flex items-center gap-3 text-[9px] text-muted-foreground pt-1">
+                    <span className="flex items-center gap-1"><span className="h-1.5 w-3 rounded-full bg-primary inline-block" /> Production</span>
+                    <span className="flex items-center gap-1"><span className="h-1.5 w-3 rounded-full bg-destructive inline-block" /> Demand</span>
+                  </div>
+                </div>
+
+                {/* Production vs Demand bars (total) */}
                 <div className="space-y-2">
-                  <BarRow label="Production" value={selected.production} max={Math.max(selected.production, selected.demand)} color="bg-primary" />
-                  <BarRow label="Demand" value={selected.demand} max={Math.max(selected.production, selected.demand)} color="bg-destructive" />
+                  <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Total Supply vs Demand</p>
+                  <BarRow label="Total Production" value={selected.production} max={Math.max(selected.production, selected.demand)} color="bg-primary" />
+                  <BarRow label="Total Demand" value={selected.demand} max={Math.max(selected.production, selected.demand)} color="bg-destructive" />
                 </div>
 
                 {/* Net balance */}
