@@ -164,9 +164,17 @@ const Match = () => {
         </motion.div>
 
         <div className="flex items-center justify-between mb-5">
-          <p className="text-sm text-muted-foreground">
-            Showing <span className="font-medium text-foreground">{filtered.length}</span> listing{filtered.length !== 1 ? "s" : ""}
-          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-sm text-muted-foreground">
+              Showing <span className="font-medium text-foreground">{filtered.length}</span> listing{filtered.length !== 1 ? "s" : ""}
+            </p>
+            {stateFilter && (
+              <Badge variant="outline" className="gap-1 text-xs">
+                <MapPin className="h-3 w-3" /> {stateFilter}
+                <button onClick={() => setStateFilter("")} className="ml-1 hover:text-destructive"><X className="h-3 w-3" /></button>
+              </Badge>
+            )}
+          </div>
           {hasFilters && (
             <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs gap-1">
               <X className="h-3 w-3" /> Clear filters
