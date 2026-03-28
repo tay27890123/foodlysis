@@ -13,6 +13,7 @@ import {
   getChoroplethValue,
   getChoroplethColor,
   getLayerMetricLabel,
+  getLayerSummaryCards,
   FOOD_CATEGORIES,
   type DataLayer,
   type StateMetrics,
