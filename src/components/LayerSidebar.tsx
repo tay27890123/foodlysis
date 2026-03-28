@@ -14,7 +14,19 @@ import {
   type DataLayer,
   type StateMetrics,
   type FoodCategory,
+  type CategoryData,
 } from "@/services/stateLevelData";
+
+const DEFAULT_CAT: CategoryData = { production: 0, demand: 0, cpiIndex: 100, cpiChange: 0, ssl: 0 };
+
+function safeCategories(state: StateMetrics): Record<FoodCategory, CategoryData> {
+  if (!state.categories) {
+    const empty = {} as Record<FoodCategory, CategoryData>;
+    for (const c of FOOD_CATEGORIES) empty[c.id] = DEFAULT_CAT;
+    return empty;
+  }
+  return state.categories;
+}
 import { supabase } from "@/integrations/supabase/client";
 
 interface LayerSidebarProps {
