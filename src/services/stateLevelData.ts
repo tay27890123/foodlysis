@@ -4,24 +4,44 @@ const BASE_URL = "https://api.data.gov.my/opendosm/";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-export type DataLayer = "production" | "cpi" | "surplus" | "ssl" | "weather";
+export type DataLayer = "foodSupply" | "cpi" | "surplus" | "ssl" | "weather";
 
 export type WeatherRisk = "normal" | "advisory" | "warning" | "danger";
+
+export type FoodCategory = "crops" | "livestock" | "fisheries" | "dairy" | "fruitsVeg" | "processed";
+
+export interface CategoryData {
+  production: number;   // tonnes
+  demand: number;       // tonnes
+  cpiIndex: number;
+  cpiChange: number;    // month-on-month %
+  ssl: number;          // self-sufficiency %
+}
 
 export interface StateMetrics {
   id: string;
   name: string;
-  production: number;        // tonnes
-  demand: number;             // tonnes
-  cpiIndex: number;           // CPI food index value
-  cpiChange: number;          // month-on-month % change
-  surplusListings: number;    // marketplace surplus items
+  production: number;        // total tonnes
+  demand: number;            // total tonnes
+  cpiIndex: number;          // aggregate CPI food index
+  cpiChange: number;         // month-on-month % change
+  surplusListings: number;   // marketplace surplus items
   mainCrops: string[];
   notes: string;
   status: StateStatus;
   weatherRisk: WeatherRisk;
   weatherLabel: string;
+  categories: Record<FoodCategory, CategoryData>;
 }
+
+export const FOOD_CATEGORIES: { id: FoodCategory; label: string; icon: string; color: string }[] = [
+  { id: "crops", label: "Crops & Grains", icon: "🌾", color: "hsl(45 80% 55%)" },
+  { id: "livestock", label: "Livestock & Poultry", icon: "🐄", color: "hsl(15 70% 50%)" },
+  { id: "fisheries", label: "Fisheries & Aquaculture", icon: "🐟", color: "hsl(200 70% 50%)" },
+  { id: "dairy", label: "Dairy & Eggs", icon: "🥛", color: "hsl(30 60% 60%)" },
+  { id: "fruitsVeg", label: "Fruits & Vegetables", icon: "🥬", color: "hsl(130 60% 45%)" },
+  { id: "processed", label: "Processed Food", icon: "🏭", color: "hsl(270 50% 55%)" },
+];
 
 interface CropRecord {
   date: string;
@@ -51,9 +71,41 @@ const STATE_ID_MAP: Record<string, string> = {
   "W.P. Labuan": "labuan",
 };
 
+// ── Category data generator (realistic simulated values) ───────────────────
+
+function generateCategories(totalProd: number, totalDemand: number, cpiBase: number, cpiChange: number, profile: "agri" | "urban" | "coastal" | "mixed"): Record<FoodCategory, CategoryData> {
+  // Distribution ratios vary by state profile
+  const dist: Record<string, Record<FoodCategory, [number, number]>> = {
+    agri:    { crops: [0.40, 0.25], livestock: [0.20, 0.20], fisheries: [0.08, 0.12], dairy: [0.07, 0.13], fruitsVeg: [0.18, 0.15], processed: [0.07, 0.15] },
+    urban:   { crops: [0.05, 0.20], livestock: [0.15, 0.25], fisheries: [0.05, 0.12], dairy: [0.08, 0.15], fruitsVeg: [0.12, 0.13], processed: [0.55, 0.15] },
+    coastal: { crops: [0.15, 0.20], livestock: [0.10, 0.18], fisheries: [0.40, 0.20], dairy: [0.05, 0.12], fruitsVeg: [0.15, 0.15], processed: [0.15, 0.15] },
+    mixed:   { crops: [0.25, 0.22], livestock: [0.20, 0.20], fisheries: [0.15, 0.15], dairy: [0.08, 0.13], fruitsVeg: [0.20, 0.15], processed: [0.12, 0.15] },
+  };
+  const d = dist[profile];
+  const cpiOffsets: Record<FoodCategory, number> = { crops: -2.1, livestock: 1.8, fisheries: 0.5, dairy: 3.2, fruitsVeg: -1.5, processed: 2.0 };
+  const changeOffsets: Record<FoodCategory, number> = { crops: -0.3, livestock: 0.5, fisheries: 0.2, dairy: 0.8, fruitsVeg: -0.5, processed: 0.3 };
+
+  const result = {} as Record<FoodCategory, CategoryData>;
+  for (const cat of FOOD_CATEGORIES) {
+    const [prodRatio, demRatio] = d[cat.id];
+    const prod = Math.round(totalProd * prodRatio);
+    const dem = Math.round(totalDemand * demRatio);
+    const cpi = +(cpiBase + cpiOffsets[cat.id]).toFixed(1);
+    const change = +(cpiChange + changeOffsets[cat.id]).toFixed(1);
+    result[cat.id] = { production: prod, demand: dem, cpiIndex: cpi, cpiChange: change, ssl: dem > 0 ? +((prod / dem) * 100).toFixed(1) : 0 };
+  }
+  return result;
+}
+
 // ── Fallback / mock data ───────────────────────────────────────────────────────
 
-const MOCK_STATE_DATA: StateMetrics[] = [
+const PROFILES: Record<string, "agri" | "urban" | "coastal" | "mixed"> = {
+  perlis: "agri", kedah: "agri", penang: "urban", perak: "mixed", kelantan: "coastal",
+  terengganu: "coastal", pahang: "agri", selangor: "urban", kl: "urban",
+  negeriSembilan: "mixed", melaka: "coastal", johor: "mixed", sabah: "mixed", sarawak: "agri", labuan: "coastal",
+};
+
+const MOCK_BASE: Omit<StateMetrics, "categories">[] = [
   { id: "perlis", name: "Perlis", production: 320, demand: 300, cpiIndex: 132.1, cpiChange: 0.3, surplusListings: 4, mainCrops: ["Rice", "Sugar Cane"], notes: "Stable rice output.", status: "balanced", weatherRisk: "normal", weatherLabel: "Clear skies" },
   { id: "kedah", name: "Kedah", production: 4800, demand: 2900, cpiIndex: 128.4, cpiChange: -0.1, surplusListings: 23, mainCrops: ["Rice", "Rubber"], notes: "Major rice bowl — surplus exported.", status: "surplus", weatherRisk: "advisory", weatherLabel: "Thunderstorm advisory" },
   { id: "penang", name: "Penang", production: 280, demand: 1200, cpiIndex: 138.7, cpiChange: 1.8, surplusListings: 2, mainCrops: ["Vegetables"], notes: "High urban demand outstrips local production.", status: "shortage", weatherRisk: "normal", weatherLabel: "Partly cloudy" },
@@ -71,6 +123,11 @@ const MOCK_STATE_DATA: StateMetrics[] = [
   { id: "labuan", name: "Labuan", production: 30, demand: 120, cpiIndex: 137.4, cpiChange: 1.9, surplusListings: 0, mainCrops: [], notes: "Island territory — fully import-dependent.", status: "shortage", weatherRisk: "normal", weatherLabel: "Clear skies" },
 ];
 
+const MOCK_STATE_DATA: StateMetrics[] = MOCK_BASE.map((s) => ({
+  ...s,
+  categories: generateCategories(s.production, s.demand, s.cpiIndex, s.cpiChange, PROFILES[s.id] || "mixed"),
+}));
+
 // ── Fetch state-level crop data ────────────────────────────────────────────────
 
 async function fetchStateCrops(): Promise<Map<string, number>> {
@@ -79,7 +136,6 @@ async function fetchStateCrops(): Promise<Map<string, number>> {
       `${BASE_URL}?id=crops_state&limit=200&sort=-date`
     ).then((r) => r.ok ? r.json() as Promise<CropRecord[]> : Promise.reject());
 
-    // Get latest year
     const years = [...new Set(data.map((r) => r.date))].sort().reverse();
     const latestYear = years[0];
     const latestData = data.filter((r) => r.date === latestYear && r.state !== "Malaysia");
@@ -101,12 +157,10 @@ async function fetchStateCrops(): Promise<Map<string, number>> {
 export async function fetchStateMetrics(): Promise<StateMetrics[]> {
   const liveProduction = await fetchStateCrops();
 
-  // Merge live data into mock base
   return MOCK_STATE_DATA.map((state) => {
     const liveProd = liveProduction.get(state.id);
-    const production = liveProd ? Math.round(liveProd / 1000) : state.production; // convert to approx tonnes
+    const production = liveProd ? Math.round(liveProd / 1000) : state.production;
 
-    // Recalculate status based on live data
     const ratio = production / state.demand;
     let status: StateStatus = state.status;
     if (liveProd) {
@@ -116,7 +170,6 @@ export async function fetchStateMetrics(): Promise<StateMetrics[]> {
       else status = "shortage";
     }
 
-    // Determine status from CPI for warning zones
     if (state.cpiChange > 2.0 && status !== "shortage") {
       status = "warning";
     }
@@ -131,7 +184,7 @@ const WEATHER_RISK_VALUE: Record<WeatherRisk, number> = { normal: 0, advisory: 1
 
 export function getChoroplethValue(state: StateMetrics, layer: DataLayer): number {
   switch (layer) {
-    case "production":
+    case "foodSupply":
       return state.production;
     case "cpi":
       return state.cpiIndex;
@@ -148,7 +201,7 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
   const t = max === min ? 0.5 : (value - min) / (max - min);
 
   switch (layer) {
-    case "production": {
+    case "foodSupply": {
       const l = 20 + t * 30;
       const s = 40 + t * 25;
       return {
@@ -178,7 +231,6 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
       };
     }
     case "weather": {
-      // 0=normal(green), 1=advisory(blue), 2=warning(amber), 3=danger(red)
       const hues = [152, 210, 40, 0];
       const idx = Math.round(value);
       const hue = hues[Math.min(idx, 3)];
@@ -193,7 +245,7 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
 
 export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): string {
   switch (layer) {
-    case "production":
+    case "foodSupply":
       return `${state.production.toLocaleString()} t`;
     case "cpi":
       return `CPI ${state.cpiIndex.toFixed(1)} (${state.cpiChange >= 0 ? "+" : ""}${state.cpiChange.toFixed(1)}%)`;
