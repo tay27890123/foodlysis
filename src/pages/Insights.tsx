@@ -8,17 +8,19 @@ import Navbar from "@/components/Navbar";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllInsights, type DynamicInsight } from "@/services/openDOSM";
 
-const categoryConfig = {
+const categoryConfig: Record<string, { icon: typeof BarChart3; className: string }> = {
   Price: { icon: BarChart3, className: "bg-primary/20 text-primary border-primary/30" },
   Supply: { icon: Truck, className: "bg-accent/20 text-accent border-accent/30" },
   Import: { icon: ShoppingCart, className: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
   Weather: { icon: CloudRain, className: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
+  PriceCatcher: { icon: ShoppingCart, className: "bg-teal-500/20 text-teal-400 border-teal-500/30" },
 };
 
-const statusConfig = {
+const statusConfig: Record<string, { icon: typeof TrendingUp; className: string; label: string; dot: string; pulse?: boolean }> = {
   Normal: { icon: TrendingUp, className: "text-primary", label: "Normal", dot: "bg-primary" },
   Warning: { icon: TrendingDown, className: "text-accent", label: "Warning", dot: "bg-accent" },
   Critical: { icon: AlertTriangle, className: "text-destructive", label: "Critical", dot: "bg-destructive" },
+  Live: { icon: TrendingUp, className: "text-emerald-400", label: "Live", dot: "bg-emerald-400", pulse: true },
 };
 
 const InsightCard = ({ item, index }: { item: DynamicInsight; index: number }) => {
@@ -40,7 +42,7 @@ const InsightCard = ({ item, index }: { item: DynamicInsight; index: number }) =
               {item.category}
             </Badge>
             <div className="flex items-center gap-1.5">
-              <span className={`h-2 w-2 rounded-full ${stat.dot}`} />
+              <span className={`h-2 w-2 rounded-full ${stat.dot} ${stat.pulse ? "animate-pulse" : ""}`} />
               <span className={`text-xs font-medium ${stat.className}`}>{stat.label}</span>
             </div>
           </div>
@@ -97,10 +99,14 @@ const Insights = () => {
                 Live market intelligence powered by{" "}
                 <a href="https://open.dosm.gov.my" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
                   OpenDOSM
-                </a>{" "}
-                &amp;{" "}
+                </a>
+                ,{" "}
                 <a href="https://data.gov.my" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
                   data.gov.my
+                </a>{" "}
+                &amp;{" "}
+                <a href="https://www.kpdn.gov.my" target="_blank" rel="noopener noreferrer" className="text-teal-400 underline underline-offset-2 hover:text-teal-300">
+                  PriceCatcher (KPDN)
                 </a>
               </p>
             </div>
