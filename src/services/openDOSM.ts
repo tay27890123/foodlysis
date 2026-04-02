@@ -205,7 +205,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
     insights.push({
       id: "crop-production-buyer",
       title: change < 0 ? "Local Supply Shrinking — Act Early" : "Abundant Local Supply",
-      description: `Agricultural output ${change < 0 ? "declined" : "grew"} ${Math.abs(change).toFixed(1)}% to ${(totalNow / 1e6).toFixed(1)}M tonnes. ${change < 0 ? "Reduced production may lead to price hikes — secure supply early." : "Good availability and potential for better prices from local farmers."}`,
+      description: `Agricultural output ${change < 0 ? "declined" : "grew"} ${Math.abs(change).toFixed(1)}% to ${(totalNow / 1e3).toLocaleString()} kg. ${change < 0 ? "Reduced production may lead to price hikes — secure supply early." : "Good availability and potential for better prices from local farmers."}`,
       category: "Buyer",
       timestamp: `Data as of ${years[0].slice(0, 4)}`,
       status: change < -5 ? "Critical" : change < 0 ? "Warning" : "Normal",
