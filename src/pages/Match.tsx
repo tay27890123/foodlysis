@@ -6,13 +6,23 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Leaf, ArrowLeft, Search, MapPin, Weight,
-  Tag, SlidersHorizontal, X, Package, Navigation, ShoppingCart, Store
+  Tag, SlidersHorizontal, X, Package, Navigation, ShoppingCart, Store,
+  Pencil, Trash2, MoreVertical
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
 import { useUserLocation, haversineDistance } from "@/hooks/useUserLocation";
 import AddListingModal from "@/components/AddListingModal";
 import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type Category = "All" | "Vegetables" | "Fruits" | "Grains" | "Seafood" | "Poultry" | "Dairy" | "Other";
 
