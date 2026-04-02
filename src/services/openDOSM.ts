@@ -322,6 +322,7 @@ export async function fetchAllInsights(): Promise<DynamicInsight[]> {
     title: "Best Deals Right Now",
     description: "Grade A Tomatoes in Pahang at RM 3.50/kg (−12% from yesterday). Kangkung in Selangor at RM 2.80/kg. Favourable buying conditions detected across multiple categories.",
     category: "Buyer",
+    topic: "Marketplace",
     timestamp: "Updated today",
     status: "Live",
     source: "Marketplace Data",
