@@ -185,11 +185,7 @@ const Match = () => {
                 <Package className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
                 <h3 className="font-display text-lg font-semibold mb-1">No active surplus listings right now</h3>
                 <p className="text-sm text-muted-foreground mb-4">Be the first to list!</p>
-                {!user ? (
-                  <Link to="/auth">
-                    <Button size="sm">Sign in to post</Button>
-                  </Link>
-                ) : hasFilters ? (
+                {hasFilters ? (
                   <Button variant="outline" size="sm" onClick={clearFilters}>Clear all filters</Button>
                 ) : null}
               </motion.div>
