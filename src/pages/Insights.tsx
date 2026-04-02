@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw, ExternalLink, Loader2, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllInsights, type DynamicInsight } from "@/services/openDOSM";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const categoryConfig: Record<string, { icon: typeof Store; className: string }> = {
   Seller: { icon: Store, className: "bg-primary/20 text-primary border-primary/30" },
@@ -78,8 +79,22 @@ const Insights = () => {
     retry: 2,
   });
 
-  const sellerInsights = useMemo(() => insights?.filter(i => i.category === "Seller") ?? [], [insights]);
-  const buyerInsights = useMemo(() => insights?.filter(i => i.category === "Buyer") ?? [], [insights]);
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!insights) return [];
+    if (!search.trim()) return insights;
+    const q = search.toLowerCase();
+    return insights.filter(i =>
+      i.title.toLowerCase().includes(q) ||
+      i.description.toLowerCase().includes(q) ||
+      i.value?.toLowerCase().includes(q) ||
+      i.source.toLowerCase().includes(q)
+    );
+  }, [insights, search]);
+
+  const sellerInsights = useMemo(() => filtered.filter(i => i.category === "Seller"), [filtered]);
+  const buyerInsights = useMemo(() => filtered.filter(i => i.category === "Buyer"), [filtered]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -111,6 +126,22 @@ const Insights = () => {
               Refresh
             </Button>
           </div>
+
+          {/* Search bar */}
+          <div className="relative mt-4 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search insights… e.g. CPI, chicken, export"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 pr-9 bg-card/60 border-border/50"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </motion.div>
 
         {isLoading && (
@@ -130,7 +161,7 @@ const Insights = () => {
           </div>
         )}
 
-        {insights && insights.length > 0 && (
+        {insights && filtered.length > 0 && (
           <div className="space-y-10">
             {/* Seller Section */}
             <section>
@@ -180,9 +211,13 @@ const Insights = () => {
           </div>
         )}
 
-        {insights && insights.length === 0 && (
+        {insights && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
-            <p>No insights available at the moment.</p>
+            <Search className="mb-4 h-8 w-8 text-muted-foreground/40" />
+            <p>{search ? `No insights matching "${search}"` : "No insights available at the moment."}</p>
+            {search && (
+              <Button variant="outline" size="sm" className="mt-3" onClick={() => setSearch("")}>Clear search</Button>
+            )}
           </div>
         )}
       </div>
