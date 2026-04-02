@@ -57,14 +57,14 @@ const Navbar = () => {
               <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
                 <Button variant="outline" className="w-full" size="sm">Market</Button>
               </Link>
-              <Link to="/insights" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full" size="sm">Insights</Button>
-              </Link>
               <Link to="/food-map" onClick={() => setMobileOpen(false)}>
                 <Button variant="outline" className="w-full" size="sm">Food Map</Button>
               </Link>
               <Link to="/logistics" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full" size="sm">Logistics</Button>
+                <Button variant="outline" className="w-full" size="sm">Logistics</Button>
+              </Link>
+              <Link to="/insights" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full gap-1.5" size="sm">Insights <Lock className="h-3 w-3" /></Button>
               </Link>
             </div>
           </motion.div>
