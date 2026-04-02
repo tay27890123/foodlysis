@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Map, CloudRain, Thermometer, Wind, Eye, AlertTriangle, CheckCircle, Clock, Truck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useMapZoomPan } from "@/hooks/useMapZoomPan";
+import ZoomControls from "@/components/ZoomControls";
 
 type RouteStatus = "clear" | "rain-delay" | "traffic-delay" | "severe";
 
