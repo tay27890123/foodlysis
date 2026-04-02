@@ -179,8 +179,10 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
 
   return (
     <div className="relative w-full">
+      <ZoomControls onZoomIn={zoomIn} onZoomOut={zoomOut} onReset={reset} scale={zoomState.scale} />
       {/* Two-panel layout: West (55%) + East (45%) */}
-      <div className="flex items-center w-full gap-4" style={{ maxHeight: "380px" }}>
+      <div {...containerProps} className="flex items-center w-full gap-4 overflow-hidden select-none" style={{ maxHeight: "380px" }}>
+        <div style={transformStyle} className="flex items-center w-full gap-4">
         {/* Peninsular Malaysia */}
         <div className="flex-[55] relative">
           <ComposableMap
