@@ -1,11 +1,12 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw, ExternalLink, Loader2, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllInsights, type DynamicInsight } from "@/services/openDOSM";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 
 const categoryConfig: Record<string, { icon: typeof Store; className: string }> = {
   Seller: { icon: Store, className: "bg-primary/20 text-primary border-primary/30" },
