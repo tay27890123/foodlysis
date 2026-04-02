@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import { useMapZoomPan } from "@/hooks/useMapZoomPan";
+import ZoomControls from "@/components/ZoomControls";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { motion, AnimatePresence } from "framer-motion";
 
