@@ -46,11 +46,16 @@ const InsightCard = ({ item, index }: { item: DynamicInsight; index: number }) =
       <Card className="group h-full border-border/50 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
-            <Badge variant="outline" className={cat.className}>
-              <CatIcon className="mr-1 h-3 w-3" />
-              {item.category}
-            </Badge>
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="outline" className={cat.className}>
+                <CatIcon className="mr-1 h-3 w-3" />
+                {item.category}
+              </Badge>
+              <Badge variant="outline" className={topicStyles[item.topic] ?? "bg-muted/20 text-muted-foreground border-border/30"}>
+                {item.topic}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
               <span className={`h-2 w-2 rounded-full ${stat.dot} ${stat.pulse ? "animate-pulse" : ""}`} />
               <span className={`text-xs font-medium ${stat.className}`}>{stat.label}</span>
             </div>
