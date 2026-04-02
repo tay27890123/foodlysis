@@ -141,18 +141,6 @@ const Insights = () => {
                 <X className="h-4 w-4" />
               </button>
             )}
-              </p>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => refetch()}
-              disabled={isFetching}
-              className="shrink-0"
-            >
-              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
-              Refresh
-            </Button>
           </div>
         </motion.div>
 
