@@ -8,7 +8,7 @@ import {
   Tag, SlidersHorizontal, X, LogIn, Package
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
+import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
 import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
 import AddListingModal from "@/components/AddListingModal";
 import { useQueryClient } from "@tanstack/react-query";
