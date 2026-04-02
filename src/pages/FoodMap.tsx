@@ -77,7 +77,7 @@ const FoodMap = () => {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
           <h1 className="font-display text-2xl md:text-3xl font-bold flex items-center gap-3">
             <MapPin className="h-7 w-7 text-primary" />
-            Food Security Command Center
+            Food Data Map
           </h1>
           <div className="mt-1 flex flex-wrap items-center gap-3">
             <p className="text-sm text-muted-foreground">Interactive food supply intelligence — click any state for category-level analysis.</p>
