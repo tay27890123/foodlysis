@@ -1,6 +1,4 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Leaf, ArrowLeft, Truck, AlertTriangle, CheckCircle, Package } from "lucide-react";
+import { Truck, AlertTriangle, CheckCircle, Package } from "lucide-react";
 import { motion } from "framer-motion";
 import WeatherImpact from "@/components/WeatherImpact";
 import RouteStatusMap from "@/components/RouteStatusMap";
@@ -13,23 +11,7 @@ const stats = [
 ];
 
 const LogisticsDashboard = () => (
-  <div className="min-h-screen bg-background">
-    <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-50">
-      <div className="container flex h-14 items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Link to="/">
-            <Button variant="ghost" size="sm" className="gap-2">
-              <ArrowLeft className="h-4 w-4" /> Back
-            </Button>
-          </Link>
-          <div className="flex items-center gap-2">
-            <Leaf className="h-5 w-5 text-primary" />
-            <span className="font-display font-bold">Foodlysis</span>
-            <span className="text-muted-foreground text-sm">/ Logistics</span>
-          </div>
-        </div>
-      </div>
-    </header>
+  <div className="min-h-screen bg-background pt-20">
 
     <main className="container py-8">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">

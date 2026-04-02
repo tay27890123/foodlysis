@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import { MapPin, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock, Percent, CloudRain } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import Navbar from "@/components/Navbar";
 import MalaysiaMap, { statusColors, type StateData, type StateStatus, type ChoroplethColors } from "@/components/MalaysiaMap";
 import LayerSidebar from "@/components/LayerSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -74,7 +73,6 @@ const FoodMap = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       <div className="pt-20 px-4 pb-8 max-w-[1600px] mx-auto">
         {/* Header */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-5">

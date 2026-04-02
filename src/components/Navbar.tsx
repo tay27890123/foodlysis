@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown } from "lucide-react";
+import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown, ArrowLeft } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,7 +16,7 @@ const marketItems: DropdownItem[] = [
 
 const dataItems: DropdownItem[] = [
   { label: "Food Map", to: "/food-map" },
-  { label: "Logistics", to: "/logistics" },
+  { label: "Smart Route", to: "/logistics" },
   { label: "Insights", to: "/insights" },
 ];
 
@@ -72,18 +72,28 @@ const NavDropdown = ({ label, icon: Icon, items }: { label: string; icon: React.
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isLanding = location.pathname === "/";
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary glow-primary">
-            <Leaf className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-xl font-bold tracking-tight">
-            Food<span className="text-primary">lysis</span>
-          </span>
-        </Link>
+        <div className="flex items-center gap-3">
+          {!isLanding && (
+            <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => navigate(-1)}>
+              <ArrowLeft className="h-4 w-4" /> Back
+            </Button>
+          )}
+          <Link to="/" className="flex items-center gap-2">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary glow-primary">
+              <Leaf className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-display text-xl font-bold tracking-tight">
+              Food<span className="text-primary">lysis</span>
+            </span>
+          </Link>
+        </div>
 
         <div className="hidden md:flex items-center gap-3">
           <NavDropdown label="Global Market" icon={ShoppingBag} items={marketItems} />

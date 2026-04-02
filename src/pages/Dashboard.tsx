@@ -63,45 +63,7 @@ const Dashboard = () => {
   const queryClient = useQueryClient();
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border/50 bg-background/80 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container flex h-14 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="ghost" size="sm" className="gap-2">
-                <ArrowLeft className="h-4 w-4" /> Back
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <Leaf className="h-5 w-5 text-primary" />
-              <span className="font-display font-bold">Foodlysis</span>
-              <span className="text-muted-foreground text-sm">/ Dashboard</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {user ? (
-              <>
-                {profile && (
-                  <Badge variant="outline" className="text-xs">
-                    {profile.role === "supplier" ? "🌾" : "🛒"} {profile.business_name}
-                  </Badge>
-                )}
-                {profile?.role === "supplier" && (
-                  <AddListingModal onSuccess={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
-                )}
-                <Button variant="outline" size="sm" onClick={signOut}>Sign Out</Button>
-              </>
-            ) : (
-              <Link to="/auth">
-                <Button size="sm" className="gap-2">
-                  <LogIn className="h-4 w-4" /> Sign In
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-background pt-20">
 
       <main className="container py-8">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">

@@ -1,10 +1,8 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, AlertTriangle, CloudRain, ShoppingCart, Truck, BarChart3, ArrowLeft, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { TrendingUp, TrendingDown, AlertTriangle, CloudRain, ShoppingCart, Truck, BarChart3, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Navbar from "@/components/Navbar";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllInsights, type DynamicInsight } from "@/services/openDOSM";
 
@@ -84,14 +82,8 @@ const Insights = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
       <div className="container pt-24 pb-16">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
-          <Link to="/">
-            <Button variant="ghost" size="sm" className="mb-4 text-muted-foreground">
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back
-            </Button>
-          </Link>
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="font-display text-3xl font-bold"><h1 className="font-display text-3xl font-bold">Malaysia Market Insights</h1></h1>
