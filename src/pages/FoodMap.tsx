@@ -26,11 +26,11 @@ const statusIcon: Record<StateStatus, React.ElementType> = {
   shortage: BarChart3,
 };
 
-const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; description: string }[] = [
-  { id: "foodSupply", label: "Food Supply", icon: BarChart3, description: "Full supply-demand by category" },
-  { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Consumer Price Index & inflation" },
-  { id: "ppi", label: "Food PPI", icon: Percent, description: "Producer Price Index" },
-  { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level" },
+const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; description: string; definition: string }[] = [
+  { id: "foodSupply", label: "Food Supply", icon: BarChart3, description: "Supply vs Demand", definition: "Shows the balance between food production and consumption for each state. Green means surplus (producing more than needed), red means shortage. Covers key categories like rice, vegetables, fruits, poultry, and fisheries." },
+  { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Consumer Prices", definition: "Consumer Price Index tracks the average price consumers pay for food items. A higher CPI means food is getting more expensive. Values above 105 signal inflation pressure on household budgets." },
+  { id: "ppi", label: "Food PPI", icon: Percent, description: "Producer Prices", definition: "Producer Price Index measures prices received by farmers and food producers. Comparing PPI with CPI reveals the middleman margin — a large gap means producers earn less while consumers pay more." },
+  { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency", definition: "Self-Sufficiency Level shows what percentage of food demand a state can meet with its own production. 100% means fully self-sufficient. Below 60% indicates heavy reliance on imports or other states." },
 ];
 
 const FoodMap = () => {
