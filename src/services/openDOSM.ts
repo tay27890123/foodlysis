@@ -283,6 +283,7 @@ async function fetchIPI(): Promise<DynamicInsight[]> {
       title: growth > 0 ? "Processing Capacity Expanding" : "Processing Capacity Shrinking",
       description: `Industrial Production Index grew ${growth.toFixed(1)}% YoY. ${growth > 0 ? "More processing facilities active — good for sellers of raw ingredients to food manufacturers." : "Reduced industrial activity may slow demand from food processors."}`,
       category: "Seller",
+      topic: "Industry",
       timestamp: `Data as of ${formatDate(latest.date)}`,
       status: growth < 0 ? "Warning" : "Normal",
       source: "OpenDOSM — IPI",
