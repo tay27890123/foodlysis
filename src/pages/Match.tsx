@@ -62,7 +62,7 @@ const useAreaName = (listing: SurplusListing) => {
     if (areaNameCache.has(key)) { setArea(areaNameCache.get(key)!); return; }
 
     let cancelled = false;
-    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10&addressdetails=1`, { headers: { "Accept-Language": "en" } })
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=14&addressdetails=1`, { headers: { "Accept-Language": "en" } })
       .then(r => r.json())
       .then(data => {
         if (cancelled) return;
