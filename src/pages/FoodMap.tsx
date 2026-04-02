@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock, Percent, CloudRain } from "lucide-react";
+import { MapPin, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock, Percent, CloudRain, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import MalaysiaMap, { statusColors, type StateData, type StateStatus, type ChoroplethColors } from "@/components/MalaysiaMap";
@@ -25,11 +25,11 @@ const statusIcon: Record<StateStatus, React.ElementType> = {
   shortage: BarChart3,
 };
 
-const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; description: string }[] = [
-  { id: "foodSupply", label: "Food Supply", icon: BarChart3, description: "Full supply-demand by category" },
-  { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Consumer Price Index & inflation" },
-  { id: "ppi", label: "Food PPI", icon: Percent, description: "Producer Price Index" },
-  { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level" },
+const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; description: string; definition: string }[] = [
+  { id: "foodSupply", label: "Food Supply", icon: BarChart3, description: "Supply vs Demand", definition: "Shows food production output versus consumer demand for each state, broken down by category (rice, vegetables, fruits, protein, dairy). Helps identify which states produce surplus or face shortages." },
+  { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Consumer Price Index", definition: "Consumer Price Index (CPI) measures the average change in prices paid by consumers for food items over time. A rising CPI means food is getting more expensive for everyday buyers." },
+  { id: "ppi", label: "Food PPI", icon: DollarSign, description: "Producer Price Index", definition: "Producer Price Index (PPI) measures the average change in prices received by farmers and food producers. Comparing PPI with CPI reveals middleman margins and supply chain efficiency." },
+  { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level", definition: "Self-Sufficiency Level (SSL) shows the percentage of domestic food demand met by local production. A higher SSL means less reliance on imports and greater food security." },
 ];
 
 const FoodMap = () => {
@@ -93,19 +93,25 @@ const FoodMap = () => {
           {LAYERS.map((layer) => {
             const active = activeLayer === layer.id;
             return (
-              <button
-                key={layer.id}
-                onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
-                className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                  active
-                    ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
-                    : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
-                }`}
-              >
-                <layer.icon className="h-4 w-4" />
-                <span>{layer.label}</span>
-                {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
-              </button>
+              <div key={layer.id} className="relative group">
+                <button
+                  onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
+                  className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
+                    active
+                      ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
+                      : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
+                  }`}
+                >
+                  <layer.icon className="h-4 w-4" />
+                  <span>{layer.label}</span>
+                  {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
+                  <Info className="h-3.5 w-3.5 opacity-40 group-hover:opacity-70 transition-opacity" />
+                </button>
+                <div className="absolute left-0 top-full mt-2 z-50 hidden group-hover:block w-72 rounded-lg border border-border/60 bg-popover p-3 text-xs text-popover-foreground shadow-lg">
+                  <p className="font-semibold mb-1">{layer.label}</p>
+                  <p className="leading-relaxed opacity-80">{layer.definition}</p>
+                </div>
+              </div>
             );
           })}
         </motion.div>
