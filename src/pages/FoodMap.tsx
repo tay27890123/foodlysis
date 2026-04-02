@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock, Percent, CloudRain } from "lucide-react";
+import { MapPin, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock, Percent, CloudRain, Info } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import MalaysiaMap, { statusColors, type StateData, type StateStatus, type ChoroplethColors } from "@/components/MalaysiaMap";
