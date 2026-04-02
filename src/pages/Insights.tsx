@@ -211,9 +211,13 @@ const Insights = () => {
           </div>
         )}
 
-        {insights && insights.length === 0 && (
+        {insights && filtered.length === 0 && (
           <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
-            <p>No insights available at the moment.</p>
+            <Search className="mb-4 h-8 w-8 text-muted-foreground/40" />
+            <p>{search ? `No insights matching "${search}"` : "No insights available at the moment."}</p>
+            {search && (
+              <Button variant="outline" size="sm" className="mt-3" onClick={() => setSearch("")}>Clear search</Button>
+            )}
           </div>
         )}
       </div>
