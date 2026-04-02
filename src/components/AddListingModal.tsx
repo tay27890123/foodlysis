@@ -32,14 +32,6 @@ const AddListingModal = ({ onSuccess }: Props) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error("Please sign in first");
-      return;
-    }
-    if (profile?.role !== "supplier") {
-      toast.error("Only suppliers can post listings");
-      return;
-    }
     setLoading(true);
     try {
       const { error } = await supabase.from("surplus_listings").insert({
