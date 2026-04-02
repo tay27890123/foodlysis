@@ -126,6 +126,34 @@ const Insights = () => {
               Refresh
             </Button>
           </div>
+
+          {/* Search bar */}
+          <div className="relative mt-4 max-w-md">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search insights… e.g. CPI, chicken, export"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9 pr-9 bg-card/60 border-border/50"
+            />
+            {search && (
+              <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+                <X className="h-4 w-4" />
+              </button>
+            )}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => refetch()}
+              disabled={isFetching}
+              className="shrink-0"
+            >
+              <RefreshCw className={`mr-2 h-4 w-4 ${isFetching ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
         </motion.div>
 
         {isLoading && (
