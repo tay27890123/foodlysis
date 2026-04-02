@@ -58,9 +58,8 @@ export default function LayerSidebar({ selected, activeLayer, states, onSelect }
         <motion.div key={`${selected.id}-${activeLayer}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
           {activeLayer === "foodSupply" && <FoodSupplyPanel state={selected} />}
           {activeLayer === "cpi" && <CPIPanel state={selected} />}
+          {activeLayer === "ppi" && <PPIPanel state={selected} />}
           {activeLayer === "ssl" && <SSLPanel state={selected} />}
-          {activeLayer === "weather" && <WeatherPanel state={selected} />}
-          {activeLayer === "surplus" && <SurplusPanel state={selected} />}
         </motion.div>
       </AnimatePresence>
     </div>
@@ -184,6 +183,97 @@ function CPIPanel({ state }: { state: StateMetrics }) {
             {state.cpiChange > 1.5
               ? `${state.name} is experiencing above-average food inflation. ${sorted[0].label} showing highest pressure at +${safeCategories(state)[sorted[0].id].cpiChange.toFixed(1)}% MoM.`
               : `Food prices in ${state.name} remain stable. Overall inflation within acceptable range.`}
+          </p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+/* ── PPI Panel ──────────────────────────────────────────────────────────── */
+
+function PPIPanel({ state }: { state: StateMetrics }) {
+  // Simulate PPI per category based on CPI with offsets
+  const ppiCategories = FOOD_CATEGORIES.map((cat) => {
+    const d = safeCategories(state)[cat.id];
+    // PPI is typically lower than CPI; simulate realistic offsets
+    const ppiOffset: Record<FoodCategory, number> = {
+      crops: -15.2, livestock: -10.5, fisheries: -12.8, dairy: -8.3, fruitsVeg: -14.0, processed: -6.5
+    };
+    const changeOffset: Record<FoodCategory, number> = {
+      crops: 0.5, livestock: -0.3, fisheries: 0.8, dairy: -0.2, fruitsVeg: 1.2, processed: -0.4
+    };
+    const ppi = +(d.cpiIndex + ppiOffset[cat.id]).toFixed(1);
+    const ppiChange = +(d.cpiChange + changeOffset[cat.id]).toFixed(1);
+    const margin = +(d.cpiIndex - ppi).toFixed(1);
+    return { ...cat, ppi, ppiChange, margin };
+  }).sort((a, b) => b.ppiChange - a.ppiChange);
+
+  return (
+    <Card className="border-border/40 bg-card/60 backdrop-blur-sm">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="font-display text-lg">{state.name}</CardTitle>
+          <Badge variant="outline" className="text-xs border-blue-400/60 text-blue-400">PPI {state.ppiIndex.toFixed(1)}</Badge>
+        </div>
+        <p className="text-xs text-muted-foreground">Food Producer Price Index — Farm-gate price trends</p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {/* Aggregate PPI */}
+        <div className="rounded-lg border border-border/40 bg-muted/20 p-3 text-center">
+          <p className="text-xs text-muted-foreground">Aggregate Food PPI</p>
+          <p className="text-2xl font-bold text-foreground">{state.ppiIndex.toFixed(1)}</p>
+          <p className={`text-sm font-semibold ${state.ppiChange > 0 ? "text-destructive" : "text-primary"}`}>
+            {state.ppiChange >= 0 ? "▲" : "▼"} {Math.abs(state.ppiChange).toFixed(1)}% MoM
+          </p>
+        </div>
+
+        {/* CPI vs PPI comparison */}
+        <div className="grid grid-cols-2 gap-2">
+          <div className="rounded-md border border-border/30 bg-muted/20 p-2 text-center">
+            <p className="text-[10px] text-muted-foreground">CPI (Consumer)</p>
+            <p className="text-sm font-bold text-foreground">{state.cpiIndex.toFixed(1)}</p>
+          </div>
+          <div className="rounded-md border border-border/30 bg-muted/20 p-2 text-center">
+            <p className="text-[10px] text-muted-foreground">PPI (Producer)</p>
+            <p className="text-sm font-bold text-blue-400">{state.ppiIndex.toFixed(1)}</p>
+          </div>
+          <div className="col-span-2 rounded-md border border-border/30 bg-muted/20 p-2 text-center">
+            <p className="text-[10px] text-muted-foreground">CPI-PPI Spread (Middleman Margin)</p>
+            <p className="text-sm font-bold text-secondary">{(state.cpiIndex - state.ppiIndex).toFixed(1)} pts</p>
+          </div>
+        </div>
+
+        {/* Per-category PPI */}
+        <div className="space-y-1">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">Producer Price by Category</p>
+          {ppiCategories.map((cat) => {
+            const isUp = cat.ppiChange > 0;
+            return (
+              <div key={cat.id} className="flex items-center justify-between rounded-md border border-border/30 bg-muted/20 px-2.5 py-1.5">
+                <span className="text-xs flex items-center gap-1.5">
+                  <span>{cat.icon}</span> {cat.label}
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">{cat.ppi.toFixed(1)}</span>
+                  <span className={`text-xs font-bold min-w-[48px] text-right ${isUp ? "text-destructive" : "text-primary"}`}>
+                    {isUp ? "▲" : "▼"}{Math.abs(cat.ppiChange).toFixed(1)}%
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Insight */}
+        <div className="rounded-lg border border-blue-400/30 bg-blue-400/5 p-2.5">
+          <p className="text-xs text-blue-400 font-semibold mb-0.5">🏭 Producer Insight</p>
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            {state.ppiChange > 1.5
+              ? `Producer costs in ${state.name} are rising sharply (+${state.ppiChange.toFixed(1)}% MoM). This may lead to consumer price increases in the coming weeks.`
+              : state.ppiChange < -0.5
+              ? `Farm-gate prices in ${state.name} are declining — favorable for buyers. CPI-PPI spread of ${(state.cpiIndex - state.ppiIndex).toFixed(1)} pts suggests room for consumer price reduction.`
+              : `Producer prices in ${state.name} remain stable. CPI-PPI spread of ${(state.cpiIndex - state.ppiIndex).toFixed(1)} pts indicates normal market conditions.`}
           </p>
         </div>
       </CardContent>
