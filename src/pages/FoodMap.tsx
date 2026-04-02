@@ -93,19 +93,25 @@ const FoodMap = () => {
           {LAYERS.map((layer) => {
             const active = activeLayer === layer.id;
             return (
-              <button
-                key={layer.id}
-                onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
-                className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                  active
-                    ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
-                    : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
-                }`}
-              >
-                <layer.icon className="h-4 w-4" />
-                <span>{layer.label}</span>
-                {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
-              </button>
+              <div key={layer.id} className="relative group">
+                <button
+                  onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
+                  className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
+                    active
+                      ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
+                      : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
+                  }`}
+                >
+                  <layer.icon className="h-4 w-4" />
+                  <span>{layer.label}</span>
+                  {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
+                  <Info className="h-3.5 w-3.5 opacity-40 group-hover:opacity-70 transition-opacity" />
+                </button>
+                <div className="absolute left-0 top-full mt-2 z-50 hidden group-hover:block w-72 rounded-lg border border-border/60 bg-popover p-3 text-xs text-popover-foreground shadow-lg">
+                  <p className="font-semibold mb-1">{layer.label}</p>
+                  <p className="leading-relaxed opacity-80">{layer.definition}</p>
+                </div>
+              </div>
             );
           })}
         </motion.div>
