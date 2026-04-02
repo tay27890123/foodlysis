@@ -1,23 +1,24 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown, ArrowLeft } from "lucide-react";
+import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown, ArrowLeft, Store, TrendingUp, MapPin, Truck, DollarSign } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface DropdownItem {
   label: string;
   to: string;
+  icon: React.ElementType;
 }
 
 const marketItems: DropdownItem[] = [
-  { label: "Marketplace", to: "/match" },
-  { label: "Market", to: "/dashboard" },
+  { label: "Marketplace", icon: Store, to: "/match" },
+  { label: "Market", icon: TrendingUp, to: "/dashboard" },
 ];
 
 const dataItems: DropdownItem[] = [
-  { label: "Food Map", to: "/food-map" },
-  { label: "Smart Route", to: "/logistics" },
-  { label: "Insights", to: "/insights" },
+  { label: "Food Map", icon: MapPin, to: "/food-map" },
+  { label: "Smart Route", icon: Truck, to: "/logistics" },
+  { label: "Insights", icon: DollarSign, to: "/insights" },
 ];
 
 const NavDropdown = ({ label, icon: Icon, items }: { label: string; icon: React.ElementType; items: DropdownItem[] }) => {
@@ -53,16 +54,20 @@ const NavDropdown = ({ label, icon: Icon, items }: { label: string; icon: React.
             transition={{ duration: 0.15 }}
             className="absolute top-full right-0 mt-2 w-48 rounded-lg border border-border/50 bg-background/95 backdrop-blur-xl shadow-lg overflow-hidden z-50"
           >
-            {items.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setOpen(false)}
-                className="block px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {items.map((item) => {
+              const ItemIcon = item.icon;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  <ItemIcon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
           </motion.div>
         )}
       </AnimatePresence>
