@@ -210,7 +210,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
       timestamp: `Data as of ${years[0].slice(0, 4)}`,
       status: change < -5 ? "Critical" : change < 0 ? "Warning" : "Normal",
       source: "OpenDOSM — Crops State",
-      value: `${(totalNow / 1e6).toFixed(1)}M tonnes`,
+      value: `${(totalNow / 1e3).toLocaleString()} kg`,
     });
 
     // Individual crop alerts
