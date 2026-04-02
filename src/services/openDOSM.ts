@@ -136,6 +136,7 @@ async function fetchFoodTrade(): Promise<DynamicInsight[]> {
       title: importChange > 0 ? "More Imported Food Available" : "Imported Food Supply Tightening",
       description: `Food imports ${importChange > 0 ? "rose" : "fell"} ${Math.abs(importChange).toFixed(1)}% to RM${(latest.imports / 1e9).toFixed(1)}B. ${importChange > 0 ? "Greater import volume means more variety and competitive prices for buyers." : "Reduced imports may limit choices — consider local alternatives."}`,
       category: "Buyer",
+      topic: "Import",
       timestamp: `Data as of ${formatDate(latest.date)}`,
       status: importChange < -5 ? "Warning" : "Normal",
       source: "OpenDOSM — Trade SITC",
