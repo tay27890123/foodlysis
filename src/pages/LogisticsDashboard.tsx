@@ -7,7 +7,7 @@ const stats = [
   { label: "Active Shipments", value: "47", icon: Truck, change: "+6 today" },
   { label: "Delayed Routes", value: "3", icon: AlertTriangle, accent: true },
   { label: "On-Time Rate", value: "91%", icon: CheckCircle },
-  { label: "Tonnes In-Transit", value: "128", icon: Package },
+  { label: "kg In-Transit", value: "128,000", icon: Package },
 ];
 
 const LogisticsDashboard = () => (

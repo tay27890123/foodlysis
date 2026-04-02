@@ -238,7 +238,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
           insights.push({
             id: `crop-${crop.crop_type}-seller`,
             title: `${label} Output Surge — List Now`,
-            description: `${label} production surged ${cropChange.toFixed(1)}% to ${(crop.production / 1e3).toFixed(0)}K tonnes. High supply — list surplus quickly to avoid waste and capture value.`,
+            description: `${label} production surged ${cropChange.toFixed(1)}% to ${crop.production.toLocaleString()} kg. High supply — list surplus quickly to avoid waste and capture value.`,
             category: "Seller",
             timestamp: `Data as of ${years[0].slice(0, 4)}`,
             status: "Normal",

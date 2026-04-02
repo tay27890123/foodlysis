@@ -109,8 +109,8 @@ function FoodSupplyPanel({ state }: { state: StateMetrics }) {
                   <div className="h-full bg-primary/70 rounded-l-full" style={{ width: `${Math.min((d.production / Math.max(d.production, d.demand)) * 100, 100)}%` }} />
                 </div>
                 <div className="flex justify-between text-[10px] text-muted-foreground mt-0.5">
-                  <span>Supply: {d.production.toLocaleString()}t</span>
-                  <span>Demand: {d.demand.toLocaleString()}t</span>
+                  <span>Supply: {d.production.toLocaleString()} kg</span>
+                  <span>Demand: {d.demand.toLocaleString()} kg</span>
                 </div>
               </div>
             );
