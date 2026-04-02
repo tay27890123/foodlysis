@@ -150,6 +150,7 @@ async function fetchFoodTrade(): Promise<DynamicInsight[]> {
       title: exportChange > 0 ? "Export Demand Growing" : "Export Demand Weakening",
       description: `Food exports ${exportChange > 0 ? "grew" : "contracted"} ${Math.abs(exportChange).toFixed(1)}% to RM${(latest.exports / 1e9).toFixed(1)}B. ${exportChange > 0 ? "Strong export demand — sellers can explore cross-border opportunities." : "Weaker exports — focus on domestic marketplace for better margins."}`,
       category: "Seller",
+      topic: "Export",
       timestamp: `Data as of ${formatDate(latest.date)}`,
       status: exportChange < -5 ? "Warning" : "Normal",
       source: "OpenDOSM — Trade SITC",
