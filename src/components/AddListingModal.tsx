@@ -1,37 +1,70 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Navigation } from "lucide-react";
+import { Plus, Navigation, Pencil } from "lucide-react";
 import { toast } from "sonner";
+import type { SurplusListing } from "@/hooks/useSurplusListings";
 
 const categories = ["Vegetables", "Fruits", "Grains", "Seafood", "Poultry", "Dairy", "Other"] as const;
 const urgencies = ["Low", "Medium", "High"] as const;
 
 interface Props {
   onSuccess?: () => void;
+  editListing?: SurplusListing | null;
+  trigger?: React.ReactNode;
 }
 
-const AddListingModal = ({ onSuccess }: Props) => {
+const defaultForm = {
+  product_name: "",
+  category: "Vegetables" as string,
+  quantity_kg: "",
+  original_price: "",
+  discounted_price: "",
+  urgency_level: "Medium" as string,
+  location_label: "",
+  location_lat: null as number | null,
+  location_lng: null as number | null,
+};
+
+const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
-  const [form, setForm] = useState({
-    product_name: "",
-    category: "Vegetables" as string,
-    quantity_kg: "",
-    original_price: "",
-    discounted_price: "",
-    urgency_level: "Medium" as string,
-    location_label: "",
-    location_lat: null as number | null,
-    location_lng: null as number | null,
-  });
+  const [priceError, setPriceError] = useState("");
+  const [form, setForm] = useState(defaultForm);
 
-  const update = (key: string, val: string) => setForm((f) => ({ ...f, [key]: val }));
+  const isEdit = !!editListing;
+
+  const openModal = () => {
+    if (editListing) {
+      setForm({
+        product_name: editListing.product_name,
+        category: editListing.category,
+        quantity_kg: String(editListing.quantity_kg),
+        original_price: String(editListing.original_price),
+        discounted_price: String(editListing.discounted_price),
+        urgency_level: editListing.urgency_level,
+        location_label: (editListing as any).location_label || "",
+        location_lat: (editListing as any).location_lat || null,
+        location_lng: (editListing as any).location_lng || null,
+      });
+    } else {
+      setForm(defaultForm);
+    }
+    setPriceError("");
+    setOpen(true);
+  };
+
+  const update = (key: string, val: string) => {
+    setForm((f) => ({ ...f, [key]: val }));
+    if (key === "discounted_price" || key === "original_price") {
+      setPriceError("");
+    }
+  };
 
   const requestGPS = () => {
     if (!navigator.geolocation) {
@@ -60,24 +93,51 @@ const AddListingModal = ({ onSuccess }: Props) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const origPrice = parseFloat(form.original_price);
+    const discPrice = parseFloat(form.discounted_price);
+
+    if (discPrice > origPrice) {
+      setPriceError("Discounted price cannot be more than original price");
+      return;
+    }
+    if (discPrice === origPrice) {
+      setPriceError("Discounted price should be less than original price");
+      return;
+    }
+
     setLoading(true);
     try {
-      const { error } = await supabase.from("surplus_listings").insert({
-        supplier_id: "00000000-0000-0000-0000-000000000000",
-        product_name: form.product_name,
+      const payload = {
+        product_name: form.product_name.trim(),
         category: form.category,
         quantity_kg: parseFloat(form.quantity_kg),
-        original_price: parseFloat(form.original_price),
-        discounted_price: parseFloat(form.discounted_price),
+        original_price: origPrice,
+        discounted_price: discPrice,
         urgency_level: form.urgency_level,
         location_label: form.location_label || null,
         location_lat: form.location_lat,
         location_lng: form.location_lng,
-      } as any);
-      if (error) throw error;
-      toast.success("Listing posted successfully!");
+      } as any;
+
+      if (isEdit && editListing) {
+        const { error } = await supabase
+          .from("surplus_listings")
+          .update(payload)
+          .eq("id", editListing.id);
+        if (error) throw error;
+        toast.success("Listing updated!");
+      } else {
+        const { error } = await supabase.from("surplus_listings").insert({
+          ...payload,
+          supplier_id: "00000000-0000-0000-0000-000000000000",
+        });
+        if (error) throw error;
+        toast.success("Listing posted successfully!");
+      }
+
       setOpen(false);
-      setForm({ product_name: "", category: "Vegetables", quantity_kg: "", original_price: "", discounted_price: "", urgency_level: "Medium", location_label: "", location_lat: null, location_lng: null });
+      setForm(defaultForm);
       onSuccess?.();
     } catch (err: any) {
       toast.error(err.message);
@@ -88,15 +148,19 @@ const AddListingModal = ({ onSuccess }: Props) => {
 
   return (
     <>
-      <Button onClick={() => setOpen(true)} className="gap-2">
-        <Plus className="h-4 w-4" /> Post Surplus Food
-      </Button>
+      {trigger ? (
+        <span onClick={openModal}>{trigger}</span>
+      ) : (
+        <Button onClick={openModal} className="gap-2">
+          <Plus className="h-4 w-4" /> Post Surplus Food
+        </Button>
+      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="glass-card border-border/50 sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-display">Post Surplus Food</DialogTitle>
-            <DialogDescription>List your surplus produce for buyers across Malaysia</DialogDescription>
+            <DialogTitle className="font-display">{isEdit ? "Edit Listing" : "Post Surplus Food"}</DialogTitle>
+            <DialogDescription>{isEdit ? "Update your listing details" : "List your surplus produce for buyers across Malaysia"}</DialogDescription>
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -129,9 +193,21 @@ const AddListingModal = ({ onSuccess }: Props) => {
               </div>
               <div>
                 <label className="text-sm font-medium mb-1 block">Discounted Price (RM/kg)</label>
-                <Input type="number" min="0" step="0.01" value={form.discounted_price} onChange={(e) => update("discounted_price", e.target.value)} required placeholder="2.80" />
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.discounted_price}
+                  onChange={(e) => update("discounted_price", e.target.value)}
+                  required
+                  placeholder="2.80"
+                  className={priceError ? "border-destructive" : ""}
+                />
               </div>
             </div>
+            {priceError && (
+              <p className="text-xs text-destructive -mt-2">{priceError}</p>
+            )}
 
             {/* Location */}
             <div>
@@ -174,7 +250,7 @@ const AddListingModal = ({ onSuccess }: Props) => {
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
               <Button type="submit" disabled={loading}>
-                {loading ? "Posting..." : "Post Listing"}
+                {loading ? (isEdit ? "Saving..." : "Posting...") : (isEdit ? "Save Changes" : "Post Listing")}
               </Button>
             </DialogFooter>
           </form>
