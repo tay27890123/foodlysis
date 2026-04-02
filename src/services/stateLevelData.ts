@@ -275,10 +275,10 @@ export function getLayerSummaryCards(states: StateMetrics[], layer: DataLayer): 
       ];
     }
     case "ppi": {
-      const low = states.filter(s => s.ppiIndex < 115).length;
-      const mod = states.filter(s => s.ppiIndex >= 115 && s.ppiIndex < 120).length;
-      const high = states.filter(s => s.ppiIndex >= 120 && s.ppiIndex < 125).length;
-      const crit = states.filter(s => s.ppiIndex >= 125).length;
+      const low = states.filter(s => (s.ppiIndex ?? 100) < 115).length;
+      const mod = states.filter(s => (s.ppiIndex ?? 100) >= 115 && (s.ppiIndex ?? 100) < 120).length;
+      const high = states.filter(s => (s.ppiIndex ?? 100) >= 120 && (s.ppiIndex ?? 100) < 125).length;
+      const crit = states.filter(s => (s.ppiIndex ?? 100) >= 125).length;
       return [
         { key: "low", label: "Low (<115)", count: low, fill: "hsl(200 55% 35% / 0.4)", stroke: "hsl(200 55% 50%)", icon: "🟢" },
         { key: "moderate", label: "Moderate", count: mod, fill: "hsl(170 45% 38% / 0.35)", stroke: "hsl(170 45% 52%)", icon: "🟡" },
