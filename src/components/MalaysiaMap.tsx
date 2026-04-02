@@ -231,6 +231,7 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
           <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground/40 font-medium tracking-wider">EAST MALAYSIA</span>
         </div>
       </div>
+      </div>
 
       {/* Hover tooltip */}
       <AnimatePresence>
