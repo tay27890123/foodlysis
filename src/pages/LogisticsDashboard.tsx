@@ -1,6 +1,5 @@
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Leaf, ArrowLeft, Truck, AlertTriangle, CheckCircle, Package } from "lucide-react";
+import { Truck, AlertTriangle, CheckCircle, Package } from "lucide-react";
+import { motion } from "framer-motion";
 import { motion } from "framer-motion";
 import WeatherImpact from "@/components/WeatherImpact";
 import RouteStatusMap from "@/components/RouteStatusMap";
