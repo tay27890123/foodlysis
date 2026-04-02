@@ -40,10 +40,27 @@ interface SurplusCardProps {
   distance?: number | null;
 }
 
-const SurplusCard = ({ listing, index, distance }: SurplusCardProps) => {
+const SurplusCard = ({ listing, index, distance, onRefresh }: SurplusCardProps & { onRefresh: () => void }) => {
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const discount = listing.original_price > 0
     ? Math.round((1 - listing.discounted_price / listing.original_price) * 100)
     : 0;
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      const { error } = await supabase.from("surplus_listings").delete().eq("id", listing.id);
+      if (error) throw error;
+      toast.success("Listing deleted");
+      onRefresh();
+    } catch (err: any) {
+      toast.error(err.message);
+    } finally {
+      setDeleting(false);
+      setDeleteOpen(false);
+    }
+  };
 
   return (
     <motion.div
@@ -56,7 +73,30 @@ const SurplusCard = ({ listing, index, distance }: SurplusCardProps) => {
         <Badge variant="outline" className={`text-[11px] font-medium ${urgencyStyles[listing.urgency_level] ?? ""}`}>
           {listing.urgency_level === "High" ? "⚡ Urgent" : listing.urgency_level === "Medium" ? "⏳ Moderate" : "📦 Flexible"}
         </Badge>
-        <span className="text-xs text-muted-foreground">{listing.category}</span>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-muted-foreground">{listing.category}</span>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                <MoreVertical className="h-3.5 w-3.5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <AddListingModal
+                editListing={listing}
+                onSuccess={onRefresh}
+                trigger={
+                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="gap-2 cursor-pointer">
+                    <Pencil className="h-3.5 w-3.5" /> Edit
+                  </DropdownMenuItem>
+                }
+              />
+              <DropdownMenuItem className="gap-2 text-destructive cursor-pointer" onClick={() => setDeleteOpen(true)}>
+                <Trash2 className="h-3.5 w-3.5" /> Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       <div className="px-5 pb-4 flex-1 flex flex-col">
@@ -99,6 +139,23 @@ const SurplusCard = ({ listing, index, distance }: SurplusCardProps) => {
           <Tag className="h-3.5 w-3.5 mr-2" /> Place Bid
         </Button>
       </div>
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete listing?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently remove "{listing.product_name}" from the marketplace.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </motion.div>
   );
 };
