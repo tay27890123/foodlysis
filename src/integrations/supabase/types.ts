@@ -48,7 +48,7 @@ export type Database = {
           product_name: string
           quantity_kg: number
           status: string
-          supplier_id: string
+          supplier_id: string | null
           urgency_level: string
         }
         Insert: {
@@ -60,7 +60,7 @@ export type Database = {
           product_name: string
           quantity_kg: number
           status?: string
-          supplier_id: string
+          supplier_id?: string | null
           urgency_level?: string
         }
         Update: {
@@ -72,18 +72,10 @@ export type Database = {
           product_name?: string
           quantity_kg?: number
           status?: string
-          supplier_id?: string
+          supplier_id?: string | null
           urgency_level?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "surplus_listings_supplier_id_fkey"
-            columns: ["supplier_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
