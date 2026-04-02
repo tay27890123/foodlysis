@@ -72,6 +72,7 @@ async function fetchFoodCPI(): Promise<DynamicInsight[]> {
         title: rising ? "Food Prices Rising — Budget Impact" : "Food Prices Stabilising — Good for Buyers",
         description: `The Consumer Price Index for Food rose ${Math.abs(change).toFixed(1)}% month-on-month (${foodPrev.toFixed(1)} → ${foodNow.toFixed(1)}). ${rising ? "Expect higher procurement costs — consider bulk buying or switching to cheaper alternatives." : "Stable prices present good buying opportunities."}`,
         category: "Buyer",
+        topic: "Price",
         timestamp: `Data as of ${formatDate(dates[0])}`,
         status: Math.abs(change) > 1.5 ? "Critical" : change > 0.5 ? "Warning" : "Normal",
         source: "OpenDOSM — CPI Headline",
