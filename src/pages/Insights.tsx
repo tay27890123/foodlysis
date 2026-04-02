@@ -5,7 +5,7 @@ import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAllInsights, type DynamicInsight } from "@/services/openDOSM";
+import { fetchAllInsights, type DynamicInsight, type InsightTopic } from "@/services/openDOSM";
 import { useMemo, useState } from "react";
 
 const categoryConfig: Record<string, { icon: typeof Store; className: string }> = {
