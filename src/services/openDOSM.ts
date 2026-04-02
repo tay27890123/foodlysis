@@ -334,6 +334,7 @@ export async function fetchAllInsights(): Promise<DynamicInsight[]> {
     title: "High Demand Items",
     description: "Chili Padi demand up 22% this week. Chicken demand steady at 15K kg/day. List these items for fastest sales on the marketplace.",
     category: "Seller",
+    topic: "Marketplace",
     timestamp: "Updated today",
     status: "Live",
     source: "Marketplace Data",
