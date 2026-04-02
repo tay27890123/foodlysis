@@ -21,11 +21,14 @@ interface CropRecord {
   planted_area: number;
 }
 
+export type InsightTopic = "Price" | "Inflation" | "Import" | "Export" | "Trade" | "Production" | "Supply" | "Industry" | "Marketplace";
+
 export interface DynamicInsight {
   id: string;
   title: string;
   description: string;
   category: "Seller" | "Buyer";
+  topic: InsightTopic;
   timestamp: string;
   status: "Normal" | "Warning" | "Critical" | "Live";
   source: string;
