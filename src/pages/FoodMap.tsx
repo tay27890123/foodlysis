@@ -90,34 +90,35 @@ const FoodMap = () => {
         </motion.div>
 
         {/* Data Layer Toggle */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5 flex flex-wrap gap-2">
-          {LAYERS.map((layer) => {
-            const active = activeLayer === layer.id;
-            return (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button
-                    key={layer.id}
-                    onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
-                    className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                      active
-                        ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
-                        : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
-                    }`}
-                  >
-                    <layer.icon className="h-4 w-4" />
-                    <span>{layer.label}</span>
-                    {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
-                    <Info className="h-3 w-3 opacity-40" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
-                  {layer.definition}
-                </TooltipContent>
-              </Tooltip>
-            );
-          })}
-        </motion.div>
+        <TooltipProvider delayDuration={200}>
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5 flex flex-wrap gap-2">
+            {LAYERS.map((layer) => {
+              const active = activeLayer === layer.id;
+              return (
+                <Tooltip key={layer.id}>
+                  <TooltipTrigger asChild>
+                    <button
+                      onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
+                      className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
+                        active
+                          ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
+                          : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
+                      }`}
+                    >
+                      <layer.icon className="h-4 w-4" />
+                      <span>{layer.label}</span>
+                      {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
+                      <Info className="h-3 w-3 opacity-40" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
+                    {layer.definition}
+                  </TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </motion.div>
+        </TooltipProvider>
 
         {/* Summary strip — layer-aware */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} key={activeLayer} className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
