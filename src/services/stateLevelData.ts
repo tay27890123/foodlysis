@@ -11,23 +11,23 @@ export type WeatherRisk = "normal" | "advisory" | "warning" | "danger";
 export type FoodCategory = "crops" | "livestock" | "fisheries" | "dairy" | "fruitsVeg" | "processed";
 
 export interface CategoryData {
-  production: number;   // tonnes
-  demand: number;       // tonnes
+  production: number;
+  demand: number;
   cpiIndex: number;
-  cpiChange: number;    // month-on-month %
-  ssl: number;          // self-sufficiency %
+  cpiChange: number;
+  ssl: number;
 }
 
 export interface StateMetrics {
   id: string;
   name: string;
-  production: number;        // total tonnes
-  demand: number;            // total tonnes
-  cpiIndex: number;          // aggregate CPI food index
-  cpiChange: number;         // month-on-month % change
-  ppiIndex: number;          // producer price index
-  ppiChange: number;         // month-on-month % change
-  surplusListings: number;   // marketplace surplus items
+  production: number;
+  demand: number;
+  cpiIndex: number;
+  cpiChange: number;
+  ppiIndex: number;
+  ppiChange: number;
+  surplusListings: number;
   mainCrops: string[];
   notes: string;
   status: StateStatus;
@@ -53,30 +53,16 @@ interface CropRecord {
   planted_area: number;
 }
 
-// ── State name mapping ─────────────────────────────────────────────────────────
-
 const STATE_ID_MAP: Record<string, string> = {
-  "Perlis": "perlis",
-  "Kedah": "kedah",
-  "Pulau Pinang": "penang",
-  "Perak": "perak",
-  "Kelantan": "kelantan",
-  "Terengganu": "terengganu",
-  "Pahang": "pahang",
-  "Selangor": "selangor",
-  "W.P. Kuala Lumpur": "kl",
-  "Negeri Sembilan": "negeriSembilan",
-  "Melaka": "melaka",
-  "Johor": "johor",
-  "Sabah": "sabah",
-  "Sarawak": "sarawak",
-  "W.P. Labuan": "labuan",
+  "Perlis": "perlis", "Kedah": "kedah", "Pulau Pinang": "penang", "Perak": "perak",
+  "Kelantan": "kelantan", "Terengganu": "terengganu", "Pahang": "pahang", "Selangor": "selangor",
+  "W.P. Kuala Lumpur": "kl", "Negeri Sembilan": "negeriSembilan", "Melaka": "melaka",
+  "Johor": "johor", "Sabah": "sabah", "Sarawak": "sarawak", "W.P. Labuan": "labuan",
 };
 
-// ── Category data generator (realistic simulated values) ───────────────────
+// ── Category data generator ────────────────────────────────────────────────
 
 function generateCategories(totalProd: number, totalDemand: number, cpiBase: number, cpiChange: number, profile: "agri" | "urban" | "coastal" | "mixed"): Record<FoodCategory, CategoryData> {
-  // Distribution ratios vary by state profile
   const dist: Record<string, Record<FoodCategory, [number, number]>> = {
     agri:    { crops: [0.40, 0.25], livestock: [0.20, 0.20], fisheries: [0.08, 0.12], dairy: [0.07, 0.13], fruitsVeg: [0.18, 0.15], processed: [0.07, 0.15] },
     urban:   { crops: [0.05, 0.20], livestock: [0.15, 0.25], fisheries: [0.05, 0.12], dairy: [0.08, 0.15], fruitsVeg: [0.12, 0.13], processed: [0.55, 0.15] },
@@ -108,21 +94,21 @@ const PROFILES: Record<string, "agri" | "urban" | "coastal" | "mixed"> = {
 };
 
 const MOCK_BASE: Omit<StateMetrics, "categories">[] = [
-  { id: "perlis", name: "Perlis", production: 320, demand: 300, cpiIndex: 132.1, cpiChange: 0.3, surplusListings: 4, mainCrops: ["Rice", "Sugar Cane"], notes: "Stable rice output.", status: "balanced", weatherRisk: "normal", weatherLabel: "Clear skies" },
-  { id: "kedah", name: "Kedah", production: 4800, demand: 2900, cpiIndex: 128.4, cpiChange: -0.1, surplusListings: 23, mainCrops: ["Rice", "Rubber"], notes: "Major rice bowl — surplus exported.", status: "surplus", weatherRisk: "advisory", weatherLabel: "Thunderstorm advisory" },
-  { id: "penang", name: "Penang", production: 280, demand: 1200, cpiIndex: 138.7, cpiChange: 1.8, surplusListings: 2, mainCrops: ["Vegetables"], notes: "High urban demand outstrips local production.", status: "shortage", weatherRisk: "normal", weatherLabel: "Partly cloudy" },
-  { id: "perak", name: "Perak", production: 3600, demand: 2800, cpiIndex: 130.2, cpiChange: 0.4, surplusListings: 18, mainCrops: ["Palm Oil", "Vegetables", "Fruits"], notes: "Strong palm oil and vegetable output.", status: "surplus", weatherRisk: "normal", weatherLabel: "Fair weather" },
-  { id: "kelantan", name: "Kelantan", production: 1800, demand: 2100, cpiIndex: 136.5, cpiChange: 2.1, surplusListings: 5, mainCrops: ["Rice", "Tobacco"], notes: "Flood risk affecting monsoon rice crop.", status: "warning", weatherRisk: "danger", weatherLabel: "Heavy rain & flood warning" },
-  { id: "terengganu", name: "Terengganu", production: 1200, demand: 1500, cpiIndex: 134.8, cpiChange: 1.5, surplusListings: 3, mainCrops: ["Fish", "Rice"], notes: "East coast monsoon disrupting supply chains.", status: "warning", weatherRisk: "warning", weatherLabel: "Heavy rain warning" },
-  { id: "pahang", name: "Pahang", production: 4200, demand: 2400, cpiIndex: 129.1, cpiChange: 0.2, surplusListings: 15, mainCrops: ["Palm Oil", "Durian", "Rubber"], notes: "Large agricultural base with durian export boom.", status: "surplus", weatherRisk: "advisory", weatherLabel: "Scattered showers" },
-  { id: "selangor", name: "Selangor", production: 1500, demand: 5800, cpiIndex: 140.3, cpiChange: 2.4, surplusListings: 8, mainCrops: ["Vegetables", "Poultry"], notes: "Densely populated — relies on inter-state supply.", status: "shortage", weatherRisk: "normal", weatherLabel: "Clear skies" },
-  { id: "kl", name: "KL", production: 50, demand: 3200, cpiIndex: 142.6, cpiChange: 2.8, surplusListings: 1, mainCrops: [], notes: "Fully dependent on imports from neighbouring states.", status: "shortage", weatherRisk: "normal", weatherLabel: "Partly cloudy" },
-  { id: "negeriSembilan", name: "N. Sembilan", production: 1800, demand: 1600, cpiIndex: 131.0, cpiChange: 0.5, surplusListings: 10, mainCrops: ["Palm Oil", "Rubber"], notes: "Self-sufficient with moderate palm oil.", status: "balanced", weatherRisk: "normal", weatherLabel: "Fair weather" },
-  { id: "melaka", name: "Melaka", production: 800, demand: 750, cpiIndex: 130.5, cpiChange: 0.4, surplusListings: 6, mainCrops: ["Pineapple", "Fish"], notes: "Tourism-driven demand met by local produce.", status: "balanced", weatherRisk: "normal", weatherLabel: "Clear skies" },
-  { id: "johor", name: "Johor", production: 5200, demand: 3800, cpiIndex: 131.8, cpiChange: 0.6, surplusListings: 28, mainCrops: ["Palm Oil", "Pineapple", "Poultry"], notes: "Major exporter to Singapore.", status: "surplus", weatherRisk: "advisory", weatherLabel: "Thunderstorm advisory" },
-  { id: "sabah", name: "Sabah", production: 3800, demand: 3500, cpiIndex: 135.2, cpiChange: 1.7, surplusListings: 12, mainCrops: ["Palm Oil", "Cocoa", "Rice"], notes: "Logistics costs create pockets of shortage.", status: "warning", weatherRisk: "warning", weatherLabel: "Strong winds warning" },
-  { id: "sarawak", name: "Sarawak", production: 4100, demand: 2600, cpiIndex: 129.8, cpiChange: 0.3, surplusListings: 16, mainCrops: ["Palm Oil", "Pepper", "Rice"], notes: "Largest state with strong agri output.", status: "surplus", weatherRisk: "normal", weatherLabel: "Fair weather" },
-  { id: "labuan", name: "Labuan", production: 30, demand: 120, cpiIndex: 137.4, cpiChange: 1.9, surplusListings: 0, mainCrops: [], notes: "Island territory — fully import-dependent.", status: "shortage", weatherRisk: "normal", weatherLabel: "Clear skies" },
+  { id: "perlis", name: "Perlis", production: 320, demand: 300, cpiIndex: 132.1, cpiChange: 0.3, ppiIndex: 118.5, ppiChange: -0.4, surplusListings: 4, mainCrops: ["Rice", "Sugar Cane"], notes: "Stable rice output.", status: "balanced", weatherRisk: "normal", weatherLabel: "Clear skies" },
+  { id: "kedah", name: "Kedah", production: 4800, demand: 2900, cpiIndex: 128.4, cpiChange: -0.1, ppiIndex: 112.3, ppiChange: -1.2, surplusListings: 23, mainCrops: ["Rice", "Rubber"], notes: "Major rice bowl — surplus exported.", status: "surplus", weatherRisk: "advisory", weatherLabel: "Thunderstorm advisory" },
+  { id: "penang", name: "Penang", production: 280, demand: 1200, cpiIndex: 138.7, cpiChange: 1.8, ppiIndex: 125.8, ppiChange: 2.3, surplusListings: 2, mainCrops: ["Vegetables"], notes: "High urban demand outstrips local production.", status: "shortage", weatherRisk: "normal", weatherLabel: "Partly cloudy" },
+  { id: "perak", name: "Perak", production: 3600, demand: 2800, cpiIndex: 130.2, cpiChange: 0.4, ppiIndex: 116.7, ppiChange: 0.1, surplusListings: 18, mainCrops: ["Palm Oil", "Vegetables", "Fruits"], notes: "Strong palm oil and vegetable output.", status: "surplus", weatherRisk: "normal", weatherLabel: "Fair weather" },
+  { id: "kelantan", name: "Kelantan", production: 1800, demand: 2100, cpiIndex: 136.5, cpiChange: 2.1, ppiIndex: 122.4, ppiChange: 3.1, surplusListings: 5, mainCrops: ["Rice", "Tobacco"], notes: "Flood risk affecting monsoon rice crop.", status: "warning", weatherRisk: "danger", weatherLabel: "Heavy rain & flood warning" },
+  { id: "terengganu", name: "Terengganu", production: 1200, demand: 1500, cpiIndex: 134.8, cpiChange: 1.5, ppiIndex: 120.1, ppiChange: 1.8, surplusListings: 3, mainCrops: ["Fish", "Rice"], notes: "East coast monsoon disrupting supply chains.", status: "warning", weatherRisk: "warning", weatherLabel: "Heavy rain warning" },
+  { id: "pahang", name: "Pahang", production: 4200, demand: 2400, cpiIndex: 129.1, cpiChange: 0.2, ppiIndex: 114.2, ppiChange: -0.6, surplusListings: 15, mainCrops: ["Palm Oil", "Durian", "Rubber"], notes: "Large agricultural base with durian export boom.", status: "surplus", weatherRisk: "advisory", weatherLabel: "Scattered showers" },
+  { id: "selangor", name: "Selangor", production: 1500, demand: 5800, cpiIndex: 140.3, cpiChange: 2.4, ppiIndex: 128.9, ppiChange: 2.8, surplusListings: 8, mainCrops: ["Vegetables", "Poultry"], notes: "Densely populated — relies on inter-state supply.", status: "shortage", weatherRisk: "normal", weatherLabel: "Clear skies" },
+  { id: "kl", name: "KL", production: 50, demand: 3200, cpiIndex: 142.6, cpiChange: 2.8, ppiIndex: 131.2, ppiChange: 3.5, surplusListings: 1, mainCrops: [], notes: "Fully dependent on imports from neighbouring states.", status: "shortage", weatherRisk: "normal", weatherLabel: "Partly cloudy" },
+  { id: "negeriSembilan", name: "N. Sembilan", production: 1800, demand: 1600, cpiIndex: 131.0, cpiChange: 0.5, ppiIndex: 117.3, ppiChange: 0.2, surplusListings: 10, mainCrops: ["Palm Oil", "Rubber"], notes: "Self-sufficient with moderate palm oil.", status: "balanced", weatherRisk: "normal", weatherLabel: "Fair weather" },
+  { id: "melaka", name: "Melaka", production: 800, demand: 750, cpiIndex: 130.5, cpiChange: 0.4, ppiIndex: 115.9, ppiChange: -0.1, surplusListings: 6, mainCrops: ["Pineapple", "Fish"], notes: "Tourism-driven demand met by local produce.", status: "balanced", weatherRisk: "normal", weatherLabel: "Clear skies" },
+  { id: "johor", name: "Johor", production: 5200, demand: 3800, cpiIndex: 131.8, cpiChange: 0.6, ppiIndex: 119.4, ppiChange: 0.8, surplusListings: 28, mainCrops: ["Palm Oil", "Pineapple", "Poultry"], notes: "Major exporter to Singapore.", status: "surplus", weatherRisk: "advisory", weatherLabel: "Thunderstorm advisory" },
+  { id: "sabah", name: "Sabah", production: 3800, demand: 3500, cpiIndex: 135.2, cpiChange: 1.7, ppiIndex: 123.6, ppiChange: 2.1, surplusListings: 12, mainCrops: ["Palm Oil", "Cocoa", "Rice"], notes: "Logistics costs create pockets of shortage.", status: "warning", weatherRisk: "warning", weatherLabel: "Strong winds warning" },
+  { id: "sarawak", name: "Sarawak", production: 4100, demand: 2600, cpiIndex: 129.8, cpiChange: 0.3, ppiIndex: 113.8, ppiChange: -0.3, surplusListings: 16, mainCrops: ["Palm Oil", "Pepper", "Rice"], notes: "Largest state with strong agri output.", status: "surplus", weatherRisk: "normal", weatherLabel: "Fair weather" },
+  { id: "labuan", name: "Labuan", production: 30, demand: 120, cpiIndex: 137.4, cpiChange: 1.9, ppiIndex: 126.1, ppiChange: 2.5, surplusListings: 0, mainCrops: [], notes: "Island territory — fully import-dependent.", status: "shortage", weatherRisk: "normal", weatherLabel: "Clear skies" },
 ];
 
 const MOCK_STATE_DATA: StateMetrics[] = MOCK_BASE.map((s) => ({
@@ -182,20 +168,16 @@ export async function fetchStateMetrics(): Promise<StateMetrics[]> {
 
 // ── Choropleth intensity calculation ───────────────────────────────────────────
 
-const WEATHER_RISK_VALUE: Record<WeatherRisk, number> = { normal: 0, advisory: 1, warning: 2, danger: 3 };
-
 export function getChoroplethValue(state: StateMetrics, layer: DataLayer): number {
   switch (layer) {
     case "foodSupply":
       return state.production;
     case "cpi":
       return state.cpiIndex;
-    case "surplus":
-      return state.surplusListings;
+    case "ppi":
+      return state.ppiIndex;
     case "ssl":
       return state.demand > 0 ? (state.production / state.demand) * 100 : 0;
-    case "weather":
-      return WEATHER_RISK_VALUE[state.weatherRisk];
   }
 }
 
@@ -218,11 +200,11 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
         stroke: `hsl(${hue} 65% 50% / 0.85)`,
       };
     }
-    case "surplus": {
-      const l = 18 + t * 28;
+    case "ppi": {
+      const hue = 200 - t * 160;
       return {
-        fill: `hsl(165 55% ${l}% / 0.45)`,
-        stroke: `hsl(165 55% ${l + 18}% / 0.85)`,
+        fill: `hsl(${hue} 60% 32% / 0.45)`,
+        stroke: `hsl(${hue} 60% 48% / 0.85)`,
       };
     }
     case "ssl": {
@@ -230,16 +212,6 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
       return {
         fill: `hsl(${hue} 60% 30% / 0.45)`,
         stroke: `hsl(${hue} 60% 48% / 0.85)`,
-      };
-    }
-    case "weather": {
-      const hues = [152, 210, 40, 0];
-      const idx = Math.round(value);
-      const hue = hues[Math.min(idx, 3)];
-      const pulse = idx >= 2;
-      return {
-        fill: `hsl(${hue} ${pulse ? 70 : 55}% ${pulse ? 35 : 28}% / ${pulse ? 0.55 : 0.4})`,
-        stroke: `hsl(${hue} 70% ${pulse ? 55 : 45}% / 0.9)`,
       };
     }
   }
@@ -251,14 +223,12 @@ export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): stri
       return `${state.production.toLocaleString()} t`;
     case "cpi":
       return `CPI ${state.cpiIndex.toFixed(1)} (${state.cpiChange >= 0 ? "+" : ""}${state.cpiChange.toFixed(1)}%)`;
-    case "surplus":
-      return `${state.surplusListings} listings`;
+    case "ppi":
+      return `PPI ${state.ppiIndex.toFixed(1)} (${state.ppiChange >= 0 ? "+" : ""}${state.ppiChange.toFixed(1)}%)`;
     case "ssl": {
       const ssl = state.demand > 0 ? (state.production / state.demand) * 100 : 0;
       return `SSL ${ssl.toFixed(1)}%`;
     }
-    case "weather":
-      return state.weatherLabel;
   }
 }
 
@@ -301,6 +271,18 @@ export function getLayerSummaryCards(states: StateMetrics[], layer: DataLayer): 
         { key: "critical", label: "Critical (140+)", count: crit, fill: "hsl(0 65% 45% / 0.35)", stroke: "hsl(0 65% 55%)", icon: "🔴" },
       ];
     }
+    case "ppi": {
+      const low = states.filter(s => s.ppiIndex < 115).length;
+      const mod = states.filter(s => s.ppiIndex >= 115 && s.ppiIndex < 120).length;
+      const high = states.filter(s => s.ppiIndex >= 120 && s.ppiIndex < 125).length;
+      const crit = states.filter(s => s.ppiIndex >= 125).length;
+      return [
+        { key: "low", label: "Low (<115)", count: low, fill: "hsl(200 55% 35% / 0.4)", stroke: "hsl(200 55% 50%)", icon: "🟢" },
+        { key: "moderate", label: "Moderate", count: mod, fill: "hsl(170 45% 38% / 0.35)", stroke: "hsl(170 45% 52%)", icon: "🟡" },
+        { key: "high", label: "High (120+)", count: high, fill: "hsl(35 65% 45% / 0.35)", stroke: "hsl(35 65% 55%)", icon: "🟠" },
+        { key: "critical", label: "Critical (125+)", count: crit, fill: "hsl(0 60% 45% / 0.35)", stroke: "hsl(0 60% 55%)", icon: "🔴" },
+      ];
+    }
     case "ssl": {
       const high = states.filter(s => { const ssl = s.demand > 0 ? (s.production / s.demand) * 100 : 0; return ssl >= 100; }).length;
       const adequate = states.filter(s => { const ssl = s.demand > 0 ? (s.production / s.demand) * 100 : 0; return ssl >= 70 && ssl < 100; }).length;
@@ -311,30 +293,6 @@ export function getLayerSummaryCards(states: StateMetrics[], layer: DataLayer): 
         { key: "adequate", label: "Adequate (70%+)", count: adequate, fill: "hsl(80 50% 40% / 0.35)", stroke: "hsl(80 50% 55%)", icon: "🟡" },
         { key: "low", label: "Low (40-70%)", count: low, fill: "hsl(30 65% 45% / 0.35)", stroke: "hsl(30 65% 55%)", icon: "🟠" },
         { key: "critical", label: "Critical (<40%)", count: critical, fill: "hsl(0 70% 45% / 0.35)", stroke: "hsl(0 70% 55%)", icon: "🔴" },
-      ];
-    }
-    case "weather": {
-      const normal = states.filter(s => s.weatherRisk === "normal").length;
-      const advisory = states.filter(s => s.weatherRisk === "advisory").length;
-      const warning = states.filter(s => s.weatherRisk === "warning").length;
-      const danger = states.filter(s => s.weatherRisk === "danger").length;
-      return [
-        { key: "normal", label: "Clear", count: normal, fill: "hsl(152 55% 35% / 0.4)", stroke: "hsl(152 55% 50%)", icon: "☀️" },
-        { key: "advisory", label: "Advisory", count: advisory, fill: "hsl(210 60% 45% / 0.35)", stroke: "hsl(210 60% 55%)", icon: "🌦️" },
-        { key: "warning", label: "Warning", count: warning, fill: "hsl(40 80% 50% / 0.35)", stroke: "hsl(40 80% 58%)", icon: "⛈️" },
-        { key: "danger", label: "Danger", count: danger, fill: "hsl(0 72% 48% / 0.35)", stroke: "hsl(0 72% 55%)", icon: "🌊" },
-      ];
-    }
-    case "surplus": {
-      const hot = states.filter(s => s.surplusListings >= 15).length;
-      const active = states.filter(s => s.surplusListings >= 5 && s.surplusListings < 15).length;
-      const low = states.filter(s => s.surplusListings >= 1 && s.surplusListings < 5).length;
-      const none = states.filter(s => s.surplusListings === 0).length;
-      return [
-        { key: "hot", label: "Hot (15+)", count: hot, fill: "hsl(165 60% 38% / 0.4)", stroke: "hsl(165 60% 52%)", icon: "🔥" },
-        { key: "active", label: "Active (5-14)", count: active, fill: "hsl(165 45% 35% / 0.35)", stroke: "hsl(165 45% 50%)", icon: "📦" },
-        { key: "low", label: "Low (1-4)", count: low, fill: "hsl(200 40% 35% / 0.3)", stroke: "hsl(200 40% 50%)", icon: "📋" },
-        { key: "none", label: "No Listings", count: none, fill: "hsl(220 20% 30% / 0.25)", stroke: "hsl(220 20% 45%)", icon: "🚫" },
       ];
     }
   }
