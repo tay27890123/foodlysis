@@ -10,7 +10,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
 import AddListingModal from "@/components/AddListingModal";
-import AddListingModal from "@/components/AddListingModal";
 import { useQueryClient } from "@tanstack/react-query";
 
 type Category = "All" | "Vegetables" | "Fruits" | "Grains" | "Seafood" | "Poultry" | "Dairy" | "Other";
