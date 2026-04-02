@@ -101,6 +101,7 @@ async function fetchFoodCPI(): Promise<DynamicInsight[]> {
         title: change > 0 ? "General Inflation Trending Up" : "Inflation Cooling Down",
         description: `Malaysia's headline CPI moved ${change > 0 ? "up" : "down"} ${Math.abs(change).toFixed(1)}% to ${overallNow.toFixed(1)}. ${change > 0.5 ? "Higher general costs may reduce consumer purchasing power." : "Lower inflation benefits buyer budgets."}`,
         category: "Buyer",
+        topic: "Inflation",
         timestamp: `Data as of ${formatDate(dates[0])}`,
         status: change > 1 ? "Warning" : "Normal",
         source: "OpenDOSM — CPI Headline",
