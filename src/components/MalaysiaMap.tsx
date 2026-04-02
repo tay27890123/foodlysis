@@ -85,6 +85,7 @@ const HOVER_FILL = "#1A4D35";
 
 const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors, tooltipContent }: MalaysiaMapProps) => {
   const [hoveredState, setHoveredState] = useState<string | null>(null);
+  const { state: zoomState, containerProps, transformStyle, zoomIn, zoomOut, reset } = useMapZoomPan(1, 4);
 
   const getStateData = useCallback(
     (id: string) => stateData.find((s) => s.id === id),
