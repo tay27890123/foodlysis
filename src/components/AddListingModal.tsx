@@ -17,7 +17,6 @@ interface Props {
 
 const AddListingModal = ({ onSuccess }: Props) => {
   const [open, setOpen] = useState(false);
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     product_name: "",

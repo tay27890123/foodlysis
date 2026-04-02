@@ -89,7 +89,6 @@ const Match = () => {
     const stateParam = searchParams.get("state");
     if (stateParam) setStateFilter(stateParam);
   }, [searchParams]);
-  const { user, profile } = useAuth();
   const { data: listings, isLoading } = useSurplusListings();
   const queryClient = useQueryClient();
 
