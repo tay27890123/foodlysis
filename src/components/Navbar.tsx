@@ -54,15 +54,20 @@ const NavDropdown = ({ label, icon: Icon, items }: { label: string; icon: React.
             transition={{ duration: 0.15 }}
             className="absolute top-full right-0 mt-2 w-48 rounded-lg border border-border/50 bg-background/95 backdrop-blur-xl shadow-lg overflow-hidden z-50"
           >
-            {items.map((item) => (
-              <Link
-                key={item.to}
-                to={item.to}
-                onClick={() => setOpen(false)}
-                className="block px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-              >
-                {item.label}
-              </Link>
+            {items.map((item) => {
+              const ItemIcon = item.icon;
+              return (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                >
+                  <ItemIcon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            }
             ))}
           </motion.div>
         )}
