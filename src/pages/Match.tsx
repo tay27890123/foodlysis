@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
-import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
+import AddListingModal from "@/components/AddListingModal";
 import AddListingModal from "@/components/AddListingModal";
 import { useQueryClient } from "@tanstack/react-query";
 

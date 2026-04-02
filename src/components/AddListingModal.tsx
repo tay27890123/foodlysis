@@ -35,7 +35,7 @@ const AddListingModal = ({ onSuccess }: Props) => {
     setLoading(true);
     try {
       const { error } = await supabase.from("surplus_listings").insert({
-        supplier_id: user.id,
+        supplier_id: "00000000-0000-0000-0000-000000000000",
         product_name: form.product_name,
         category: form.category,
         quantity_kg: parseFloat(form.quantity_kg),
