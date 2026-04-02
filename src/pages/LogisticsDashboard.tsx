@@ -24,7 +24,7 @@ const LogisticsDashboard = () => (
           </Link>
           <div className="flex items-center gap-2">
             <Leaf className="h-5 w-5 text-primary" />
-            <span className="font-display font-bold">PanganLink</span>
+            <span className="font-display font-bold">Foodlysis</span>
             <span className="text-muted-foreground text-sm">/ Logistics</span>
           </div>
         </div>

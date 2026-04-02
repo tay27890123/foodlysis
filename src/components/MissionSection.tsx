@@ -40,7 +40,7 @@ const MissionSection = () => {
             From Farm Surplus to <span className="text-gradient-primary">Full Shelves</span>
           </h2>
           <p className="text-muted-foreground max-w-xl mx-auto">
-            Malaysia wastes ~17,000 tonnes of food daily. PanganLink closes the gap between 
+            Malaysia wastes ~17,000 tonnes of food daily. Foodlysis closes the gap between 
             overproduction and unmet demand through technology.
           </p>
         </motion.div>
