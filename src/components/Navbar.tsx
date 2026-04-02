@@ -1,23 +1,24 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown, ArrowLeft } from "lucide-react";
+import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown, ArrowLeft, Store, TrendingUp, MapPin, Truck, DollarSign } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface DropdownItem {
   label: string;
   to: string;
+  icon: React.ElementType;
 }
 
 const marketItems: DropdownItem[] = [
-  { label: "Marketplace", to: "/match" },
-  { label: "Market", to: "/dashboard" },
+  { label: "Marketplace", icon: Store, to: "/match" },
+  { label: "Market", icon: TrendingUp, to: "/dashboard" },
 ];
 
 const dataItems: DropdownItem[] = [
-  { label: "Food Map", to: "/food-map" },
-  { label: "Smart Route", to: "/logistics" },
-  { label: "Insights", to: "/insights" },
+  { label: "Food Map", icon: MapPin, to: "/food-map" },
+  { label: "Smart Route", icon: Truck, to: "/logistics" },
+  { label: "Insights", icon: DollarSign, to: "/insights" },
 ];
 
 const NavDropdown = ({ label, icon: Icon, items }: { label: string; icon: React.ElementType; items: DropdownItem[] }) => {
