@@ -252,6 +252,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
             title: `${label} Output Surge — List Now`,
             description: `${label} production surged ${cropChange.toFixed(1)}% to ${crop.production.toLocaleString()} kg. High supply — list surplus quickly to avoid waste and capture value.`,
             category: "Seller",
+            topic: "Production",
             timestamp: `Data as of ${years[0].slice(0, 4)}`,
             status: "Normal",
             source: "OpenDOSM — Crops State",
