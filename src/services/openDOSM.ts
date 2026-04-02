@@ -239,6 +239,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
             title: `${label} Supply Dropping`,
             description: `${label} production fell ${Math.abs(cropChange).toFixed(1)}% to ${crop.production.toLocaleString()} kg. Buyers should consider alternatives or locking in prices early.`,
             category: "Buyer",
+            topic: "Supply",
             timestamp: `Data as of ${years[0].slice(0, 4)}`,
             status: cropChange < -10 ? "Warning" : "Normal",
             source: "OpenDOSM — Crops State",
