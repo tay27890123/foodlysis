@@ -40,9 +40,49 @@ interface SurplusCardProps {
   distance?: number | null;
 }
 
+const isCoordLabel = (label?: string | null) => {
+  if (!label) return false;
+  return /^-?\d+\.\d+,\s*-?\d+\.\d+$/.test(label.trim());
+};
+
+const areaNameCache = new Map<string, string>();
+
+const useAreaName = (listing: SurplusListing) => {
+  const rawLabel = (listing as any).location_label as string | null;
+  const lat = listing.location_lat;
+  const lng = listing.location_lng;
+  const [area, setArea] = useState<string>(rawLabel && !isCoordLabel(rawLabel) ? rawLabel : "");
+
+  useEffect(() => {
+    if (rawLabel && !isCoordLabel(rawLabel)) { setArea(rawLabel); return; }
+    if (lat == null || lng == null) { setArea(listing.profiles?.location_state || "—"); return; }
+
+    const key = `${lat.toFixed(3)},${lng.toFixed(3)}`;
+    if (areaNameCache.has(key)) { setArea(areaNameCache.get(key)!); return; }
+
+    let cancelled = false;
+    fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10&addressdetails=1`, { headers: { "Accept-Language": "en" } })
+      .then(r => r.json())
+      .then(data => {
+        if (cancelled) return;
+        const addr = data.address;
+        const a = addr?.suburb || addr?.town || addr?.city || addr?.county || addr?.state_district || "";
+        const s = addr?.state || "";
+        const name = a && s ? `${a}, ${s}` : a || s || `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+        areaNameCache.set(key, name);
+        setArea(name);
+      })
+      .catch(() => { if (!cancelled) setArea(`${lat.toFixed(2)}, ${lng.toFixed(2)}`); });
+    return () => { cancelled = true; };
+  }, [rawLabel, lat, lng]);
+
+  return area;
+};
+
 const SurplusCard = ({ listing, index, distance, onRefresh }: SurplusCardProps & { onRefresh: () => void }) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const areaName = useAreaName(listing);
   const discount = listing.original_price > 0
     ? Math.round((1 - listing.discounted_price / listing.original_price) * 100)
     : 0;
