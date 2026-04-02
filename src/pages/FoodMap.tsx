@@ -94,19 +94,27 @@ const FoodMap = () => {
           {LAYERS.map((layer) => {
             const active = activeLayer === layer.id;
             return (
-              <button
-                key={layer.id}
-                onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
-                className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
-                  active
-                    ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
-                    : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
-                }`}
-              >
-                <layer.icon className="h-4 w-4" />
-                <span>{layer.label}</span>
-                {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
-              </button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <button
+                    key={layer.id}
+                    onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
+                    className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
+                      active
+                        ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
+                        : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
+                    }`}
+                  >
+                    <layer.icon className="h-4 w-4" />
+                    <span>{layer.label}</span>
+                    {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
+                    <Info className="h-3 w-3 opacity-40" />
+                  </button>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-xs text-xs leading-relaxed">
+                  {layer.definition}
+                </TooltipContent>
+              </Tooltip>
             );
           })}
         </motion.div>
