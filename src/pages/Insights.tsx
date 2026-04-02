@@ -13,6 +13,18 @@ const categoryConfig: Record<string, { icon: typeof Store; className: string }> 
   Buyer: { icon: ShoppingCart, className: "bg-secondary/20 text-secondary border-secondary/30" },
 };
 
+const topicStyles: Record<InsightTopic, string> = {
+  Price: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+  Inflation: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+  Import: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+  Export: "bg-indigo-500/15 text-indigo-400 border-indigo-500/30",
+  Trade: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+  Production: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  Supply: "bg-teal-500/15 text-teal-400 border-teal-500/30",
+  Industry: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  Marketplace: "bg-pink-500/15 text-pink-400 border-pink-500/30",
+};
+
 const statusConfig: Record<string, { className: string; label: string; dot: string; pulse?: boolean }> = {
   Normal: { className: "text-primary", label: "Normal", dot: "bg-primary" },
   Warning: { className: "text-accent", label: "Warning", dot: "bg-accent" },
