@@ -223,8 +223,11 @@ export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): stri
       return `${state.production.toLocaleString()} t`;
     case "cpi":
       return `CPI ${state.cpiIndex.toFixed(1)} (${state.cpiChange >= 0 ? "+" : ""}${state.cpiChange.toFixed(1)}%)`;
-    case "ppi":
-      return `PPI ${state.ppiIndex.toFixed(1)} (${state.ppiChange >= 0 ? "+" : ""}${state.ppiChange.toFixed(1)}%)`;
+    case "ppi": {
+      const ppi = state.ppiIndex ?? 100;
+      const ppiChg = state.ppiChange ?? 0;
+      return `PPI ${ppi.toFixed(1)} (${ppiChg >= 0 ? "+" : ""}${ppiChg.toFixed(1)}%)`;
+    }
     case "ssl": {
       const ssl = state.demand > 0 ? (state.production / state.demand) * 100 : 0;
       return `SSL ${ssl.toFixed(1)}%`;
