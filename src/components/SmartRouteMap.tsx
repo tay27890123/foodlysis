@@ -69,6 +69,7 @@ const SmartRouteMap = () => {
   const [activeLayer, setActiveLayer] = useState<MapLayer>("routes");
   const [selectedRoute, setSelectedRoute] = useState<MapRoute | null>(null);
   const [selectedWeather, setSelectedWeather] = useState<WeatherPin | null>(null);
+  const { state: zoomState, containerProps, transformStyle, zoomIn, zoomOut, reset } = useMapZoomPan(1, 4);
 
   const activeRoutes = routes.filter((r) => r.status !== "clear");
   const clearRoutes = routes.filter((r) => r.status === "clear");
@@ -98,6 +99,9 @@ const SmartRouteMap = () => {
 
       {/* Map container */}
       <div className="relative w-full rounded-xl bg-muted/10 border border-border/40 overflow-hidden" style={{ aspectRatio: "2.2 / 1" }}>
+        <ZoomControls onZoomIn={zoomIn} onZoomOut={zoomOut} onReset={reset} scale={zoomState.scale} />
+        <div {...containerProps} className="absolute inset-0 overflow-hidden select-none">
+          <div style={transformStyle} className="w-full h-full relative">
         {/* Subtle grid */}
         <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "radial-gradient(circle, hsl(var(--primary)) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
 
