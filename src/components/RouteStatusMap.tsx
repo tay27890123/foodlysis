@@ -1,4 +1,5 @@
-import { MapPin, CloudRain, AlertTriangle, Truck, Clock, CheckCircle } from "lucide-react";
+import { MapPin, CloudRain, AlertTriangle, Truck, Clock, CheckCircle, ArrowRight, Shield } from "lucide-react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 type RouteStatus = "clear" | "rain-delay" | "traffic-delay" | "severe";
@@ -12,131 +13,117 @@ interface Route {
   status: RouteStatus;
   delay?: string;
   reason?: string;
-  coords: { fromX: number; fromY: number; toX: number; toY: number };
+  risk: number; // 0-100
+  cargoType: string;
 }
 
 const routes: Route[] = [
-  { id: "r1", from: "Kota Bharu", to: "Kuala Terengganu", distance: "165 km", eta: "2.5h", status: "rain-delay", delay: "+45 min", reason: "Heavy rain in Kelantan", coords: { fromX: 72, fromY: 18, toX: 68, toY: 32 } },
-  { id: "r2", from: "Kota Kinabalu", to: "Sandakan", distance: "320 km", eta: "5.2h", status: "severe", delay: "+2h", reason: "Flooding on coastal road", coords: { fromX: 30, fromY: 55, toX: 60, toY: 48 } },
-  { id: "r3", from: "Kuching", to: "Sibu", distance: "450 km", eta: "6.0h", status: "traffic-delay", delay: "+30 min", reason: "Road works near Sarikei", coords: { fromX: 12, fromY: 72, toX: 35, toY: 65 } },
-  { id: "r4", from: "Ipoh", to: "Penang", distance: "170 km", eta: "2.8h", status: "clear", coords: { fromX: 38, fromY: 28, toX: 34, toY: 18 } },
-  { id: "r5", from: "KL", to: "Cameron H.", distance: "205 km", eta: "3.5h", status: "clear", coords: { fromX: 42, fromY: 38, toX: 40, toY: 26 } },
-  { id: "r6", from: "JB", to: "Melaka", distance: "220 km", eta: "3.0h", status: "rain-delay", delay: "+20 min", reason: "Light rain on highway", coords: { fromX: 48, fromY: 58, toX: 44, toY: 48 } },
+  { id: "r1", from: "Kota Bharu", to: "K. Terengganu", distance: "165 km", eta: "2.5h", status: "rain-delay", delay: "+45 min", reason: "Heavy rain in Kelantan", risk: 65, cargoType: "Fruits" },
+  { id: "r2", from: "Kota Kinabalu", to: "Sandakan", distance: "320 km", eta: "5.2h", status: "severe", delay: "+2h", reason: "Flooding on coastal road", risk: 90, cargoType: "Vegetables" },
+  { id: "r3", from: "Kuching", to: "Sibu", distance: "450 km", eta: "6.0h", status: "traffic-delay", delay: "+30 min", reason: "Road works near Sarikei", risk: 40, cargoType: "Mixed" },
+  { id: "r4", from: "Ipoh", to: "Penang", distance: "170 km", eta: "2.8h", status: "clear", risk: 10, cargoType: "Meat" },
+  { id: "r5", from: "KL", to: "Seremban", distance: "70 km", eta: "1.0h", status: "clear", risk: 5, cargoType: "Dairy" },
+  { id: "r6", from: "JB", to: "Melaka", distance: "220 km", eta: "3.0h", status: "rain-delay", delay: "+20 min", reason: "Light rain on highway", risk: 30, cargoType: "Fruits" },
 ];
 
-const statusConfig: Record<RouteStatus, { color: string; icon: typeof CheckCircle; label: string; dotClass: string }> = {
-  clear: { color: "text-primary", icon: CheckCircle, label: "Clear", dotClass: "bg-primary" },
-  "rain-delay": { color: "text-secondary", icon: CloudRain, label: "Rain Delay", dotClass: "bg-secondary" },
-  "traffic-delay": { color: "text-secondary", icon: Clock, label: "Traffic", dotClass: "bg-secondary" },
-  severe: { color: "text-destructive", icon: AlertTriangle, label: "Severe", dotClass: "bg-destructive" },
+const statusConfig: Record<RouteStatus, { color: string; bg: string; icon: typeof CheckCircle; label: string }> = {
+  clear: { color: "text-primary", bg: "bg-primary/10", icon: CheckCircle, label: "Clear" },
+  "rain-delay": { color: "text-blue-400", bg: "bg-blue-500/10", icon: CloudRain, label: "Rain Delay" },
+  "traffic-delay": { color: "text-secondary", bg: "bg-secondary/10", icon: Clock, label: "Traffic" },
+  severe: { color: "text-destructive", bg: "bg-destructive/10", icon: AlertTriangle, label: "Severe" },
 };
 
+type FilterStatus = "all" | RouteStatus;
+
 const RouteStatusMap = () => {
-  const delayed = routes.filter((r) => r.status !== "clear");
-  const clear = routes.filter((r) => r.status === "clear");
+  const [filter, setFilter] = useState<FilterStatus>("all");
+
+  const filtered = filter === "all" ? routes : routes.filter((r) => r.status === filter);
+  const delayed = routes.filter((r) => r.status !== "clear").length;
+  const avgRisk = Math.round(routes.reduce((s, r) => s + r.risk, 0) / routes.length);
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.1 }}
-      className="glass-card p-5"
-    >
-      <h3 className="font-display font-semibold mb-5 flex items-center gap-2">
-        <MapPin className="h-5 w-5 text-primary" /> Route Status Map
+    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="glass-card p-5 h-full">
+      <h3 className="font-display font-semibold mb-4 flex items-center gap-2">
+        <Truck className="h-5 w-5 text-primary" /> Route Status
       </h3>
 
-      {/* Visual map */}
-      <div className="relative w-full aspect-[16/9] rounded-lg bg-muted/20 border border-border/50 mb-5 overflow-hidden">
-        {/* Grid overlay */}
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "radial-gradient(circle, hsl(152 60% 42%) 1px, transparent 1px)", backgroundSize: "20px 20px" }} />
+      {/* Summary */}
+      <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="bg-muted/30 rounded-lg p-3 text-center">
+          <div className="text-lg font-bold">{routes.length}</div>
+          <div className="text-[10px] text-muted-foreground">Total Routes</div>
+        </div>
+        <div className="bg-muted/30 rounded-lg p-3 text-center">
+          <div className="text-lg font-bold text-destructive">{delayed}</div>
+          <div className="text-[10px] text-muted-foreground">Disrupted</div>
+        </div>
+        <div className="bg-muted/30 rounded-lg p-3 text-center">
+          <div className="flex items-center justify-center gap-1">
+            <Shield className="h-3.5 w-3.5 text-secondary" />
+            <span className="text-lg font-bold">{avgRisk}%</span>
+          </div>
+          <div className="text-[10px] text-muted-foreground">Avg Risk</div>
+        </div>
+      </div>
 
-        {/* Routes as lines */}
-        <svg className="absolute inset-0 w-full h-full">
-          {routes.map((r) => {
-            const cfg = statusConfig[r.status];
-            const strokeColor = r.status === "clear" ? "hsl(152 60% 42% / 0.4)" : r.status === "severe" ? "hsl(0 72% 51% / 0.7)" : "hsl(40 80% 50% / 0.6)";
-            return (
-              <line
-                key={r.id}
-                x1={`${r.coords.fromX}%`} y1={`${r.coords.fromY}%`}
-                x2={`${r.coords.toX}%`} y2={`${r.coords.toY}%`}
-                stroke={strokeColor} strokeWidth="2" strokeDasharray={r.status !== "clear" ? "6 4" : "none"}
-              />
-            );
-          })}
-        </svg>
-
-        {/* Route endpoints */}
-        {routes.map((r) => {
-          const cfg = statusConfig[r.status];
+      {/* Filter tabs */}
+      <div className="flex gap-1 flex-wrap mb-4">
+        {(["all", "severe", "rain-delay", "traffic-delay", "clear"] as FilterStatus[]).map((f) => {
+          const label = f === "all" ? "All" : statusConfig[f as RouteStatus].label;
           return (
-            <div key={r.id}>
-              <div className="absolute" style={{ left: `${r.coords.fromX}%`, top: `${r.coords.fromY}%`, transform: "translate(-50%, -50%)" }}>
-                <div className={`h-3 w-3 rounded-full ${cfg.dotClass} ring-2 ring-background shadow-lg`} />
-                <span className="absolute top-3.5 left-1/2 -translate-x-1/2 text-[9px] text-muted-foreground whitespace-nowrap font-medium">{r.from}</span>
-              </div>
-              <div className="absolute" style={{ left: `${r.coords.toX}%`, top: `${r.coords.toY}%`, transform: "translate(-50%, -50%)" }}>
-                <div className={`h-3 w-3 rounded-full ${cfg.dotClass} ring-2 ring-background shadow-lg`} />
-                <span className="absolute top-3.5 left-1/2 -translate-x-1/2 text-[9px] text-muted-foreground whitespace-nowrap font-medium">{r.to}</span>
-              </div>
-            </div>
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${filter === f ? "bg-primary text-primary-foreground" : "bg-muted/40 text-muted-foreground hover:text-foreground"}`}
+            >
+              {label}
+            </button>
           );
         })}
-
-        {/* Legend */}
-        <div className="absolute bottom-2 right-2 flex gap-3 bg-background/80 backdrop-blur-sm rounded-md px-3 py-1.5 text-[10px]">
-          {Object.entries(statusConfig).map(([key, cfg]) => (
-            <span key={key} className="flex items-center gap-1">
-              <span className={`h-2 w-2 rounded-full ${cfg.dotClass}`} />
-              <span className="text-muted-foreground">{cfg.label}</span>
-            </span>
-          ))}
-        </div>
       </div>
 
-      {/* Delayed routes list */}
-      <div className="mb-4">
-        <h4 className="text-sm font-medium text-destructive mb-3 flex items-center gap-2">
-          <AlertTriangle className="h-4 w-4" /> Delays ({delayed.length})
-        </h4>
-        <div className="space-y-2">
-          {delayed.map((r) => {
-            const cfg = statusConfig[r.status];
-            const Icon = cfg.icon;
-            return (
-              <div key={r.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/30 border border-border/30">
-                <div className="flex items-center gap-3">
+      {/* Route list */}
+      <div className="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+        {filtered.map((r) => {
+          const cfg = statusConfig[r.status];
+          const Icon = cfg.icon;
+          return (
+            <motion.div
+              key={r.id}
+              layout
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className={`p-3 rounded-lg border border-border/30 ${cfg.bg}`}
+            >
+              <div className="flex items-center justify-between mb-1.5">
+                <div className="flex items-center gap-2">
                   <Icon className={`h-4 w-4 ${cfg.color} shrink-0`} />
-                  <div>
-                    <div className="text-sm font-medium">{r.from} → {r.to}</div>
-                    <div className="text-xs text-muted-foreground">{r.reason}</div>
-                  </div>
+                  <span className="text-sm font-medium">{r.from}</span>
+                  <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                  <span className="text-sm font-medium">{r.to}</span>
                 </div>
-                <div className="text-right">
-                  <div className={`text-sm font-semibold ${cfg.color}`}>{r.delay}</div>
-                  <div className="text-xs text-muted-foreground">{r.distance} · {r.eta}</div>
-                </div>
+                <span className={`text-xs font-medium px-1.5 py-0.5 rounded ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Clear routes */}
-      <h4 className="text-sm font-medium text-primary mb-3 flex items-center gap-2">
-        <Truck className="h-4 w-4" /> Clear ({clear.length})
-      </h4>
-      <div className="space-y-2">
-        {clear.map((r) => (
-          <div key={r.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/20">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-              <div className="text-sm font-medium">{r.from} → {r.to}</div>
-            </div>
-            <div className="text-xs text-muted-foreground">{r.distance} · {r.eta}</div>
-          </div>
-        ))}
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>{r.distance} · ETA {r.eta}{r.delay && <span className="text-destructive font-medium"> ({r.delay})</span>}</span>
+                <span className="text-[10px]">📦 {r.cargoType}</span>
+              </div>
+              {r.reason && <p className="text-[11px] text-muted-foreground mt-1 italic">{r.reason}</p>}
+              {/* Risk bar */}
+              <div className="mt-2 flex items-center gap-2">
+                <span className="text-[10px] text-muted-foreground w-8">Risk</span>
+                <div className="flex-1 h-1.5 bg-muted/50 rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all ${r.risk > 70 ? "bg-destructive" : r.risk > 30 ? "bg-secondary" : "bg-primary"}`}
+                    style={{ width: `${r.risk}%` }}
+                  />
+                </div>
+                <span className="text-[10px] font-medium w-6 text-right">{r.risk}%</span>
+              </div>
+            </motion.div>
+          );
+        })}
       </div>
     </motion.div>
   );
