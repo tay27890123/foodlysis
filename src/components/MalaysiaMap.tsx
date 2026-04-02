@@ -253,8 +253,8 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
                         <span className="text-xs font-medium" style={{ color: defaultCol.stroke }}>{defaultCol.label}</span>
                       </div>
                       <div className="mt-2 space-y-0.5 text-xs text-muted-foreground">
-                        <p>Production: <span className="text-foreground font-medium">{data.production.toLocaleString()} t</span></p>
-                        <p>Demand: <span className="text-foreground font-medium">{data.demand.toLocaleString()} t</span></p>
+                        <p>Production: <span className="text-foreground font-medium">{data.production.toLocaleString()} kg</span></p>
+                        <p>Demand: <span className="text-foreground font-medium">{data.demand.toLocaleString()} kg</span></p>
                       </div>
                     </>
                   )}

@@ -220,7 +220,7 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
 export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): string {
   switch (layer) {
     case "foodSupply":
-      return `${state.production.toLocaleString()} t`;
+      return `${state.production.toLocaleString()} kg`;
     case "cpi":
       return `CPI ${state.cpiIndex.toFixed(1)} (${state.cpiChange >= 0 ? "+" : ""}${state.cpiChange.toFixed(1)}%)`;
     case "ppi": {

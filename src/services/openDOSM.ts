@@ -193,7 +193,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
     insights.push({
       id: "crop-production-seller",
       title: change < 0 ? "Crop Output Declining — Higher Value" : "Crop Output Growing — More to Sell",
-      description: `Total crop production ${change < 0 ? "fell" : "rose"} ${Math.abs(change).toFixed(1)}% YoY to ${(totalNow / 1e6).toFixed(1)}M tonnes. ${change < 0 ? "Lower supply may command premium prices for available stock." : "Higher output — consider listing surplus before spoilage."}`,
+      description: `Total crop production ${change < 0 ? "fell" : "rose"} ${Math.abs(change).toFixed(1)}% YoY to ${(totalNow / 1e3).toLocaleString()} kg. ${change < 0 ? "Lower supply may command premium prices for available stock." : "Higher output — consider listing surplus before spoilage."}`,
       category: "Seller",
       timestamp: `Data as of ${years[0].slice(0, 4)}`,
       status: change < -5 ? "Warning" : "Normal",
@@ -205,12 +205,12 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
     insights.push({
       id: "crop-production-buyer",
       title: change < 0 ? "Local Supply Shrinking — Act Early" : "Abundant Local Supply",
-      description: `Agricultural output ${change < 0 ? "declined" : "grew"} ${Math.abs(change).toFixed(1)}% to ${(totalNow / 1e6).toFixed(1)}M tonnes. ${change < 0 ? "Reduced production may lead to price hikes — secure supply early." : "Good availability and potential for better prices from local farmers."}`,
+      description: `Agricultural output ${change < 0 ? "declined" : "grew"} ${Math.abs(change).toFixed(1)}% to ${(totalNow / 1e3).toLocaleString()} kg. ${change < 0 ? "Reduced production may lead to price hikes — secure supply early." : "Good availability and potential for better prices from local farmers."}`,
       category: "Buyer",
       timestamp: `Data as of ${years[0].slice(0, 4)}`,
       status: change < -5 ? "Critical" : change < 0 ? "Warning" : "Normal",
       source: "OpenDOSM — Crops State",
-      value: `${(totalNow / 1e6).toFixed(1)}M tonnes`,
+      value: `${(totalNow / 1e3).toLocaleString()} kg`,
     });
 
     // Individual crop alerts
@@ -226,7 +226,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
           insights.push({
             id: `crop-${crop.crop_type}-buyer`,
             title: `${label} Supply Dropping`,
-            description: `${label} production fell ${Math.abs(cropChange).toFixed(1)}% to ${(crop.production / 1e3).toFixed(0)}K tonnes. Buyers should consider alternatives or locking in prices early.`,
+            description: `${label} production fell ${Math.abs(cropChange).toFixed(1)}% to ${crop.production.toLocaleString()} kg. Buyers should consider alternatives or locking in prices early.`,
             category: "Buyer",
             timestamp: `Data as of ${years[0].slice(0, 4)}`,
             status: cropChange < -10 ? "Warning" : "Normal",
@@ -238,7 +238,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
           insights.push({
             id: `crop-${crop.crop_type}-seller`,
             title: `${label} Output Surge — List Now`,
-            description: `${label} production surged ${cropChange.toFixed(1)}% to ${(crop.production / 1e3).toFixed(0)}K tonnes. High supply — list surplus quickly to avoid waste and capture value.`,
+            description: `${label} production surged ${cropChange.toFixed(1)}% to ${crop.production.toLocaleString()} kg. High supply — list surplus quickly to avoid waste and capture value.`,
             category: "Seller",
             timestamp: `Data as of ${years[0].slice(0, 4)}`,
             status: "Normal",
