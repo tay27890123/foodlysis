@@ -51,9 +51,6 @@ const Navbar = () => {
             className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl"
           >
             <div className="container flex flex-col gap-4 py-6">
-              <a href="#mission" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>Mission</a>
-              <a href="#features" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>Features</a>
-              <a href="#how-it-works" className="text-sm text-muted-foreground" onClick={() => setMobileOpen(false)}>How It Works</a>
               <Link to="/match" onClick={() => setMobileOpen(false)}>
                 <Button variant="outline" className="w-full" size="sm">Marketplace</Button>
               </Link>
