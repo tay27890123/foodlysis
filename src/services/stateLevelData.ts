@@ -4,7 +4,7 @@ const BASE_URL = "https://api.data.gov.my/opendosm/";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-export type DataLayer = "foodSupply" | "cpi" | "surplus" | "ssl" | "weather";
+export type DataLayer = "foodSupply" | "cpi" | "ppi" | "ssl";
 
 export type WeatherRisk = "normal" | "advisory" | "warning" | "danger";
 
