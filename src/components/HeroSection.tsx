@@ -75,7 +75,7 @@ const HeroSection = () => {
             {[
               { value: "2,400+", label: "Suppliers" },
               { value: "180+", label: "Retail Partners" },
-              { value: "15K MT", label: "Food Saved/Year" },
+              { value: "15M kg", label: "Food Saved/Year" },
             ].map((stat) => (
               <div key={stat.label}>
                 <div className="font-display text-2xl font-bold text-primary">{stat.value}</div>
