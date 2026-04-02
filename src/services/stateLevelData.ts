@@ -25,6 +25,8 @@ export interface StateMetrics {
   demand: number;            // total tonnes
   cpiIndex: number;          // aggregate CPI food index
   cpiChange: number;         // month-on-month % change
+  ppiIndex: number;          // producer price index
+  ppiChange: number;         // month-on-month % change
   surplusListings: number;   // marketplace surplus items
   mainCrops: string[];
   notes: string;
