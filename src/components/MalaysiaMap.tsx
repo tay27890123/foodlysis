@@ -1,4 +1,6 @@
 import { useState, useCallback } from "react";
+import { useMapZoomPan } from "@/hooks/useMapZoomPan";
+import ZoomControls from "@/components/ZoomControls";
 import { ComposableMap, Geographies, Geography, Marker } from "react-simple-maps";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -83,6 +85,7 @@ const HOVER_FILL = "#1A4D35";
 
 const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors, tooltipContent }: MalaysiaMapProps) => {
   const [hoveredState, setHoveredState] = useState<string | null>(null);
+  const { state: zoomState, containerProps, transformStyle, zoomIn, zoomOut, reset } = useMapZoomPan(1, 4);
 
   const getStateData = useCallback(
     (id: string) => stateData.find((s) => s.id === id),
@@ -176,8 +179,10 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
 
   return (
     <div className="relative w-full">
+      <ZoomControls onZoomIn={zoomIn} onZoomOut={zoomOut} onReset={reset} scale={zoomState.scale} />
       {/* Two-panel layout: West (55%) + East (45%) */}
-      <div className="flex items-center w-full gap-4" style={{ maxHeight: "380px" }}>
+      <div {...containerProps} className="flex items-center w-full gap-4 overflow-hidden select-none" style={{ maxHeight: "380px" }}>
+        <div style={transformStyle} className="flex items-center w-full gap-4">
         {/* Peninsular Malaysia */}
         <div className="flex-[55] relative">
           <ComposableMap
@@ -225,6 +230,7 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
           </ComposableMap>
           <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground/40 font-medium tracking-wider">EAST MALAYSIA</span>
         </div>
+      </div>
       </div>
 
       {/* Hover tooltip */}

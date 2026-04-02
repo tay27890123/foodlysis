@@ -10,7 +10,7 @@ const LogisticsDashboard = () => (
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
         <h1 className="font-display text-3xl font-bold mb-1 flex items-center gap-3">
           <Navigation className="h-8 w-8 text-primary" />
-          Smart Route
+          Transit Monitor
         </h1>
         <p className="text-muted-foreground">Live weather conditions & route status across Malaysia</p>
       </motion.div>
