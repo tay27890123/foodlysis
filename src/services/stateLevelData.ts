@@ -175,7 +175,7 @@ export function getChoroplethValue(state: StateMetrics, layer: DataLayer): numbe
     case "cpi":
       return state.cpiIndex;
     case "ppi":
-      return state.ppiIndex;
+      return state.ppiIndex ?? 100;
     case "ssl":
       return state.demand > 0 ? (state.production / state.demand) * 100 : 0;
   }
@@ -223,8 +223,11 @@ export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): stri
       return `${state.production.toLocaleString()} t`;
     case "cpi":
       return `CPI ${state.cpiIndex.toFixed(1)} (${state.cpiChange >= 0 ? "+" : ""}${state.cpiChange.toFixed(1)}%)`;
-    case "ppi":
-      return `PPI ${state.ppiIndex.toFixed(1)} (${state.ppiChange >= 0 ? "+" : ""}${state.ppiChange.toFixed(1)}%)`;
+    case "ppi": {
+      const ppi = state.ppiIndex ?? 100;
+      const ppiChg = state.ppiChange ?? 0;
+      return `PPI ${ppi.toFixed(1)} (${ppiChg >= 0 ? "+" : ""}${ppiChg.toFixed(1)}%)`;
+    }
     case "ssl": {
       const ssl = state.demand > 0 ? (state.production / state.demand) * 100 : 0;
       return `SSL ${ssl.toFixed(1)}%`;
@@ -272,10 +275,10 @@ export function getLayerSummaryCards(states: StateMetrics[], layer: DataLayer): 
       ];
     }
     case "ppi": {
-      const low = states.filter(s => s.ppiIndex < 115).length;
-      const mod = states.filter(s => s.ppiIndex >= 115 && s.ppiIndex < 120).length;
-      const high = states.filter(s => s.ppiIndex >= 120 && s.ppiIndex < 125).length;
-      const crit = states.filter(s => s.ppiIndex >= 125).length;
+      const low = states.filter(s => (s.ppiIndex ?? 100) < 115).length;
+      const mod = states.filter(s => (s.ppiIndex ?? 100) >= 115 && (s.ppiIndex ?? 100) < 120).length;
+      const high = states.filter(s => (s.ppiIndex ?? 100) >= 120 && (s.ppiIndex ?? 100) < 125).length;
+      const crit = states.filter(s => (s.ppiIndex ?? 100) >= 125).length;
       return [
         { key: "low", label: "Low (<115)", count: low, fill: "hsl(200 55% 35% / 0.4)", stroke: "hsl(200 55% 50%)", icon: "🟢" },
         { key: "moderate", label: "Moderate", count: mod, fill: "hsl(170 45% 38% / 0.35)", stroke: "hsl(170 45% 52%)", icon: "🟡" },
