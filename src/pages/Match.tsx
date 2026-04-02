@@ -177,11 +177,13 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
         </div>
       </div>
 
-      <div className="px-5 pb-5">
-        <Button className="w-full" size="sm">
-          <Tag className="h-3.5 w-3.5 mr-2" /> Place Bid
-        </Button>
-      </div>
+      {mode === "buy" && (
+        <div className="px-5 pb-5">
+          <Button className="w-full" size="sm" variant="outline" onClick={() => toast.info("Contact feature coming soon!")}>
+            <MessageCircle className="h-3.5 w-3.5 mr-2" /> Contact Seller
+          </Button>
+        </div>
+      )}
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
