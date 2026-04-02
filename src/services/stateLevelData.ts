@@ -175,7 +175,7 @@ export function getChoroplethValue(state: StateMetrics, layer: DataLayer): numbe
     case "cpi":
       return state.cpiIndex;
     case "ppi":
-      return state.ppiIndex;
+      return state.ppiIndex ?? 100;
     case "ssl":
       return state.demand > 0 ? (state.production / state.demand) * 100 : 0;
   }
