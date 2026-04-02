@@ -80,7 +80,7 @@ const useAreaName = (listing: SurplusListing) => {
   return area;
 };
 
-const SurplusCard = ({ listing, index, distance, onRefresh }: SurplusCardProps & { onRefresh: () => void }) => {
+const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardProps & { onRefresh: () => void }) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const areaName = useAreaName(listing);
