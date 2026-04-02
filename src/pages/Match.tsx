@@ -121,9 +121,6 @@ const Match = () => {
           </div>
           <div className="flex items-center gap-2">
             <AddListingModal onSuccess={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
-            <Link to="/dashboard">
-              <Button variant="outline" size="sm">Dashboard</Button>
-            </Link>
           </div>
         </div>
       </header>
