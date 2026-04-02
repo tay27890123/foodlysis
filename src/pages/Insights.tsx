@@ -161,7 +161,7 @@ const Insights = () => {
           </div>
         )}
 
-        {insights && insights.length > 0 && (
+        {insights && filtered.length > 0 && (
           <div className="space-y-10">
             {/* Seller Section */}
             <section>
