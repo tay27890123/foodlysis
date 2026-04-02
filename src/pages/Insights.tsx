@@ -79,8 +79,22 @@ const Insights = () => {
     retry: 2,
   });
 
-  const sellerInsights = useMemo(() => insights?.filter(i => i.category === "Seller") ?? [], [insights]);
-  const buyerInsights = useMemo(() => insights?.filter(i => i.category === "Buyer") ?? [], [insights]);
+  const [search, setSearch] = useState("");
+
+  const filtered = useMemo(() => {
+    if (!insights) return [];
+    if (!search.trim()) return insights;
+    const q = search.toLowerCase();
+    return insights.filter(i =>
+      i.title.toLowerCase().includes(q) ||
+      i.description.toLowerCase().includes(q) ||
+      i.value?.toLowerCase().includes(q) ||
+      i.source.toLowerCase().includes(q)
+    );
+  }, [insights, search]);
+
+  const sellerInsights = useMemo(() => filtered.filter(i => i.category === "Seller"), [filtered]);
+  const buyerInsights = useMemo(() => filtered.filter(i => i.category === "Buyer"), [filtered]);
 
   return (
     <div className="min-h-screen bg-background">
