@@ -21,11 +21,14 @@ interface CropRecord {
   planted_area: number;
 }
 
+export type InsightTopic = "Price" | "Inflation" | "Import" | "Export" | "Trade" | "Production" | "Supply" | "Industry" | "Marketplace";
+
 export interface DynamicInsight {
   id: string;
   title: string;
   description: string;
   category: "Seller" | "Buyer";
+  topic: InsightTopic;
   timestamp: string;
   status: "Normal" | "Warning" | "Critical" | "Live";
   source: string;
@@ -69,6 +72,7 @@ async function fetchFoodCPI(): Promise<DynamicInsight[]> {
         title: rising ? "Food Prices Rising — Budget Impact" : "Food Prices Stabilising — Good for Buyers",
         description: `The Consumer Price Index for Food rose ${Math.abs(change).toFixed(1)}% month-on-month (${foodPrev.toFixed(1)} → ${foodNow.toFixed(1)}). ${rising ? "Expect higher procurement costs — consider bulk buying or switching to cheaper alternatives." : "Stable prices present good buying opportunities."}`,
         category: "Buyer",
+        topic: "Price",
         timestamp: `Data as of ${formatDate(dates[0])}`,
         status: Math.abs(change) > 1.5 ? "Critical" : change > 0.5 ? "Warning" : "Normal",
         source: "OpenDOSM — CPI Headline",
@@ -80,6 +84,7 @@ async function fetchFoodCPI(): Promise<DynamicInsight[]> {
         title: rising ? "Selling Prices Trending Up" : "Price Pressure Easing",
         description: `Food CPI moved ${Math.abs(change).toFixed(1)}% month-on-month. ${rising ? "Market supports higher selling prices — good time to list surplus at current rates." : "Competitive pricing may be needed to move inventory quickly."}`,
         category: "Seller",
+        topic: "Price",
         timestamp: `Data as of ${formatDate(dates[0])}`,
         status: change > 1 ? "Normal" : change < -0.5 ? "Warning" : "Normal",
         source: "OpenDOSM — CPI Headline",
@@ -96,6 +101,7 @@ async function fetchFoodCPI(): Promise<DynamicInsight[]> {
         title: change > 0 ? "General Inflation Trending Up" : "Inflation Cooling Down",
         description: `Malaysia's headline CPI moved ${change > 0 ? "up" : "down"} ${Math.abs(change).toFixed(1)}% to ${overallNow.toFixed(1)}. ${change > 0.5 ? "Higher general costs may reduce consumer purchasing power." : "Lower inflation benefits buyer budgets."}`,
         category: "Buyer",
+        topic: "Inflation",
         timestamp: `Data as of ${formatDate(dates[0])}`,
         status: change > 1 ? "Warning" : "Normal",
         source: "OpenDOSM — CPI Headline",
@@ -130,6 +136,7 @@ async function fetchFoodTrade(): Promise<DynamicInsight[]> {
       title: importChange > 0 ? "More Imported Food Available" : "Imported Food Supply Tightening",
       description: `Food imports ${importChange > 0 ? "rose" : "fell"} ${Math.abs(importChange).toFixed(1)}% to RM${(latest.imports / 1e9).toFixed(1)}B. ${importChange > 0 ? "Greater import volume means more variety and competitive prices for buyers." : "Reduced imports may limit choices — consider local alternatives."}`,
       category: "Buyer",
+      topic: "Import",
       timestamp: `Data as of ${formatDate(latest.date)}`,
       status: importChange < -5 ? "Warning" : "Normal",
       source: "OpenDOSM — Trade SITC",
@@ -143,6 +150,7 @@ async function fetchFoodTrade(): Promise<DynamicInsight[]> {
       title: exportChange > 0 ? "Export Demand Growing" : "Export Demand Weakening",
       description: `Food exports ${exportChange > 0 ? "grew" : "contracted"} ${Math.abs(exportChange).toFixed(1)}% to RM${(latest.exports / 1e9).toFixed(1)}B. ${exportChange > 0 ? "Strong export demand — sellers can explore cross-border opportunities." : "Weaker exports — focus on domestic marketplace for better margins."}`,
       category: "Seller",
+      topic: "Export",
       timestamp: `Data as of ${formatDate(latest.date)}`,
       status: exportChange < -5 ? "Warning" : "Normal",
       source: "OpenDOSM — Trade SITC",
@@ -155,6 +163,7 @@ async function fetchFoodTrade(): Promise<DynamicInsight[]> {
       title: isDeficit ? "Trade Deficit — Local Supply Needed" : "Trade Surplus — Strong Position",
       description: `Malaysia's food trade ${isDeficit ? "deficit" : "surplus"} is RM${(Math.abs(balance) / 1e9).toFixed(1)}B. ${isDeficit ? "Import dependency creates opportunity for local sellers to fill supply gaps." : "Healthy surplus shows strong agricultural competitiveness."}`,
       category: "Seller",
+      topic: "Trade",
       timestamp: `Data as of ${formatDate(latest.date)}`,
       status: isDeficit ? "Normal" : "Normal",
       source: "OpenDOSM — Trade SITC",
@@ -195,6 +204,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
       title: change < 0 ? "Crop Output Declining — Higher Value" : "Crop Output Growing — More to Sell",
       description: `Total crop production ${change < 0 ? "fell" : "rose"} ${Math.abs(change).toFixed(1)}% YoY to ${(totalNow / 1e3).toLocaleString()} kg. ${change < 0 ? "Lower supply may command premium prices for available stock." : "Higher output — consider listing surplus before spoilage."}`,
       category: "Seller",
+      topic: "Production",
       timestamp: `Data as of ${years[0].slice(0, 4)}`,
       status: change < -5 ? "Warning" : "Normal",
       source: "OpenDOSM — Crops State",
@@ -207,6 +217,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
       title: change < 0 ? "Local Supply Shrinking — Act Early" : "Abundant Local Supply",
       description: `Agricultural output ${change < 0 ? "declined" : "grew"} ${Math.abs(change).toFixed(1)}% to ${(totalNow / 1e3).toLocaleString()} kg. ${change < 0 ? "Reduced production may lead to price hikes — secure supply early." : "Good availability and potential for better prices from local farmers."}`,
       category: "Buyer",
+      topic: "Supply",
       timestamp: `Data as of ${years[0].slice(0, 4)}`,
       status: change < -5 ? "Critical" : change < 0 ? "Warning" : "Normal",
       source: "OpenDOSM — Crops State",
@@ -228,6 +239,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
             title: `${label} Supply Dropping`,
             description: `${label} production fell ${Math.abs(cropChange).toFixed(1)}% to ${crop.production.toLocaleString()} kg. Buyers should consider alternatives or locking in prices early.`,
             category: "Buyer",
+            topic: "Supply",
             timestamp: `Data as of ${years[0].slice(0, 4)}`,
             status: cropChange < -10 ? "Warning" : "Normal",
             source: "OpenDOSM — Crops State",
@@ -240,6 +252,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
             title: `${label} Output Surge — List Now`,
             description: `${label} production surged ${cropChange.toFixed(1)}% to ${crop.production.toLocaleString()} kg. High supply — list surplus quickly to avoid waste and capture value.`,
             category: "Seller",
+            topic: "Production",
             timestamp: `Data as of ${years[0].slice(0, 4)}`,
             status: "Normal",
             source: "OpenDOSM — Crops State",
@@ -270,6 +283,7 @@ async function fetchIPI(): Promise<DynamicInsight[]> {
       title: growth > 0 ? "Processing Capacity Expanding" : "Processing Capacity Shrinking",
       description: `Industrial Production Index grew ${growth.toFixed(1)}% YoY. ${growth > 0 ? "More processing facilities active — good for sellers of raw ingredients to food manufacturers." : "Reduced industrial activity may slow demand from food processors."}`,
       category: "Seller",
+      topic: "Industry",
       timestamp: `Data as of ${formatDate(latest.date)}`,
       status: growth < 0 ? "Warning" : "Normal",
       source: "OpenDOSM — IPI",
@@ -308,6 +322,7 @@ export async function fetchAllInsights(): Promise<DynamicInsight[]> {
     title: "Best Deals Right Now",
     description: "Grade A Tomatoes in Pahang at RM 3.50/kg (−12% from yesterday). Kangkung in Selangor at RM 2.80/kg. Favourable buying conditions detected across multiple categories.",
     category: "Buyer",
+    topic: "Marketplace",
     timestamp: "Updated today",
     status: "Live",
     source: "Marketplace Data",
@@ -319,6 +334,7 @@ export async function fetchAllInsights(): Promise<DynamicInsight[]> {
     title: "High Demand Items",
     description: "Chili Padi demand up 22% this week. Chicken demand steady at 15K kg/day. List these items for fastest sales on the marketplace.",
     category: "Seller",
+    topic: "Marketplace",
     timestamp: "Updated today",
     status: "Live",
     source: "Marketplace Data",

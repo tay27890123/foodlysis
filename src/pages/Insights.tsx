@@ -5,12 +5,24 @@ import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAllInsights, type DynamicInsight } from "@/services/openDOSM";
+import { fetchAllInsights, type DynamicInsight, type InsightTopic } from "@/services/openDOSM";
 import { useMemo, useState } from "react";
 
 const categoryConfig: Record<string, { icon: typeof Store; className: string }> = {
   Seller: { icon: Store, className: "bg-primary/20 text-primary border-primary/30" },
   Buyer: { icon: ShoppingCart, className: "bg-secondary/20 text-secondary border-secondary/30" },
+};
+
+const topicStyles: Record<InsightTopic, string> = {
+  Price: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+  Inflation: "bg-orange-500/15 text-orange-400 border-orange-500/30",
+  Import: "bg-cyan-500/15 text-cyan-400 border-cyan-500/30",
+  Export: "bg-indigo-500/15 text-indigo-400 border-indigo-500/30",
+  Trade: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+  Production: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+  Supply: "bg-teal-500/15 text-teal-400 border-teal-500/30",
+  Industry: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+  Marketplace: "bg-pink-500/15 text-pink-400 border-pink-500/30",
 };
 
 const statusConfig: Record<string, { className: string; label: string; dot: string; pulse?: boolean }> = {
@@ -34,11 +46,16 @@ const InsightCard = ({ item, index }: { item: DynamicInsight; index: number }) =
       <Card className="group h-full border-border/50 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between gap-2">
-            <Badge variant="outline" className={cat.className}>
-              <CatIcon className="mr-1 h-3 w-3" />
-              {item.category}
-            </Badge>
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              <Badge variant="outline" className={cat.className}>
+                <CatIcon className="mr-1 h-3 w-3" />
+                {item.category}
+              </Badge>
+              <Badge variant="outline" className={topicStyles[item.topic] ?? "bg-muted/20 text-muted-foreground border-border/30"}>
+                {item.topic}
+              </Badge>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
               <span className={`h-2 w-2 rounded-full ${stat.dot} ${stat.pulse ? "animate-pulse" : ""}`} />
               <span className={`text-xs font-medium ${stat.className}`}>{stat.label}</span>
             </div>
