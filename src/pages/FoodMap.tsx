@@ -27,10 +27,9 @@ const statusIcon: Record<StateStatus, React.ElementType> = {
 
 const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; description: string }[] = [
   { id: "foodSupply", label: "Food Supply", icon: BarChart3, description: "Full supply-demand by category" },
-  { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Price index & inflation" },
+  { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Consumer Price Index & inflation" },
+  { id: "ppi", label: "Food PPI", icon: Percent, description: "Producer Price Index" },
   { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level" },
-  { id: "weather", label: "Weather Risk", icon: CloudRain, description: "MET Malaysia alerts" },
-  { id: "surplus", label: "Surplus Listings", icon: ShoppingCart, description: "Marketplace activity" },
 ];
 
 const FoodMap = () => {

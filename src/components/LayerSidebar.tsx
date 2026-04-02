@@ -58,9 +58,8 @@ export default function LayerSidebar({ selected, activeLayer, states, onSelect }
         <motion.div key={`${selected.id}-${activeLayer}`} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
           {activeLayer === "foodSupply" && <FoodSupplyPanel state={selected} />}
           {activeLayer === "cpi" && <CPIPanel state={selected} />}
+          {activeLayer === "ppi" && <PPIPanel state={selected} />}
           {activeLayer === "ssl" && <SSLPanel state={selected} />}
-          {activeLayer === "weather" && <WeatherPanel state={selected} />}
-          {activeLayer === "surplus" && <SurplusPanel state={selected} />}
         </motion.div>
       </AnimatePresence>
     </div>
