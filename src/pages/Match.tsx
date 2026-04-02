@@ -48,7 +48,7 @@ const isCoordLabel = (label?: string | null) => {
 const areaNameCache = new Map<string, string>();
 
 const useAreaName = (listing: SurplusListing) => {
-  const rawLabel = (listing as any).location_label as string | null;
+  const rawLabel = listing.location_label;
   const lat = listing.location_lat;
   const lng = listing.location_lng;
   const [area, setArea] = useState<string>(rawLabel && !isCoordLabel(rawLabel) ? rawLabel : "");
