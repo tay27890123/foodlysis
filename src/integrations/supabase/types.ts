@@ -44,6 +44,9 @@ export type Database = {
           created_at: string
           discounted_price: number
           id: string
+          location_label: string | null
+          location_lat: number | null
+          location_lng: number | null
           original_price: number
           product_name: string
           quantity_kg: number
@@ -56,6 +59,9 @@ export type Database = {
           created_at?: string
           discounted_price: number
           id?: string
+          location_label?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
           original_price: number
           product_name: string
           quantity_kg: number
@@ -68,6 +74,9 @@ export type Database = {
           created_at?: string
           discounted_price?: number
           id?: string
+          location_label?: string | null
+          location_lat?: number | null
+          location_lng?: number | null
           original_price?: number
           product_name?: string
           quantity_kg?: number
