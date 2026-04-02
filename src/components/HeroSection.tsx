@@ -67,29 +67,6 @@ const HeroSection = () => {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="flex flex-wrap gap-3 mt-6"
-          >
-            <a href="#mission">
-              <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground">
-                Our Mission
-              </Button>
-            </a>
-            <a href="#features">
-              <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground">
-                Features
-              </Button>
-            </a>
-            <a href="#how-it-works">
-              <Button size="sm" variant="ghost" className="text-muted-foreground hover:text-foreground">
-                How It Works
-              </Button>
-            </a>
-          </motion.div>
-
-          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.6 }}
