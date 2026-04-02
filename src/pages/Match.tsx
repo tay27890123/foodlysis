@@ -122,20 +122,10 @@ const Match = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {user ? (
-              <>
-                {profile?.role === "supplier" && (
-                  <AddListingModal onSuccess={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
-                )}
-                <Link to="/dashboard">
-                  <Button variant="outline" size="sm">Dashboard</Button>
-                </Link>
-              </>
-            ) : (
-              <Link to="/auth">
-                <Button size="sm" className="gap-2"><LogIn className="h-4 w-4" /> Sign In</Button>
-              </Link>
-            )}
+            <AddListingModal onSuccess={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
+            <Link to="/dashboard">
+              <Button variant="outline" size="sm">Dashboard</Button>
+            </Link>
           </div>
         </div>
       </header>
