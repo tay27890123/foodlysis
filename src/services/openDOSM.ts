@@ -163,6 +163,7 @@ async function fetchFoodTrade(): Promise<DynamicInsight[]> {
       title: isDeficit ? "Trade Deficit — Local Supply Needed" : "Trade Surplus — Strong Position",
       description: `Malaysia's food trade ${isDeficit ? "deficit" : "surplus"} is RM${(Math.abs(balance) / 1e9).toFixed(1)}B. ${isDeficit ? "Import dependency creates opportunity for local sellers to fill supply gaps." : "Healthy surplus shows strong agricultural competitiveness."}`,
       category: "Seller",
+      topic: "Trade",
       timestamp: `Data as of ${formatDate(latest.date)}`,
       status: isDeficit ? "Normal" : "Normal",
       source: "OpenDOSM — Trade SITC",
