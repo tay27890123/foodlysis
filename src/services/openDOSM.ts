@@ -226,7 +226,7 @@ async function fetchCropProduction(): Promise<DynamicInsight[]> {
           insights.push({
             id: `crop-${crop.crop_type}-buyer`,
             title: `${label} Supply Dropping`,
-            description: `${label} production fell ${Math.abs(cropChange).toFixed(1)}% to ${(crop.production / 1e3).toFixed(0)}K tonnes. Buyers should consider alternatives or locking in prices early.`,
+            description: `${label} production fell ${Math.abs(cropChange).toFixed(1)}% to ${crop.production.toLocaleString()} kg. Buyers should consider alternatives or locking in prices early.`,
             category: "Buyer",
             timestamp: `Data as of ${years[0].slice(0, 4)}`,
             status: cropChange < -10 ? "Warning" : "Normal",
