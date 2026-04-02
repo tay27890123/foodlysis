@@ -13,6 +13,9 @@ export interface SurplusListing {
   urgency_level: "Low" | "Medium" | "High";
   status: string;
   created_at: string;
+  location_lat: number | null;
+  location_lng: number | null;
+  location_label: string | null;
   profiles: {
     business_name: string;
     location_state: string;
