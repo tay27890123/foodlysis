@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Leaf, ArrowLeft, Search, MapPin, Weight,
   Tag, SlidersHorizontal, X, Package, Navigation, ShoppingCart, Store,
-  Pencil, Trash2, MoreVertical
+  Pencil, Trash2, MoreVertical, MessageCircle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
@@ -38,6 +38,7 @@ interface SurplusCardProps {
   listing: SurplusListing;
   index: number;
   distance?: number | null;
+  mode: "buy" | "sell";
 }
 
 const isCoordLabel = (label?: string | null) => {
@@ -79,7 +80,7 @@ const useAreaName = (listing: SurplusListing) => {
   return area;
 };
 
-const SurplusCard = ({ listing, index, distance, onRefresh }: SurplusCardProps & { onRefresh: () => void }) => {
+const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardProps & { onRefresh: () => void }) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const areaName = useAreaName(listing);
@@ -115,27 +116,29 @@ const SurplusCard = ({ listing, index, distance, onRefresh }: SurplusCardProps &
         </Badge>
         <div className="flex items-center gap-1">
           <span className="text-xs text-muted-foreground">{listing.category}</span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <MoreVertical className="h-3.5 w-3.5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <AddListingModal
-                editListing={listing}
-                onSuccess={onRefresh}
-                trigger={
-                  <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="gap-2 cursor-pointer">
-                    <Pencil className="h-3.5 w-3.5" /> Edit
-                  </DropdownMenuItem>
-                }
-              />
-              <DropdownMenuItem className="gap-2 text-destructive cursor-pointer" onClick={() => setDeleteOpen(true)}>
-                <Trash2 className="h-3.5 w-3.5" /> Delete
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {mode === "sell" && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm" className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <MoreVertical className="h-3.5 w-3.5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <AddListingModal
+                  editListing={listing}
+                  onSuccess={onRefresh}
+                  trigger={
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="gap-2 cursor-pointer">
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </DropdownMenuItem>
+                  }
+                />
+                <DropdownMenuItem className="gap-2 text-destructive cursor-pointer" onClick={() => setDeleteOpen(true)}>
+                  <Trash2 className="h-3.5 w-3.5" /> Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
 
@@ -174,11 +177,13 @@ const SurplusCard = ({ listing, index, distance, onRefresh }: SurplusCardProps &
         </div>
       </div>
 
-      <div className="px-5 pb-5">
-        <Button className="w-full" size="sm">
-          <Tag className="h-3.5 w-3.5 mr-2" /> Place Bid
-        </Button>
-      </div>
+      {mode === "buy" && (
+        <div className="px-5 pb-5">
+          <Button className="w-full" size="sm" variant="outline" onClick={() => toast.info("Contact feature coming soon!")}>
+            <MessageCircle className="h-3.5 w-3.5 mr-2" /> Contact Seller
+          </Button>
+        </div>
+      )}
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
@@ -313,7 +318,7 @@ const Match = () => {
           {sorted.length > 0 ? (
             <motion.div key={`${category}-${search}-${tab}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {sorted.map((listing, i) => (
-                <SurplusCard key={listing.id} listing={listing} index={i} distance={listing._distance} onRefresh={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
+                <SurplusCard key={listing.id} listing={listing} index={i} distance={listing._distance} mode={tab as "buy" | "sell"} onRefresh={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
               ))}
             </motion.div>
           ) : (
