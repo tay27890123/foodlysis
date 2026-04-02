@@ -26,14 +26,14 @@ const Navbar = () => {
           <Link to="/dashboard">
             <Button variant="outline" size="sm">Market</Button>
           </Link>
-          <Link to="/insights">
-            <Button variant="outline" size="sm">Insights</Button>
-          </Link>
           <Link to="/food-map">
             <Button variant="outline" size="sm">Food Map</Button>
           </Link>
           <Link to="/logistics">
-            <Button size="sm">Logistics</Button>
+            <Button variant="outline" size="sm">Logistics</Button>
+          </Link>
+          <Link to="/insights">
+            <Button variant="outline" size="sm" className="gap-1.5">Insights <Lock className="h-3 w-3" /></Button>
           </Link>
         </div>
 
