@@ -44,12 +44,12 @@ export const useSurplusListings = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("surplus_listings")
-        .select("*, profiles(business_name, location_state)")
+        .select("*")
         .eq("status", "Active")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
-      return data as SurplusListing[];
+      return (data ?? []).map((d) => ({ ...d, profiles: null })) as SurplusListing[];
     },
   });
 };
