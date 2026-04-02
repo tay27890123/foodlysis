@@ -84,6 +84,7 @@ async function fetchFoodCPI(): Promise<DynamicInsight[]> {
         title: rising ? "Selling Prices Trending Up" : "Price Pressure Easing",
         description: `Food CPI moved ${Math.abs(change).toFixed(1)}% month-on-month. ${rising ? "Market supports higher selling prices — good time to list surplus at current rates." : "Competitive pricing may be needed to move inventory quickly."}`,
         category: "Seller",
+        topic: "Price",
         timestamp: `Data as of ${formatDate(dates[0])}`,
         status: change > 1 ? "Normal" : change < -0.5 ? "Warning" : "Normal",
         source: "OpenDOSM — CPI Headline",
