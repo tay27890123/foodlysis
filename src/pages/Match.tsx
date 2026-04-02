@@ -318,7 +318,7 @@ const Match = () => {
           {sorted.length > 0 ? (
             <motion.div key={`${category}-${search}-${tab}`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {sorted.map((listing, i) => (
-                <SurplusCard key={listing.id} listing={listing} index={i} distance={listing._distance} onRefresh={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
+                <SurplusCard key={listing.id} listing={listing} index={i} distance={listing._distance} mode={tab as "buy" | "sell"} onRefresh={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
               ))}
             </motion.div>
           ) : (
