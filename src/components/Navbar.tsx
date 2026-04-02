@@ -15,8 +15,8 @@ const marketItems: DropdownItem[] = [
 ];
 
 const dataItems: DropdownItem[] = [
-  { label: "Food Map", to: "/food-map" },
-  { label: "Smart Route", to: "/logistics" },
+  { label: "Food Data Map", to: "/food-map" },
+  { label: "Transit Monitor", to: "/logistics" },
   { label: "Insights", to: "/insights" },
 ];
 

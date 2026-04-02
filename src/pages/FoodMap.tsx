@@ -174,13 +174,16 @@ const FoodMap = () => {
                   />
                 </CardContent>
               </Card>
-              <div className="mt-3 flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-                {(["surplus", "balanced", "warning", "shortage"] as StateStatus[]).map((s) => (
-                  <span key={s} className="flex items-center gap-1.5">
-                    <span className={`h-2 w-2 rounded-full ${statusColors[s].dot}`} />
-                    {statusColors[s].label}
-                  </span>
-                ))}
+              <div className="mt-3 flex flex-wrap items-center justify-between text-xs text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-4">
+                  {(["surplus", "balanced", "warning", "shortage"] as StateStatus[]).map((s) => (
+                    <span key={s} className="flex items-center gap-1.5">
+                      <span className={`h-2 w-2 rounded-full ${statusColors[s].dot}`} />
+                      {statusColors[s].label}
+                    </span>
+                  ))}
+                </div>
+                <span className="text-[10px] text-muted-foreground/40 italic">Source: OpenDOSM · DOSM Malaysia · simulated estimates</span>
               </div>
             </motion.div>
 
