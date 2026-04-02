@@ -1,36 +1,34 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, AlertTriangle, CloudRain, ShoppingCart, Truck, BarChart3, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllInsights, type DynamicInsight } from "@/services/openDOSM";
+import { useMemo } from "react";
 
-const categoryConfig: Record<string, { icon: typeof BarChart3; className: string }> = {
-  Price: { icon: BarChart3, className: "bg-primary/20 text-primary border-primary/30" },
-  Supply: { icon: Truck, className: "bg-accent/20 text-accent border-accent/30" },
-  Import: { icon: ShoppingCart, className: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
-  Weather: { icon: CloudRain, className: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
-  PriceCatcher: { icon: ShoppingCart, className: "bg-teal-500/20 text-teal-400 border-teal-500/30" },
+const categoryConfig: Record<string, { icon: typeof Store; className: string }> = {
+  Seller: { icon: Store, className: "bg-primary/20 text-primary border-primary/30" },
+  Buyer: { icon: ShoppingCart, className: "bg-secondary/20 text-secondary border-secondary/30" },
 };
 
-const statusConfig: Record<string, { icon: typeof TrendingUp; className: string; label: string; dot: string; pulse?: boolean }> = {
-  Normal: { icon: TrendingUp, className: "text-primary", label: "Normal", dot: "bg-primary" },
-  Warning: { icon: TrendingDown, className: "text-accent", label: "Warning", dot: "bg-accent" },
-  Critical: { icon: AlertTriangle, className: "text-destructive", label: "Critical", dot: "bg-destructive" },
-  Live: { icon: TrendingUp, className: "text-emerald-400", label: "Live", dot: "bg-emerald-400", pulse: true },
+const statusConfig: Record<string, { className: string; label: string; dot: string; pulse?: boolean }> = {
+  Normal: { className: "text-primary", label: "Normal", dot: "bg-primary" },
+  Warning: { className: "text-accent", label: "Warning", dot: "bg-accent" },
+  Critical: { className: "text-destructive", label: "Critical", dot: "bg-destructive" },
+  Live: { className: "text-emerald-400", label: "Live", dot: "bg-emerald-400", pulse: true },
 };
 
 const InsightCard = ({ item, index }: { item: DynamicInsight; index: number }) => {
-  const cat = categoryConfig[item.category];
-  const stat = statusConfig[item.status];
+  const cat = categoryConfig[item.category] ?? categoryConfig.Seller;
+  const stat = statusConfig[item.status] ?? statusConfig.Normal;
   const CatIcon = cat.icon;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
+      transition={{ delay: index * 0.04 }}
     >
       <Card className="group h-full border-border/50 bg-card/60 backdrop-blur-sm transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
         <CardHeader className="pb-3">
@@ -80,13 +78,16 @@ const Insights = () => {
     retry: 2,
   });
 
+  const sellerInsights = useMemo(() => insights?.filter(i => i.category === "Seller") ?? [], [insights]);
+  const buyerInsights = useMemo(() => insights?.filter(i => i.category === "Buyer") ?? [], [insights]);
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container pt-24 pb-16">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="font-display text-3xl font-bold"><h1 className="font-display text-3xl font-bold">Malaysia Market Insights</h1></h1>
+              <h1 className="font-display text-3xl font-bold">Malaysia Market Insights</h1>
               <p className="mt-2 text-muted-foreground">
                 Live market intelligence powered by{" "}
                 <a href="https://open.dosm.gov.my" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
@@ -95,11 +96,8 @@ const Insights = () => {
                 ,{" "}
                 <a href="https://data.gov.my" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
                   data.gov.my
-                </a>{" "}
-                &amp;{" "}
-                <a href="https://www.kpdn.gov.my" target="_blank" rel="noopener noreferrer" className="text-teal-400 underline underline-offset-2 hover:text-teal-300">
-                  PriceCatcher (KPDN)
                 </a>
+                {" & marketplace data"}
               </p>
             </div>
             <Button
@@ -125,7 +123,7 @@ const Insights = () => {
         {isError && (
           <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
             <AlertTriangle className="mb-4 h-8 w-8 text-destructive" />
-            <p className="mb-4">Failed to load insights from OpenDOSM APIs.</p>
+            <p className="mb-4">Failed to load insights.</p>
             <Button variant="outline" onClick={() => refetch()}>
               <RefreshCw className="mr-2 h-4 w-4" /> Try Again
             </Button>
@@ -133,10 +131,52 @@ const Insights = () => {
         )}
 
         {insights && insights.length > 0 && (
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {insights.map((item, i) => (
-              <InsightCard key={item.id} item={item} index={i} />
-            ))}
+          <div className="space-y-10">
+            {/* Seller Section */}
+            <section>
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="mb-5 flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15">
+                  <Store className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <h2 className="font-display text-xl font-bold">For Sellers</h2>
+                  <p className="text-sm text-muted-foreground">Pricing trends, demand signals & export opportunities</p>
+                </div>
+                <Badge variant="outline" className="ml-auto border-primary/30 text-primary">{sellerInsights.length} insights</Badge>
+              </motion.div>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {sellerInsights.map((item, i) => (
+                  <InsightCard key={item.id} item={item} index={i} />
+                ))}
+              </div>
+            </section>
+
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border/40" /></div>
+              <div className="relative flex justify-center">
+                <span className="bg-background px-4 text-sm text-muted-foreground">·  ·  ·</span>
+              </div>
+            </div>
+
+            {/* Buyer Section */}
+            <section>
+              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="mb-5 flex items-center gap-3">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary/15">
+                  <ShoppingCart className="h-5 w-5 text-secondary" />
+                </div>
+                <div>
+                  <h2 className="font-display text-xl font-bold">For Buyers</h2>
+                  <p className="text-sm text-muted-foreground">Price alerts, supply availability & cost-saving opportunities</p>
+                </div>
+                <Badge variant="outline" className="ml-auto border-secondary/30 text-secondary">{buyerInsights.length} insights</Badge>
+              </motion.div>
+              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {buyerInsights.map((item, i) => (
+                  <InsightCard key={item.id} item={item} index={i} />
+                ))}
+              </div>
+            </section>
           </div>
         )}
 
