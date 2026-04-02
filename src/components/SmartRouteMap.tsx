@@ -217,8 +217,11 @@ const SmartRouteMap = () => {
           );
         })}
 
+          </div>
+        </div>
+
         {/* Legend */}
-        <div className="absolute bottom-2 left-2 flex gap-3 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 text-[10px] border border-border/20">
+        <div className="absolute bottom-2 left-2 z-20 flex gap-3 bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 text-[10px] border border-border/20">
           {activeLayer === "routes"
             ? Object.entries(statusConfig).map(([key, cfg]) => (
                 <span key={key} className="flex items-center gap-1.5">
@@ -236,7 +239,7 @@ const SmartRouteMap = () => {
         </div>
 
         {/* Stats overlay */}
-        <div className="absolute top-2 right-2 flex gap-2">
+        <div className="absolute top-2 right-2 z-20 flex gap-2">
           <div className="bg-background/80 backdrop-blur-sm rounded-lg px-3 py-2 text-[11px] border border-border/20 font-medium">
             <span className="text-destructive font-bold">{activeRoutes.length}</span>
             <span className="text-muted-foreground ml-1">Disrupted</span>
