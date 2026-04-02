@@ -1,8 +1,74 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Menu, X, Lock } from "lucide-react";
-import { useState } from "react";
+import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+interface DropdownItem {
+  label: string;
+  to: string;
+}
+
+const marketItems: DropdownItem[] = [
+  { label: "Marketplace", to: "/match" },
+  { label: "Market", to: "/dashboard" },
+];
+
+const dataItems: DropdownItem[] = [
+  { label: "Food Map", to: "/food-map" },
+  { label: "Logistics", to: "/logistics" },
+  { label: "Insights", to: "/insights" },
+];
+
+const NavDropdown = ({ label, icon: Icon, items }: { label: string; icon: React.ElementType; items: DropdownItem[] }) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
+
+  return (
+    <div ref={ref} className="relative">
+      <Button
+        variant="outline"
+        size="sm"
+        className="gap-2"
+        onClick={() => setOpen(!open)}
+      >
+        <Icon className="h-4 w-4" />
+        {label}
+        <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
+      </Button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className="absolute top-full right-0 mt-2 w-48 rounded-lg border border-border/50 bg-background/95 backdrop-blur-xl shadow-lg overflow-hidden z-50"
+          >
+            {items.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                onClick={() => setOpen(false)}
+                className="block px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -19,22 +85,9 @@ const Navbar = () => {
           </span>
         </Link>
 
-        <div className="hidden md:flex items-center gap-8">
-          <Link to="/match">
-            <Button variant="outline" size="sm">Marketplace</Button>
-          </Link>
-          <Link to="/dashboard">
-            <Button variant="outline" size="sm">Market</Button>
-          </Link>
-          <Link to="/food-map">
-            <Button variant="outline" size="sm">Food Map</Button>
-          </Link>
-          <Link to="/logistics">
-            <Button variant="outline" size="sm">Logistics</Button>
-          </Link>
-          <Link to="/insights">
-            <Button variant="outline" size="sm" className="gap-1.5">Insights <Lock className="h-3 w-3" /></Button>
-          </Link>
+        <div className="hidden md:flex items-center gap-3">
+          <NavDropdown label="Global Market" icon={ShoppingBag} items={marketItems} />
+          <NavDropdown label="Data Center" icon={Database} items={dataItems} />
         </div>
 
         <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -50,22 +103,22 @@ const Navbar = () => {
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl"
           >
-            <div className="container flex flex-col gap-4 py-6">
-              <Link to="/match" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full" size="sm">Marketplace</Button>
-              </Link>
-              <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full" size="sm">Market</Button>
-              </Link>
-              <Link to="/food-map" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full" size="sm">Food Map</Button>
-              </Link>
-              <Link to="/logistics" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full" size="sm">Logistics</Button>
-              </Link>
-              <Link to="/insights" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full gap-1.5" size="sm">Insights <Lock className="h-3 w-3" /></Button>
-              </Link>
+            <div className="container flex flex-col gap-1 py-4">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest px-3 py-2">Global Market</p>
+              {marketItems.map((item) => (
+                <Link key={item.to} to={item.to} onClick={() => setMobileOpen(false)}
+                  className="px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors">
+                  {item.label}
+                </Link>
+              ))}
+              <div className="border-t border-border/50 my-2" />
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-widest px-3 py-2">Data Center</p>
+              {dataItems.map((item) => (
+                <Link key={item.to} to={item.to} onClick={() => setMobileOpen(false)}
+                  className="px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors">
+                  {item.label}
+                </Link>
+              ))}
             </div>
           </motion.div>
         )}
