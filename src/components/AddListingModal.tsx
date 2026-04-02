@@ -69,7 +69,7 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
   const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10&addressdetails=1`,
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=14&addressdetails=1`,
         { headers: { "Accept-Language": "en" } }
       );
       const data = await res.json();
