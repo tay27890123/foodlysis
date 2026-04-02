@@ -25,11 +25,11 @@ const statusIcon: Record<StateStatus, React.ElementType> = {
   shortage: BarChart3,
 };
 
-const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; description: string }[] = [
-  { id: "foodSupply", label: "Food Supply", icon: BarChart3, description: "Full supply-demand by category" },
-  { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Consumer Price Index & inflation" },
-  { id: "ppi", label: "Food PPI", icon: Percent, description: "Producer Price Index" },
-  { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level" },
+const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; description: string; definition: string }[] = [
+  { id: "foodSupply", label: "Food Supply", icon: BarChart3, description: "Supply vs Demand", definition: "Shows food production output versus consumer demand for each state, broken down by category (rice, vegetables, fruits, protein, dairy). Helps identify which states produce surplus or face shortages." },
+  { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Consumer Price Index", definition: "Consumer Price Index (CPI) measures the average change in prices paid by consumers for food items over time. A rising CPI means food is getting more expensive for everyday buyers." },
+  { id: "ppi", label: "Food PPI", icon: DollarSign, description: "Producer Price Index", definition: "Producer Price Index (PPI) measures the average change in prices received by farmers and food producers. Comparing PPI with CPI reveals middleman margins and supply chain efficiency." },
+  { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level", definition: "Self-Sufficiency Level (SSL) shows the percentage of domestic food demand met by local production. A higher SSL means less reliance on imports and greater food security." },
 ];
 
 const FoodMap = () => {
