@@ -8,7 +8,6 @@ import {
   Tag, SlidersHorizontal, X, LogIn, Package
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@/hooks/useAuth";
 import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
 import AddListingModal from "@/components/AddListingModal";
 import { useQueryClient } from "@tanstack/react-query";
@@ -90,7 +89,6 @@ const Match = () => {
     const stateParam = searchParams.get("state");
     if (stateParam) setStateFilter(stateParam);
   }, [searchParams]);
-  const { user, profile } = useAuth();
   const { data: listings, isLoading } = useSurplusListings();
   const queryClient = useQueryClient();
 
@@ -122,20 +120,10 @@ const Match = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {user ? (
-              <>
-                {profile?.role === "supplier" && (
-                  <AddListingModal onSuccess={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
-                )}
-                <Link to="/dashboard">
-                  <Button variant="outline" size="sm">Dashboard</Button>
-                </Link>
-              </>
-            ) : (
-              <Link to="/auth">
-                <Button size="sm" className="gap-2"><LogIn className="h-4 w-4" /> Sign In</Button>
-              </Link>
-            )}
+            <AddListingModal onSuccess={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
+            <Link to="/dashboard">
+              <Button variant="outline" size="sm">Dashboard</Button>
+            </Link>
           </div>
         </div>
       </header>
@@ -197,11 +185,7 @@ const Match = () => {
                 <Package className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4" />
                 <h3 className="font-display text-lg font-semibold mb-1">No active surplus listings right now</h3>
                 <p className="text-sm text-muted-foreground mb-4">Be the first to list!</p>
-                {!user ? (
-                  <Link to="/auth">
-                    <Button size="sm">Sign in to post</Button>
-                  </Link>
-                ) : hasFilters ? (
+                {hasFilters ? (
                   <Button variant="outline" size="sm" onClick={clearFilters}>Clear all filters</Button>
                 ) : null}
               </motion.div>

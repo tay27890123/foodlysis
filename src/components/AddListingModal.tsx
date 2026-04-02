@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -17,7 +16,6 @@ interface Props {
 }
 
 const AddListingModal = ({ onSuccess }: Props) => {
-  const { user, profile } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -33,18 +31,10 @@ const AddListingModal = ({ onSuccess }: Props) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) {
-      toast.error("Please sign in first");
-      return;
-    }
-    if (profile?.role !== "supplier") {
-      toast.error("Only suppliers can post listings");
-      return;
-    }
     setLoading(true);
     try {
       const { error } = await supabase.from("surplus_listings").insert({
-        supplier_id: user.id,
+        supplier_id: "00000000-0000-0000-0000-000000000000",
         product_name: form.product_name,
         category: form.category,
         quantity_kg: parseFloat(form.quantity_kg),

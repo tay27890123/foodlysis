@@ -54,14 +54,14 @@ const HeroSection = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex flex-wrap gap-4"
           >
-            <Link to="/dashboard">
+            <Link to="/match">
               <Button size="lg" className="glow-primary gap-2">
-                Join as Supplier <ArrowRight className="h-4 w-4" />
+                Explore Marketplace <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>
-            <Link to="/dashboard">
+            <Link to="/food-map">
               <Button size="lg" variant="outline" className="gap-2">
-                Join as Buyer
+                Food Map
               </Button>
             </Link>
           </motion.div>
