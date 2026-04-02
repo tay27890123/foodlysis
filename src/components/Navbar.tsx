@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Menu, X } from "lucide-react";
+import { Leaf, Menu, X, Lock } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -26,14 +26,14 @@ const Navbar = () => {
           <Link to="/dashboard">
             <Button variant="outline" size="sm">Market</Button>
           </Link>
-          <Link to="/insights">
-            <Button variant="outline" size="sm">Insights</Button>
-          </Link>
           <Link to="/food-map">
             <Button variant="outline" size="sm">Food Map</Button>
           </Link>
           <Link to="/logistics">
-            <Button size="sm">Logistics</Button>
+            <Button variant="outline" size="sm">Logistics</Button>
+          </Link>
+          <Link to="/insights">
+            <Button variant="outline" size="sm" className="gap-1.5">Insights <Lock className="h-3 w-3" /></Button>
           </Link>
         </div>
 
@@ -57,14 +57,14 @@ const Navbar = () => {
               <Link to="/dashboard" onClick={() => setMobileOpen(false)}>
                 <Button variant="outline" className="w-full" size="sm">Market</Button>
               </Link>
-              <Link to="/insights" onClick={() => setMobileOpen(false)}>
-                <Button variant="outline" className="w-full" size="sm">Insights</Button>
-              </Link>
               <Link to="/food-map" onClick={() => setMobileOpen(false)}>
                 <Button variant="outline" className="w-full" size="sm">Food Map</Button>
               </Link>
               <Link to="/logistics" onClick={() => setMobileOpen(false)}>
-                <Button className="w-full" size="sm">Logistics</Button>
+                <Button variant="outline" className="w-full" size="sm">Logistics</Button>
+              </Link>
+              <Link to="/insights" onClick={() => setMobileOpen(false)}>
+                <Button variant="outline" className="w-full gap-1.5" size="sm">Insights <Lock className="h-3 w-3" /></Button>
               </Link>
             </div>
           </motion.div>
