@@ -38,6 +38,7 @@ interface SurplusCardProps {
   listing: SurplusListing;
   index: number;
   distance?: number | null;
+  mode: "buy" | "sell";
 }
 
 const isCoordLabel = (label?: string | null) => {
