@@ -67,8 +67,7 @@ const NavDropdown = ({ label, icon: Icon, items }: { label: string; icon: React.
                   {item.label}
                 </Link>
               );
-            }
-            ))}
+            })}
           </motion.div>
         )}
       </AnimatePresence>
