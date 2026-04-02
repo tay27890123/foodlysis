@@ -45,7 +45,7 @@ const Admin = () => {
             <h1 className="font-display text-lg font-bold">Admin Dashboard</h1>
           </div>
           <Badge variant="outline" className="border-primary/30 text-primary">
-            <Leaf className="h-3 w-3 mr-1" /> PanganLink Admin
+            <Leaf className="h-3 w-3 mr-1" /> Foodlysis Admin
           </Badge>
         </div>
       </header>

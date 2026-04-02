@@ -68,7 +68,7 @@ const Auth = () => {
         <div className="glass-card p-8">
           <div className="flex items-center gap-2 mb-6">
             <Leaf className="h-6 w-6 text-primary" />
-            <span className="font-display text-xl font-bold">PanganLink</span>
+            <span className="font-display text-xl font-bold">Foodlysis</span>
           </div>
 
           <h1 className="font-display text-2xl font-bold mb-1">
