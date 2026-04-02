@@ -66,6 +66,26 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
     }
   };
 
+  const reverseGeocode = async (lat: number, lng: number): Promise<string> => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&zoom=10&addressdetails=1`,
+        { headers: { "Accept-Language": "en" } }
+      );
+      const data = await res.json();
+      const addr = data.address;
+      // Return area-level name for privacy: suburb/town/city + state
+      const area = addr?.suburb || addr?.town || addr?.city || addr?.county || addr?.state_district || "";
+      const state = addr?.state || "";
+      if (area && state) return `${area}, ${state}`;
+      if (area) return area;
+      if (state) return state;
+      return data.display_name?.split(",").slice(0, 2).join(",").trim() || `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+    } catch {
+      return `${lat.toFixed(2)}, ${lng.toFixed(2)}`;
+    }
+  };
+
   const requestGPS = () => {
     if (!navigator.geolocation) {
       toast.error("Geolocation not supported");
@@ -73,15 +93,17 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
     }
     setGpsLoading(true);
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const areaName = await reverseGeocode(latitude, longitude);
         setForm((f) => ({
           ...f,
-          location_lat: pos.coords.latitude,
-          location_lng: pos.coords.longitude,
-          location_label: f.location_label || `${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`,
+          location_lat: latitude,
+          location_lng: longitude,
+          location_label: areaName,
         }));
         setGpsLoading(false);
-        toast.success("Location captured!");
+        toast.success(`Location: ${areaName}`);
       },
       () => {
         setGpsLoading(false);
