@@ -24,52 +24,26 @@ export const statusColors: Record<StateStatus, { fill: string; stroke: string; l
 };
 
 const HC_KEY_TO_ID: Record<string, string> = {
-  "my-pl": "perlis",
-  "my-kh": "kedah",
-  "my-pg": "penang",
-  "my-pk": "perak",
-  "my-kn": "kelantan",
-  "my-te": "terengganu",
-  "my-ph": "pahang",
-  "my-sl": "selangor",
-  "my-kl": "kl",
-  "my-pj": "putrajaya",
-  "my-ns": "negeriSembilan",
-  "my-me": "melaka",
-  "my-jh": "johor",
-  "my-sa": "sabah",
-  "my-sk": "sarawak",
-  "my-la": "labuan",
+  "my-pl": "perlis", "my-kh": "kedah", "my-pg": "penang", "my-pk": "perak",
+  "my-kn": "kelantan", "my-te": "terengganu", "my-ph": "pahang", "my-sl": "selangor",
+  "my-kl": "kl", "my-pj": "putrajaya", "my-ns": "negeriSembilan", "my-me": "melaka",
+  "my-jh": "johor", "my-sa": "sabah", "my-sk": "sarawak", "my-la": "labuan",
 };
 
 const WEST_STATES = new Set(["perlis", "kedah", "penang", "perak", "kelantan", "terengganu", "pahang", "selangor", "kl", "putrajaya", "negeriSembilan", "melaka", "johor"]);
 const EAST_STATES = new Set(["sabah", "sarawak", "labuan"]);
 
 const STATE_CENTERS: Record<string, [number, number]> = {
-  perlis: [100.19, 6.45],
-  kedah: [100.5, 5.95],
-  penang: [100.25, 5.37],
-  perak: [101.0, 4.6],
-  kelantan: [102.0, 5.3],
-  terengganu: [103.1, 4.9],
-  pahang: [102.5, 3.8],
-  selangor: [101.5, 3.3],
-  kl: [101.69, 3.14],
-  putrajaya: [101.7, 2.93],
-  negeriSembilan: [102.0, 2.75],
-  melaka: [102.25, 2.2],
-  johor: [103.5, 1.85],
-  sabah: [117.0, 5.4],
-  sarawak: [113.0, 2.5],
-  labuan: [115.2, 5.3],
+  perlis: [100.19, 6.45], kedah: [100.5, 5.95], penang: [100.25, 5.37],
+  perak: [101.0, 4.6], kelantan: [102.0, 5.3], terengganu: [103.1, 4.9],
+  pahang: [102.5, 3.8], selangor: [101.5, 3.3], kl: [101.69, 3.14],
+  putrajaya: [101.7, 2.93], negeriSembilan: [102.0, 2.75], melaka: [102.25, 2.2],
+  johor: [103.5, 1.85], sabah: [117.0, 5.4], sarawak: [113.0, 2.5], labuan: [115.2, 5.3],
 };
 
 const TOPO_URL = "/malaysia-states.topo.json";
 
-export interface ChoroplethColors {
-  fill: string;
-  stroke: string;
-}
+export interface ChoroplethColors { fill: string; stroke: string; }
 
 interface MalaysiaMapProps {
   stateData: StateData[];
@@ -85,7 +59,9 @@ const HOVER_FILL = "#1A4D35";
 
 const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors, tooltipContent }: MalaysiaMapProps) => {
   const [hoveredState, setHoveredState] = useState<string | null>(null);
-  const { state: zoomState, containerProps, transformStyle, zoomIn, zoomOut, reset } = useMapZoomPan(1, 4);
+
+  const westZoom = useMapZoomPan(0.5, 4);
+  const eastZoom = useMapZoomPan(0.5, 4);
 
   const getStateData = useCallback(
     (id: string) => stateData.find((s) => s.id === id),
@@ -100,20 +76,13 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
   const renderGeo = (geo: any) => {
     const id = getIdFromGeo(geo);
     if (!id) return null;
-
     const data = getStateData(id);
     const colors = choroplethColors?.[id] || null;
     const isHovered = hoveredState === id;
     const isSelected = selectedState === id;
-
     const fillColor = colors
-      ? isHovered || isSelected
-        ? colors.fill.replace(/[\d.]+\)$/, "0.65)")
-        : colors.fill
-      : isHovered || isSelected
-      ? HOVER_FILL
-      : DEFAULT_FILL;
-
+      ? isHovered || isSelected ? colors.fill.replace(/[\d.]+\)$/, "0.65)") : colors.fill
+      : isHovered || isSelected ? HOVER_FILL : DEFAULT_FILL;
     const strokeColor = colors ? colors.stroke : DEFAULT_STROKE;
 
     return (
@@ -124,30 +93,9 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
         onMouseLeave={() => setHoveredState(null)}
         onClick={() => data && onStateClick?.(data)}
         style={{
-          default: {
-            fill: fillColor,
-            stroke: strokeColor,
-            strokeWidth: isSelected ? 2 : 1,
-            outline: "none",
-            cursor: "pointer",
-            transition: "all 0.2s ease",
-          },
-          hover: {
-            fill: colors ? colors.fill.replace(/[\d.]+\)$/, "0.65)") : HOVER_FILL,
-            stroke: strokeColor,
-            strokeWidth: 2,
-            outline: "none",
-            cursor: "pointer",
-            transform: "scale(1.02)",
-            transformOrigin: "center",
-            filter: `drop-shadow(0 0 6px ${strokeColor})`,
-          },
-          pressed: {
-            fill: fillColor,
-            stroke: strokeColor,
-            strokeWidth: 2.5,
-            outline: "none",
-          },
+          default: { fill: fillColor, stroke: strokeColor, strokeWidth: isSelected ? 2 : 1, outline: "none", cursor: "pointer", transition: "all 0.2s ease" },
+          hover: { fill: colors ? colors.fill.replace(/[\d.]+\)$/, "0.65)") : HOVER_FILL, stroke: strokeColor, strokeWidth: 2, outline: "none", cursor: "pointer", transform: "scale(1.02)", transformOrigin: "center", filter: `drop-shadow(0 0 6px ${strokeColor})` },
+          pressed: { fill: fillColor, stroke: strokeColor, strokeWidth: 2.5, outline: "none" },
         }}
       />
     );
@@ -162,85 +110,68 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
         const isSmall = ["kl", "labuan", "penang", "perlis", "melaka", "putrajaya"].includes(id);
         return (
           <Marker key={`label-${id}`} coordinates={coords}>
-            <text
-              textAnchor="middle"
-              dominantBaseline="middle"
-              fill="hsl(150, 15%, 92%)"
-              fontSize={isSmall ? 4 : 5.5}
-              fontWeight={600}
-              className="pointer-events-none select-none"
-              style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}
-            >
+            <text textAnchor="middle" dominantBaseline="middle" fill="hsl(150, 15%, 92%)" fontSize={isSmall ? 4 : 5.5} fontWeight={600} className="pointer-events-none select-none" style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}>
               {name}
             </text>
           </Marker>
         );
       });
 
+  const renderPanel = (
+    label: string,
+    filterSet: Set<string>,
+    zoom: ReturnType<typeof useMapZoomPan>,
+    projectionConfig: { scale: number; center: [number, number] },
+    dimensions: { width: number; height: number },
+    waterLabel?: { text: string; x: number; y: number }
+  ) => (
+    <div className="relative flex-1 min-w-0 rounded-lg border border-border/30 overflow-hidden bg-card/30">
+      <span className="absolute top-2 left-1/2 -translate-x-1/2 z-10 text-[10px] text-muted-foreground/50 font-medium tracking-wider uppercase pointer-events-none">
+        {label}
+      </span>
+      <ZoomControls onZoomIn={zoom.zoomIn} onZoomOut={zoom.zoomOut} onReset={zoom.reset} scale={zoom.state.scale} />
+      <div {...zoom.containerProps} className="w-full overflow-hidden select-none" style={{ maxHeight: 380 }}>
+        <div style={zoom.transformStyle}>
+          <ComposableMap
+            projection="geoMercator"
+            projectionConfig={projectionConfig}
+            width={dimensions.width}
+            height={dimensions.height}
+            style={{ width: "100%", height: "auto" }}
+          >
+            {waterLabel && (
+              <text x={waterLabel.x} y={waterLabel.y} fill="hsl(210, 60%, 50%, 0.10)" fontSize={9} fontWeight={600}>
+                {waterLabel.text}
+              </text>
+            )}
+            <Geographies geography={TOPO_URL}>
+              {({ geographies }) =>
+                geographies
+                  .filter((geo) => { const id = getIdFromGeo(geo); return id && filterSet.has(id); })
+                  .map(renderGeo)
+              }
+            </Geographies>
+            {renderLabels(filterSet)}
+          </ComposableMap>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="relative w-full">
-      <ZoomControls onZoomIn={zoomIn} onZoomOut={zoomOut} onReset={reset} scale={zoomState.scale} />
-      {/* Two-panel layout: West (55%) + East (45%) */}
-      <div {...containerProps} className="flex items-center w-full gap-4 overflow-hidden select-none" style={{ maxHeight: "380px" }}>
-        <div style={transformStyle} className="flex items-center w-full gap-4">
-        {/* Peninsular Malaysia */}
-        <div className="flex-[55] relative">
-          <ComposableMap
-            projection="geoMercator"
-            projectionConfig={{ scale: 5500, center: [101.7, 4.1] }}
-            width={420}
-            height={480}
-            style={{ width: "100%", height: "auto" }}
-          >
-            <text x={30} y={460} fill="hsl(210, 60%, 50%, 0.10)" fontSize={9} fontWeight={600}>
-              STRAIT OF MALACCA
-            </text>
-            <Geographies geography={TOPO_URL}>
-              {({ geographies }) =>
-                geographies
-                  .filter((geo) => { const id = getIdFromGeo(geo); return id && WEST_STATES.has(id); })
-                  .map(renderGeo)
-              }
-            </Geographies>
-            {renderLabels(WEST_STATES)}
-          </ComposableMap>
-          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground/40 font-medium tracking-wider">PENINSULAR</span>
-        </div>
-
-        {/* East Malaysia */}
-        <div className="flex-[45] relative">
-          <ComposableMap
-            projection="geoMercator"
-            projectionConfig={{ scale: 4200, center: [115.0, 3.5] }}
-            width={380}
-            height={480}
-            style={{ width: "100%", height: "auto" }}
-          >
-            <text x={120} y={30} fill="hsl(210, 60%, 50%, 0.10)" fontSize={9} fontWeight={600}>
-              SOUTH CHINA SEA
-            </text>
-            <Geographies geography={TOPO_URL}>
-              {({ geographies }) =>
-                geographies
-                  .filter((geo) => { const id = getIdFromGeo(geo); return id && EAST_STATES.has(id); })
-                  .map(renderGeo)
-              }
-            </Geographies>
-            {renderLabels(EAST_STATES)}
-          </ComposableMap>
-          <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground/40 font-medium tracking-wider">EAST MALAYSIA</span>
-        </div>
-      </div>
+      <div className="flex items-stretch w-full gap-3">
+        {renderPanel("Peninsular Malaysia", WEST_STATES, westZoom, { scale: 5500, center: [101.7, 4.1] }, { width: 420, height: 480 }, { text: "STRAIT OF MALACCA", x: 30, y: 460 })}
+        {renderPanel("East Malaysia", EAST_STATES, eastZoom, { scale: 4200, center: [115.0, 3.5] }, { width: 380, height: 480 }, { text: "SOUTH CHINA SEA", x: 120, y: 30 })}
       </div>
 
-      {/* Hover tooltip */}
       <AnimatePresence>
         {hoveredState && getStateData(hoveredState) && (
           <motion.div
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
-            className="absolute top-3 right-3 rounded-xl border border-border/50 bg-card/90 backdrop-blur-md p-3 shadow-xl min-w-[180px] pointer-events-none"
+            className="absolute top-3 right-3 rounded-xl border border-border/50 bg-card/90 backdrop-blur-md p-3 shadow-xl min-w-[180px] pointer-events-none z-30"
           >
             {(() => {
               const data = getStateData(hoveredState)!;
