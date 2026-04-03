@@ -1,49 +1,40 @@
 
 
-## Plan: Separate Peninsula & Borneo into Independent Interactive Maps
+## Plan: Transportation Option, Processing Fee Notice & Contact Flow
 
-### Problem
-Currently both maps share a single zoom/pan state and are wrapped together, so zooming affects both simultaneously. Panning is also locked when fully zoomed out.
+### Summary
+Add a "transportation available" toggle for sellers, show it as a label on listings, enhance the contact flow for buyers with a transport help option, and display processing fee + membership note before posting.
 
 ### Changes
 
-#### 1. Update `useMapZoomPan` hook
-- Lower `minScale` default from `1` to `0.5` to allow zooming out further
-- **Remove the restriction** that prevents panning at scale <= 1 — allow dragging at any zoom level
-- Always show `grab` cursor instead of only when zoomed in
+#### 1. Database Migration
+- Add `transportation_available` boolean column (default `false`) to `surplus_listings` table
 
-#### 2. Refactor `MalaysiaMap.tsx` — Two independent map panels
-- Each map panel (Peninsular / East Malaysia) gets its **own instance** of `useMapZoomPan(0.5, 4)`
-- Each panel gets its **own `ZoomControls`** overlay positioned in its top-left corner
-- Each panel gets its own `containerProps` and `transformStyle` — zoom/pan on one map does not affect the other
-- Each panel wrapped in its own `overflow-hidden` container with a border/card styling to visually separate them
-- Layout stays side-by-side (flex row) but each panel is a self-contained interactive map
-- Add subtle panel headers ("Peninsular Malaysia" / "East Malaysia") at the top of each card
+#### 2. AddListingModal — Seller Form Updates
+- Add a toggle/switch for "Transportation Available" (yes/no)
+- Before the submit button, add a small notice:
+  - *"A 1% processing fee will be charged on total revenue per transaction."*
+  - *"Join as a member to have all processing fees waived."* (smaller, muted text)
+- Include `transportation_available` in the insert/update payload
+- When editing, pre-fill the toggle from existing data
 
-#### 3. Keep shared tooltip
-- The hover tooltip remains at the parent level since both maps share the same `stateData` and `hoveredState`
+#### 3. SurplusCard — Transportation Badge
+- Show a small badge/label like "🚛 Transport Available" or "📦 Self-pickup" on each listing card based on the `transportation_available` field
 
-### Technical details
+#### 4. Contact Seller Flow (Buy tab)
+- Replace the simple toast with a dialog when clicking "Contact Seller"
+- If the listing has `transportation_available = true`: show seller contact info/message prompt directly
+- If `transportation_available = false`: show two options:
+  1. **"Get help from platform"** — shows a message like "Our logistics partners will assist with delivery. Platform coordination fees may apply."
+  2. **"I'll arrange transport myself"** — proceeds to contact seller directly
+- Both options end with a toast confirmation for now (no actual messaging backend yet)
 
-**`useMapZoomPan.ts`** changes:
-- `minScale` default → `0.5`
-- `handleMouseDown`: remove `if (state.scale <= 1) return` guard
-- `handleTouchStart`: remove `state.scale > 1` check for single-finger pan
-- `transformStyle.cursor`: always `"grab"`
-- `zoomOut`: remove the "snap to reset" behavior at minScale — just set the new scale without resetting translate
+#### 5. Type Updates
+- Add `transportation_available` to the `SurplusListing` interface in `useSurplusListings.ts`
 
-**`MalaysiaMap.tsx`** changes:
-- Create two hook instances: `useMapZoomPan(0.5, 4)` for west, another for east
-- Each panel structure:
-  ```
-  <div className="relative rounded-lg border overflow-hidden">
-    <ZoomControls ... />
-    <div {...containerProps}>
-      <div style={transformStyle}>
-        <ComposableMap ...> ... </ComposableMap>
-      </div>
-    </div>
-  </div>
-  ```
-- Remove the single shared wrapper that applied one transform to both maps
+### Files to modify
+- **Migration**: Add `transportation_available` column
+- `src/hooks/useSurplusListings.ts` — add field to interface
+- `src/components/AddListingModal.tsx` — toggle + fee notice
+- `src/pages/Match.tsx` — transport badge on card + contact dialog with transport options
 
