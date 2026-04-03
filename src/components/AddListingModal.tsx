@@ -144,6 +144,7 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
         location_label: form.location_label || null,
         location_lat: form.location_lat,
         location_lng: form.location_lng,
+        transportation_available: form.transportation_available,
       } as any;
 
       if (isEdit && editListing) {
