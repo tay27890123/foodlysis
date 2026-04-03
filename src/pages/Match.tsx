@@ -196,11 +196,64 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
 
       {mode === "buy" && (
         <div className="px-5 pb-5">
-          <Button className="w-full" size="sm" variant="outline" onClick={() => toast.info("Contact feature coming soon!")}>
+          <Button className="w-full" size="sm" variant="outline" onClick={() => setContactOpen(true)}>
             <MessageCircle className="h-3.5 w-3.5 mr-2" /> Contact Seller
           </Button>
         </div>
       )}
+
+      {/* Contact Seller Dialog */}
+      <Dialog open={contactOpen} onOpenChange={setContactOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Contact Seller — {listing.product_name}</DialogTitle>
+            <DialogDescription>
+              {(listing as any).transportation_available
+                ? "This seller provides transportation for this item."
+                : "This item does not include transportation. How would you like to handle delivery?"}
+            </DialogDescription>
+          </DialogHeader>
+
+          {(listing as any).transportation_available ? (
+            <div className="space-y-4">
+              <div className="rounded-lg bg-primary/10 p-3 flex items-center gap-2">
+                <Truck className="h-4 w-4 text-primary" />
+                <p className="text-sm">🚛 Transport is included with this listing.</p>
+              </div>
+              <DialogFooter>
+                <Button onClick={() => { setContactOpen(false); toast.success("Contact request sent to seller!"); }}>
+                  <MessageCircle className="h-4 w-4 mr-2" /> Send Contact Request
+                </Button>
+              </DialogFooter>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3 h-auto py-3"
+                onClick={() => { setContactOpen(false); toast.success("Platform logistics team will reach out to coordinate delivery."); }}
+              >
+                <Truck className="h-5 w-5 text-primary shrink-0" />
+                <div className="text-left">
+                  <p className="font-medium text-sm">Get help from platform</p>
+                  <p className="text-xs text-muted-foreground">Our logistics partners will assist with delivery. Platform coordination fees may apply.</p>
+                </div>
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start gap-3 h-auto py-3"
+                onClick={() => { setContactOpen(false); toast.success("Contact request sent to seller!"); }}
+              >
+                <PackageCheck className="h-5 w-5 text-muted-foreground shrink-0" />
+                <div className="text-left">
+                  <p className="font-medium text-sm">I'll arrange transport myself</p>
+                  <p className="text-xs text-muted-foreground">Contact the seller directly and handle pickup/delivery on your own.</p>
+                </div>
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent>
