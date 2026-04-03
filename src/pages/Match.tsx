@@ -86,6 +86,7 @@ const useAreaName = (listing: SurplusListing) => {
 const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardProps & { onRefresh: () => void }) => {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const areaName = useAreaName(listing);
   const discount = listing.original_price > 0
     ? Math.round((1 - listing.discounted_price / listing.original_price) * 100)
