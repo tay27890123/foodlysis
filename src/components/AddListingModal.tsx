@@ -30,6 +30,7 @@ const defaultForm = {
   location_label: "",
   location_lat: null as number | null,
   location_lng: null as number | null,
+  transportation_available: false,
 };
 
 const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
