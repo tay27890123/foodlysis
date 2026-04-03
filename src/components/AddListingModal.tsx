@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Navigation, Pencil } from "lucide-react";
+import { Plus, Navigation, Pencil, Truck } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import type { SurplusListing } from "@/hooks/useSurplusListings";
 
