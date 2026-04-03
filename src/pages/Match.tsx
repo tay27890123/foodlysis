@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Leaf, ArrowLeft, Search, MapPin, Weight,
   Tag, SlidersHorizontal, X, Package, Navigation, ShoppingCart, Store,
-  Pencil, Trash2, MoreVertical, MessageCircle
+  Pencil, Trash2, MoreVertical, MessageCircle, Truck, PackageCheck
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
