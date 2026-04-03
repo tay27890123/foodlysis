@@ -163,6 +163,19 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
           </div>
         </div>
 
+        {/* Transportation badge */}
+        <div className="mb-3">
+          {(listing as any).transportation_available ? (
+            <Badge variant="outline" className="text-[11px] gap-1 bg-primary/10 text-primary border-primary/20">
+              <Truck className="h-3 w-3" /> Transport Available
+            </Badge>
+          ) : (
+            <Badge variant="outline" className="text-[11px] gap-1 bg-muted/50 text-muted-foreground border-border/50">
+              <PackageCheck className="h-3 w-3" /> Self-pickup
+            </Badge>
+          )}
+        </div>
+
         {distance != null && (
           <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
             <Navigation className="h-3 w-3 shrink-0" />
