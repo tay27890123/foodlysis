@@ -52,6 +52,7 @@ export type Database = {
           quantity_kg: number
           status: string
           supplier_id: string | null
+          transportation_available: boolean
           urgency_level: string
         }
         Insert: {
@@ -67,6 +68,7 @@ export type Database = {
           quantity_kg: number
           status?: string
           supplier_id?: string | null
+          transportation_available?: boolean
           urgency_level?: string
         }
         Update: {
@@ -82,6 +84,7 @@ export type Database = {
           quantity_kg?: number
           status?: string
           supplier_id?: string | null
+          transportation_available?: boolean
           urgency_level?: string
         }
         Relationships: []

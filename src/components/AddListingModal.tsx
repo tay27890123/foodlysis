@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
-import { Plus, Navigation, Pencil } from "lucide-react";
+import { Plus, Navigation, Pencil, Truck } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import type { SurplusListing } from "@/hooks/useSurplusListings";
 
@@ -28,6 +30,7 @@ const defaultForm = {
   location_label: "",
   location_lat: null as number | null,
   location_lng: null as number | null,
+  transportation_available: false,
 };
 
 const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
@@ -51,6 +54,7 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
         location_label: (editListing as any).location_label || "",
         location_lat: (editListing as any).location_lat || null,
         location_lng: (editListing as any).location_lng || null,
+        transportation_available: (editListing as any).transportation_available || false,
       });
     } else {
       setForm(defaultForm);
@@ -140,6 +144,7 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
         location_label: form.location_label || null,
         location_lat: form.location_lat,
         location_lng: form.location_lng,
+        transportation_available: form.transportation_available,
       } as any;
 
       if (isEdit && editListing) {
@@ -267,6 +272,25 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
                   </Button>
                 ))}
               </div>
+            </div>
+
+            {/* Transportation toggle */}
+            <div className="flex items-center justify-between rounded-lg border border-border/50 p-3">
+              <div className="flex items-center gap-2">
+                <Truck className="h-4 w-4 text-muted-foreground" />
+                <Label htmlFor="transport-toggle" className="text-sm font-medium cursor-pointer">Transportation Available</Label>
+              </div>
+              <Switch
+                id="transport-toggle"
+                checked={form.transportation_available}
+                onCheckedChange={(checked) => setForm((f) => ({ ...f, transportation_available: checked }))}
+              />
+            </div>
+
+            {/* Processing fee notice */}
+            <div className="rounded-lg bg-muted/50 p-3 space-y-1">
+              <p className="text-xs text-muted-foreground">💰 A <span className="font-semibold text-foreground">1% processing fee</span> will be charged on total revenue per transaction.</p>
+              <p className="text-[11px] text-muted-foreground/70">Join as a member to have all processing fees waived.</p>
             </div>
 
             <DialogFooter>

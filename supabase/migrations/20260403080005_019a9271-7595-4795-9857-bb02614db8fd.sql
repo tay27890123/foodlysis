@@ -1,0 +1,1 @@
+ALTER TABLE public.surplus_listings ADD COLUMN transportation_available boolean NOT NULL DEFAULT false;
