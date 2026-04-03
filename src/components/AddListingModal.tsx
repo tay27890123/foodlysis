@@ -54,6 +54,7 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
         location_label: (editListing as any).location_label || "",
         location_lat: (editListing as any).location_lat || null,
         location_lng: (editListing as any).location_lng || null,
+        transportation_available: (editListing as any).transportation_available || false,
       });
     } else {
       setForm(defaultForm);
