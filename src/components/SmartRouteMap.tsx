@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Map, CloudRain, Thermometer, Wind, Eye, AlertTriangle, CheckCircle, Clock, Truck } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simple-maps";
 import { useMapZoomPan } from "@/hooks/useMapZoomPan";
 import ZoomControls from "@/components/ZoomControls";
 
@@ -15,8 +16,8 @@ interface MapRoute {
   status: RouteStatus;
   delay?: string;
   reason?: string;
-  fromPos: { x: number; y: number };
-  toPos: { x: number; y: number };
+  fromCoords: [number, number]; // [lng, lat]
+  toCoords: [number, number];
 }
 
 interface WeatherPin {
@@ -26,27 +27,25 @@ interface WeatherPin {
   humidity: number;
   wind: number;
   condition: "sunny" | "cloudy" | "rainy" | "storm";
-  pos: { x: number; y: number };
+  coords: [number, number]; // [lng, lat]
 }
 
-// Positions calibrated to a proper Malaysia map layout
-// Peninsula on the right, Borneo on the left, proper aspect ratio
 const routes: MapRoute[] = [
-  { id: "r1", from: "Kota Bharu", to: "K. Terengganu", distance: "165 km", eta: "2.5h", status: "rain-delay", delay: "+45 min", reason: "Heavy rain", fromPos: { x: 78, y: 18 }, toPos: { x: 76, y: 32 } },
-  { id: "r2", from: "Kota Kinabalu", to: "Sandakan", distance: "320 km", eta: "5.2h", status: "severe", delay: "+2h", reason: "Flooding", fromPos: { x: 18, y: 38 }, toPos: { x: 38, y: 30 } },
-  { id: "r3", from: "Kuching", to: "Sibu", distance: "450 km", eta: "6.0h", status: "traffic-delay", delay: "+30 min", reason: "Road works", fromPos: { x: 10, y: 62 }, toPos: { x: 26, y: 52 } },
-  { id: "r4", from: "Ipoh", to: "Penang", distance: "170 km", eta: "2.8h", status: "clear", fromPos: { x: 64, y: 35 }, toPos: { x: 60, y: 20 } },
-  { id: "r5", from: "KL", to: "Seremban", distance: "70 km", eta: "1.0h", status: "clear", fromPos: { x: 66, y: 46 }, toPos: { x: 68, y: 54 } },
-  { id: "r6", from: "JB", to: "Melaka", distance: "220 km", eta: "3.0h", status: "rain-delay", delay: "+20 min", reason: "Light rain", fromPos: { x: 70, y: 68 }, toPos: { x: 67, y: 58 } },
+  { id: "r1", from: "Kota Bharu", to: "K. Terengganu", distance: "165 km", eta: "2.5h", status: "rain-delay", delay: "+45 min", reason: "Heavy rain", fromCoords: [102.24, 6.12], toCoords: [103.13, 5.31] },
+  { id: "r2", from: "Kota Kinabalu", to: "Sandakan", distance: "320 km", eta: "5.2h", status: "severe", delay: "+2h", reason: "Flooding", fromCoords: [116.07, 5.98], toCoords: [118.07, 5.84] },
+  { id: "r3", from: "Kuching", to: "Sibu", distance: "450 km", eta: "6.0h", status: "traffic-delay", delay: "+30 min", reason: "Road works", fromCoords: [110.35, 1.55], toCoords: [111.83, 2.30] },
+  { id: "r4", from: "Ipoh", to: "Penang", distance: "170 km", eta: "2.8h", status: "clear", fromCoords: [101.09, 4.60], toCoords: [100.33, 5.41] },
+  { id: "r5", from: "KL", to: "Seremban", distance: "70 km", eta: "1.0h", status: "clear", fromCoords: [101.69, 3.14], toCoords: [101.94, 2.73] },
+  { id: "r6", from: "JB", to: "Melaka", distance: "220 km", eta: "3.0h", status: "rain-delay", delay: "+20 min", reason: "Light rain", fromCoords: [103.76, 1.49], toCoords: [102.25, 2.19] },
 ];
 
 const weatherPins: WeatherPin[] = [
-  { id: "w1", city: "Kuala Lumpur", temp: 31, humidity: 78, wind: 12, condition: "cloudy", pos: { x: 66, y: 46 } },
-  { id: "w2", city: "Penang", temp: 30, humidity: 72, wind: 15, condition: "sunny", pos: { x: 60, y: 20 } },
-  { id: "w3", city: "Kota Bharu", temp: 27, humidity: 92, wind: 25, condition: "storm", pos: { x: 78, y: 18 } },
-  { id: "w4", city: "Kota Kinabalu", temp: 29, humidity: 85, wind: 18, condition: "rainy", pos: { x: 18, y: 38 } },
-  { id: "w5", city: "Kuching", temp: 30, humidity: 80, wind: 10, condition: "cloudy", pos: { x: 10, y: 62 } },
-  { id: "w6", city: "Johor Bahru", temp: 32, humidity: 75, wind: 8, condition: "sunny", pos: { x: 70, y: 68 } },
+  { id: "w1", city: "Kuala Lumpur", temp: 31, humidity: 78, wind: 12, condition: "cloudy", coords: [101.69, 3.14] },
+  { id: "w2", city: "Penang", temp: 30, humidity: 72, wind: 15, condition: "sunny", coords: [100.33, 5.41] },
+  { id: "w3", city: "Kota Bharu", temp: 27, humidity: 92, wind: 25, condition: "storm", coords: [102.24, 6.12] },
+  { id: "w4", city: "Kota Kinabalu", temp: 29, humidity: 85, wind: 18, condition: "rainy", coords: [116.07, 5.98] },
+  { id: "w5", city: "Kuching", temp: 30, humidity: 80, wind: 10, condition: "cloudy", coords: [110.35, 1.55] },
+  { id: "w6", city: "Johor Bahru", temp: 32, humidity: 75, wind: 8, condition: "sunny", coords: [103.76, 1.49] },
 ];
 
 const statusConfig: Record<RouteStatus, { color: string; bg: string; label: string }> = {
@@ -61,6 +60,15 @@ const conditionIcons: Record<string, { icon: string }> = {
   cloudy: { icon: "⛅" },
   rainy: { icon: "🌧️" },
   storm: { icon: "⛈️" },
+};
+
+const TOPO_URL = "/malaysia-states.topo.json";
+
+const HC_KEY_TO_ID: Record<string, string> = {
+  "my-pl": "perlis", "my-kh": "kedah", "my-pg": "penang", "my-pk": "perak",
+  "my-kn": "kelantan", "my-te": "terengganu", "my-ph": "pahang", "my-sl": "selangor",
+  "my-kl": "kl", "my-pj": "putrajaya", "my-ns": "negeriSembilan", "my-me": "melaka",
+  "my-jh": "johor", "my-sa": "sabah", "my-sk": "sarawak", "my-la": "labuan",
 };
 
 type MapLayer = "routes" | "weather";
@@ -98,125 +106,150 @@ const SmartRouteMap = () => {
       </div>
 
       {/* Map container */}
-      <div className="relative w-full rounded-xl bg-muted/10 border border-border/40 overflow-hidden" style={{ aspectRatio: "2.2 / 1" }}>
+      <div className="relative w-full rounded-xl bg-muted/10 border border-border/40 overflow-hidden" style={{ aspectRatio: "2.4 / 1" }}>
         <ZoomControls onZoomIn={zoomIn} onZoomOut={zoomOut} onReset={reset} scale={zoomState.scale} />
         <div {...containerProps} className="absolute inset-0 overflow-hidden select-none">
-          <div style={transformStyle} className="w-full h-full relative">
-        {/* Subtle grid */}
-        <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: "radial-gradient(circle, hsl(var(--primary)) 1px, transparent 1px)", backgroundSize: "28px 28px" }} />
-
-        {/* SVG Map */}
-        <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 80" preserveAspectRatio="xMidYMid meet">
-          {/* Sea labels */}
-          <text x="44" y="50" fill="hsl(200 40% 50% / 0.15)" fontSize="3.5" fontWeight="700" textAnchor="middle" fontStyle="italic">South China Sea</text>
-
-          {/* ---- Peninsula Malaysia ---- */}
-          <path
-            d="M 56 12 C 58 14, 62 16, 63 18 C 65 22, 66 26, 67 30 C 68 34, 69 38, 69 42 C 70 46, 70 50, 70 54 C 71 58, 72 62, 72 66 C 72 70, 71 72, 70 72 C 68 72, 66 70, 65 68 C 63 64, 62 60, 62 56 C 61 52, 60 48, 60 44 C 59 40, 58 36, 57 32 C 56 28, 55 24, 55 20 C 55 16, 55 14, 56 12 Z"
-            fill="hsl(152 40% 30% / 0.12)"
-            stroke="hsl(152 50% 40% / 0.35)"
-            strokeWidth="0.4"
-          />
-          <text x="64" y="44" fill="hsl(152 40% 50% / 0.25)" fontSize="2" fontWeight="600" textAnchor="middle">Peninsular</text>
-          <text x="64" y="47" fill="hsl(152 40% 50% / 0.25)" fontSize="2" fontWeight="600" textAnchor="middle">Malaysia</text>
-
-          {/* ---- Borneo (Sabah & Sarawak) ---- */}
-          <path
-            d="M 4 56 C 6 52, 10 48, 14 44 C 18 40, 22 36, 26 34 C 30 32, 34 30, 38 30 C 42 30, 44 32, 42 36 C 40 40, 36 44, 34 48 C 32 52, 28 56, 24 60 C 20 64, 16 66, 12 66 C 8 66, 5 62, 4 56 Z"
-            fill="hsl(152 40% 30% / 0.12)"
-            stroke="hsl(152 50% 40% / 0.35)"
-            strokeWidth="0.4"
-          />
-          <text x="22" y="50" fill="hsl(152 40% 50% / 0.25)" fontSize="2" fontWeight="600" textAnchor="middle">East Malaysia</text>
-          <text x="22" y="53" fill="hsl(152 40% 50% / 0.25)" fontSize="1.6" fontWeight="500" textAnchor="middle">(Sabah & Sarawak)</text>
-
-          {/* Route lines */}
-          {routes.map((r) => {
-            const cfg = statusConfig[r.status];
-            const isActive = activeLayer === "routes";
-            const isSelected = selectedRoute?.id === r.id;
-            return (
-              <g key={r.id} className="cursor-pointer" onClick={() => { setSelectedRoute(r); setActiveLayer("routes"); }}>
-                {/* Glow for selected */}
-                {isSelected && (
-                  <line
-                    x1={r.fromPos.x} y1={r.fromPos.y}
-                    x2={r.toPos.x} y2={r.toPos.y}
-                    stroke={cfg.color}
-                    strokeWidth="4"
-                    opacity="0.2"
-                    strokeLinecap="round"
-                  />
-                )}
-                <line
-                  x1={r.fromPos.x} y1={r.fromPos.y}
-                  x2={r.toPos.x} y2={r.toPos.y}
-                  stroke={cfg.color}
-                  strokeWidth={isSelected ? "1.2" : "0.7"}
-                  strokeDasharray={r.status !== "clear" ? "3 2" : "none"}
-                  opacity={isActive ? (isSelected ? 1 : 0.5) : 0.12}
-                  strokeLinecap="round"
-                />
-                {/* Animated dot */}
-                {r.status !== "clear" && isActive && (
-                  <circle r="1.2" fill={cfg.color} opacity="0.9">
-                    <animateMotion
-                      dur="4s"
-                      repeatCount="indefinite"
-                      path={`M ${r.fromPos.x},${r.fromPos.y} L ${r.toPos.x},${r.toPos.y}`}
-                    />
-                  </circle>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-
-        {/* City pins - Routes layer */}
-        {activeLayer === "routes" && routes.map((r) => {
-          const cfg = statusConfig[r.status];
-          const isSelected = selectedRoute?.id === r.id;
-          return (
-            <div key={r.id}>
-              {[{ pos: r.fromPos, label: r.from }, { pos: r.toPos, label: r.to }].map((point, i) => (
-                <div
-                  key={`${r.id}-${i}`}
-                  className="absolute cursor-pointer group z-10"
-                  style={{ left: `${point.pos.x}%`, top: `${point.pos.y * (100 / 80)}%`, transform: "translate(-50%, -50%)" }}
-                  onClick={() => setSelectedRoute(r)}
-                >
-                  <div className={`h-3 w-3 rounded-full ${cfg.bg} ring-2 ring-background shadow-md transition-transform ${isSelected ? "scale-150" : "group-hover:scale-125"}`} />
-                  <span className={`absolute top-4 left-1/2 -translate-x-1/2 whitespace-nowrap font-semibold transition-opacity ${isSelected ? "text-[10px] text-foreground opacity-100" : "text-[9px] text-muted-foreground opacity-70 group-hover:opacity-100"}`}>
-                    {point.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          );
-        })}
-
-        {/* City pins - Weather layer */}
-        {activeLayer === "weather" && weatherPins.map((w) => {
-          const cond = conditionIcons[w.condition];
-          const isSelected = selectedWeather?.id === w.id;
-          return (
-            <div
-              key={w.id}
-              className="absolute cursor-pointer group z-10"
-              style={{ left: `${w.pos.x}%`, top: `${w.pos.y * (100 / 80)}%`, transform: "translate(-50%, -50%)" }}
-              onClick={() => setSelectedWeather(w)}
+          <div style={transformStyle} className="w-full h-full">
+            <ComposableMap
+              projection="geoMercator"
+              projectionConfig={{ scale: 2800, center: [109.5, 3.8] }}
+              width={900}
+              height={380}
+              style={{ width: "100%", height: "100%" }}
             >
-              <div className={`flex flex-col items-center transition-transform ${isSelected ? "scale-125" : "group-hover:scale-110"}`}>
-                <div className={`rounded-full px-1.5 py-0.5 backdrop-blur-sm ${isSelected ? "bg-muted/60 ring-1 ring-primary/40" : "bg-muted/30"}`}>
-                  <span className="text-base leading-none">{cond.icon}</span>
-                  <span className="text-[10px] font-bold text-foreground ml-0.5">{w.temp}°</span>
-                </div>
-                <span className={`text-[9px] mt-0.5 whitespace-nowrap font-medium ${isSelected ? "text-foreground" : "text-muted-foreground"}`}>{w.city}</span>
-              </div>
-            </div>
-          );
-        })}
+              {/* State geometries */}
+              <Geographies geography={TOPO_URL}>
+                {({ geographies }) =>
+                  geographies.map((geo) => {
+                    const hcKey = geo.properties?.["hc-key"];
+                    const id = hcKey ? HC_KEY_TO_ID[hcKey] : null;
+                    if (!id) return null;
+                    return (
+                      <Geography
+                        key={geo.rsmKey}
+                        geography={geo}
+                        style={{
+                          default: {
+                            fill: "hsl(152 30% 14%)",
+                            stroke: "hsl(152 50% 30% / 0.6)",
+                            strokeWidth: 0.5,
+                            outline: "none",
+                          },
+                          hover: {
+                            fill: "hsl(152 30% 20%)",
+                            stroke: "hsl(152 50% 40% / 0.8)",
+                            strokeWidth: 0.8,
+                            outline: "none",
+                          },
+                          pressed: {
+                            fill: "hsl(152 30% 14%)",
+                            stroke: "hsl(152 50% 30% / 0.6)",
+                            strokeWidth: 0.5,
+                            outline: "none",
+                          },
+                        }}
+                      />
+                    );
+                  })
+                }
+              </Geographies>
 
+              {/* Route lines */}
+              {routes.map((r) => {
+                const cfg = statusConfig[r.status];
+                const isActive = activeLayer === "routes";
+                const isSelected = selectedRoute?.id === r.id;
+                return (
+                  <g key={r.id} className="cursor-pointer" onClick={() => { setSelectedRoute(r); setActiveLayer("routes"); }}>
+                    {isSelected && (
+                      <Line
+                        from={r.fromCoords}
+                        to={r.toCoords}
+                        stroke={cfg.color}
+                        strokeWidth={5}
+                        strokeOpacity={0.25}
+                        strokeLinecap="round"
+                      />
+                    )}
+                    <Line
+                      from={r.fromCoords}
+                      to={r.toCoords}
+                      stroke={cfg.color}
+                      strokeWidth={isSelected ? 2.5 : 1.5}
+                      strokeDasharray={r.status !== "clear" ? "6 4" : undefined}
+                      strokeOpacity={isActive ? (isSelected ? 1 : 0.6) : 0.15}
+                      strokeLinecap="round"
+                    />
+                  </g>
+                );
+              })}
+
+              {/* Route city markers */}
+              {activeLayer === "routes" && routes.map((r) => {
+                const cfg = statusConfig[r.status];
+                const isSelected = selectedRoute?.id === r.id;
+                return [
+                  { coords: r.fromCoords, label: r.from, key: `${r.id}-from` },
+                  { coords: r.toCoords, label: r.to, key: `${r.id}-to` },
+                ].map((point) => (
+                  <Marker key={point.key} coordinates={point.coords}>
+                    <circle
+                      r={isSelected ? 5 : 3.5}
+                      fill={cfg.color}
+                      stroke="hsl(var(--background))"
+                      strokeWidth={1.5}
+                      className="cursor-pointer"
+                      onClick={() => setSelectedRoute(r)}
+                    />
+                    <text
+                      textAnchor="middle"
+                      y={isSelected ? -9 : -7}
+                      fill="hsl(var(--foreground))"
+                      fontSize={isSelected ? 7 : 5.5}
+                      fontWeight={isSelected ? 700 : 500}
+                      className="pointer-events-none select-none"
+                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}
+                    >
+                      {point.label}
+                    </text>
+                  </Marker>
+                ));
+              })}
+
+              {/* Weather markers */}
+              {activeLayer === "weather" && weatherPins.map((w) => {
+                const cond = conditionIcons[w.condition];
+                const isSelected = selectedWeather?.id === w.id;
+                return (
+                  <Marker key={w.id} coordinates={w.coords}>
+                    <g
+                      className="cursor-pointer"
+                      onClick={() => setSelectedWeather(w)}
+                      transform={isSelected ? "scale(1.3)" : ""}
+                    >
+                      <circle r={14} fill="hsl(var(--muted) / 0.6)" stroke={isSelected ? "hsl(var(--primary) / 0.6)" : "transparent"} strokeWidth={1.5} />
+                      <text textAnchor="middle" dominantBaseline="central" fontSize={12} y={-2}>
+                        {cond.icon}
+                      </text>
+                      <text textAnchor="middle" y={10} fill="hsl(var(--foreground))" fontSize={6} fontWeight={700}>
+                        {w.temp}°
+                      </text>
+                    </g>
+                    <text
+                      textAnchor="middle"
+                      y={22}
+                      fill={isSelected ? "hsl(var(--foreground))" : "hsl(var(--muted-foreground))"}
+                      fontSize={5.5}
+                      fontWeight={isSelected ? 600 : 400}
+                      className="pointer-events-none select-none"
+                      style={{ textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}
+                    >
+                      {w.city}
+                    </text>
+                  </Marker>
+                );
+              })}
+            </ComposableMap>
           </div>
         </div>
 
