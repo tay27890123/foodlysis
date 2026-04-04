@@ -89,7 +89,7 @@ const FoodMap = () => {
         </motion.div>
 
         {/* Data Layer Toggle */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5 flex flex-wrap gap-2">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
           {LAYERS.map((layer) => {
             const active = activeLayer === layer.id;
             return (
