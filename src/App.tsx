@@ -14,6 +14,7 @@ import Insights from "./pages/Insights.tsx";
 import FoodMap from "./pages/FoodMap.tsx";
 import Auth from "./pages/Auth.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -29,9 +30,9 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/logistics" element={<LogisticsDashboard />} />
-            <Route path="/match" element={<Match />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/insights" element={<Insights />} />
+            <Route path="/match" element={<ProtectedRoute><Match /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
             <Route path="/food-map" element={<FoodMap />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
