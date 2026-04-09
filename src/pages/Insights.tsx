@@ -162,7 +162,10 @@ const Insights = () => {
           </div>
         </motion.div>
 
-        {isLoading && (
+        {/* AI Crop Insight Section */}
+        <div className="mb-10">
+          <CropInsightForm />
+        </div>
           <div className="flex flex-col items-center justify-center py-24 text-muted-foreground">
             <Loader2 className="mb-4 h-8 w-8 animate-spin text-primary" />
             <p>Fetching live data from OpenDOSM…</p>
