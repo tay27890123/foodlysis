@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw, ExternalLink, Loader2, Search, X } from "lucide-react";
+import { TrendingUp, TrendingDown, AlertTriangle, ShoppingCart, Store, RefreshCw, ExternalLink, Loader2, Search, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllInsights, type DynamicInsight, type InsightTopic } from "@/services/openDOSM";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useCallback } from "react";
+import ReactMarkdown from "react-markdown";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const categoryConfig: Record<string, { icon: typeof Store; className: string }> = {
   Seller: { icon: Store, className: "bg-primary/20 text-primary border-primary/30" },
@@ -88,6 +91,94 @@ const InsightCard = ({ item, index }: { item: DynamicInsight; index: number }) =
   );
 };
 
+const AIAnalysisCard = ({ insights }: { insights: DynamicInsight[] }) => {
+  const [analysis, setAnalysis] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const generateAnalysis = useCallback(async () => {
+    setLoading(true);
+    try {
+      const payload = insights.map(i => ({
+        title: i.title,
+        description: i.description,
+        category: i.category,
+        topic: i.topic,
+        status: i.status,
+        value: i.value,
+      }));
+
+      const { data, error } = await supabase.functions.invoke("ai-insights", {
+        body: { insights: payload },
+      });
+
+      if (error) throw error;
+
+      if (data?.error) {
+        toast.error(data.error);
+        return;
+      }
+
+      setAnalysis(data.analysis);
+    } catch (err: any) {
+      console.error("AI analysis error:", err);
+      toast.error("Failed to generate AI analysis. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [insights]);
+
+  return (
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
+      <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card/80 to-secondary/5 backdrop-blur-sm">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/15">
+                <Sparkles className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg">AI Market Analysis</CardTitle>
+                <p className="text-sm text-muted-foreground">Powered by Lovable AI — analyzes your live data</p>
+              </div>
+            </div>
+            <Button
+              onClick={generateAnalysis}
+              disabled={loading}
+              size="sm"
+              className="shrink-0"
+            >
+              {loading ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="mr-2 h-4 w-4" />
+              )}
+              {analysis ? "Regenerate" : "Generate Analysis"}
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {!analysis && !loading && (
+            <p className="text-sm text-muted-foreground italic">
+              Click "Generate Analysis" to get AI-powered insights from your live market data.
+            </p>
+          )}
+          {loading && (
+            <div className="flex items-center gap-3 py-6 text-muted-foreground">
+              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+              <span className="text-sm">Analyzing {insights.length} data points…</span>
+            </div>
+          )}
+          {analysis && !loading && (
+            <div className="prose prose-sm prose-invert max-w-none text-foreground [&_h2]:text-lg [&_h2]:font-bold [&_h2]:mt-4 [&_h2]:mb-2 [&_ul]:mt-1 [&_li]:text-muted-foreground [&_strong]:text-foreground">
+              <ReactMarkdown>{analysis}</ReactMarkdown>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  );
+};
+
 const Insights = () => {
   const { data: insights, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["dosm-insights"],
@@ -129,7 +220,7 @@ const Insights = () => {
                 <a href="https://data.gov.my" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2 hover:text-primary/80">
                   data.gov.my
                 </a>
-                {" & marketplace data"}
+                {" & AI-powered analysis"}
               </p>
             </div>
             <Button
@@ -144,7 +235,6 @@ const Insights = () => {
             </Button>
           </div>
 
-          {/* Search bar */}
           <div className="relative mt-4 max-w-md">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
@@ -178,26 +268,33 @@ const Insights = () => {
           </div>
         )}
 
-        {insights && filtered.length > 0 && (
+        {insights && insights.length > 0 && (
           <div className="space-y-10">
-            {/* Seller Section */}
+            {/* AI Analysis Section */}
             <section>
-              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="mb-5 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15">
-                  <Store className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h2 className="font-display text-xl font-bold">For Sellers</h2>
-                  <p className="text-sm text-muted-foreground">Pricing trends, demand signals & export opportunities</p>
-                </div>
-                <Badge variant="outline" className="ml-auto border-primary/30 text-primary">{sellerInsights.length} insights</Badge>
-              </motion.div>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {sellerInsights.map((item, i) => (
-                  <InsightCard key={item.id} item={item} index={i} />
-                ))}
-              </div>
+              <AIAnalysisCard insights={insights} />
             </section>
+
+            {/* Seller Section */}
+            {sellerInsights.length > 0 && (
+              <section>
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="mb-5 flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15">
+                    <Store className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="font-display text-xl font-bold">For Sellers</h2>
+                    <p className="text-sm text-muted-foreground">Pricing trends, demand signals & export opportunities</p>
+                  </div>
+                  <Badge variant="outline" className="ml-auto border-primary/30 text-primary">{sellerInsights.length} insights</Badge>
+                </motion.div>
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {sellerInsights.map((item, i) => (
+                    <InsightCard key={item.id} item={item} index={i} />
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Divider */}
             <div className="relative">
@@ -208,23 +305,25 @@ const Insights = () => {
             </div>
 
             {/* Buyer Section */}
-            <section>
-              <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="mb-5 flex items-center gap-3">
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary/15">
-                  <ShoppingCart className="h-5 w-5 text-secondary" />
+            {buyerInsights.length > 0 && (
+              <section>
+                <motion.div initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }} className="mb-5 flex items-center gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary/15">
+                    <ShoppingCart className="h-5 w-5 text-secondary" />
+                  </div>
+                  <div>
+                    <h2 className="font-display text-xl font-bold">For Buyers</h2>
+                    <p className="text-sm text-muted-foreground">Price alerts, supply availability & cost-saving opportunities</p>
+                  </div>
+                  <Badge variant="outline" className="ml-auto border-secondary/30 text-secondary">{buyerInsights.length} insights</Badge>
+                </motion.div>
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {buyerInsights.map((item, i) => (
+                    <InsightCard key={item.id} item={item} index={i} />
+                  ))}
                 </div>
-                <div>
-                  <h2 className="font-display text-xl font-bold">For Buyers</h2>
-                  <p className="text-sm text-muted-foreground">Price alerts, supply availability & cost-saving opportunities</p>
-                </div>
-                <Badge variant="outline" className="ml-auto border-secondary/30 text-secondary">{buyerInsights.length} insights</Badge>
-              </motion.div>
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {buyerInsights.map((item, i) => (
-                  <InsightCard key={item.id} item={item} index={i} />
-                ))}
-              </div>
-            </section>
+              </section>
+            )}
           </div>
         )}
 
