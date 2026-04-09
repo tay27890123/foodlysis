@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Leaf, ArrowLeft, Search, MapPin, Weight,
   Tag, SlidersHorizontal, X, Package, Navigation, ShoppingCart, Store,
-  Pencil, Trash2, MoreVertical, MessageCircle, Truck, PackageCheck
+  Pencil, Trash2, MoreVertical, MessageCircle, Truck, PackageCheck, CalendarDays, Image as ImageIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSurplusListings, type SurplusListing } from "@/hooks/useSurplusListings";
@@ -16,6 +16,7 @@ import AddListingModal from "@/components/AddListingModal";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { format } from "date-fns";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -30,6 +31,12 @@ import {
 type Category = "All" | "Vegetables" | "Fruits" | "Grains" | "Seafood" | "Poultry" | "Dairy" | "Other";
 
 const categories: Category[] = ["All", "Vegetables", "Fruits", "Grains", "Seafood", "Poultry", "Dairy", "Other"];
+
+const MALAYSIA_STATES = [
+  "All States", "Johor", "Kedah", "Kelantan", "Kuala Lumpur", "Labuan", "Melaka",
+  "Negeri Sembilan", "Pahang", "Penang", "Perak", "Perlis", "Putrajaya",
+  "Sabah", "Sarawak", "Selangor", "Terengganu",
+];
 
 const urgencyStyles: Record<string, string> = {
   High: "bg-destructive/15 text-destructive border-destructive/20",
@@ -92,6 +99,10 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
     ? Math.round((1 - listing.discounted_price / listing.original_price) * 100)
     : 0;
 
+  const isExpiringSoon = listing.expiry_date
+    ? new Date(listing.expiry_date).getTime() - Date.now() < 3 * 24 * 60 * 60 * 1000
+    : false;
+
   const handleDelete = async () => {
     setDeleting(true);
     try {
@@ -112,9 +123,26 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.04, duration: 0.35 }}
-      className="glass-card group hover:border-primary/40 transition-all duration-300 flex flex-col"
+      className="glass-card group hover:border-primary/40 transition-all duration-300 flex flex-col overflow-hidden"
     >
-      <div className="flex items-center justify-between px-5 pt-4 pb-2">
+      {/* Product image */}
+      {listing.image_url ? (
+        <div className="relative w-full h-36 bg-muted/30">
+          <img src={listing.image_url} alt={listing.product_name} className="w-full h-full object-cover" />
+          {discount > 0 && (
+            <Badge className="absolute top-2 left-2 bg-primary/90 text-primary-foreground border-0">-{discount}%</Badge>
+          )}
+        </div>
+      ) : (
+        <div className="relative w-full h-20 bg-gradient-to-br from-muted/30 to-muted/10 flex items-center justify-center">
+          <ImageIcon className="h-8 w-8 text-muted-foreground/20" />
+          {discount > 0 && (
+            <Badge className="absolute top-2 left-2 bg-primary/90 text-primary-foreground border-0">-{discount}%</Badge>
+          )}
+        </div>
+      )}
+
+      <div className="flex items-center justify-between px-5 pt-3 pb-1">
         <Badge variant="outline" className={`text-[11px] font-medium ${urgencyStyles[listing.urgency_level] ?? ""}`}>
           {listing.urgency_level === "High" ? "⚡ Urgent" : listing.urgency_level === "Medium" ? "⏳ Moderate" : "📦 Flexible"}
         </Badge>
@@ -150,9 +178,9 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
         <h3 className="font-display text-lg font-semibold mt-1 mb-1 group-hover:text-primary transition-colors">
           {listing.product_name}
         </h3>
-        <p className="text-xs text-muted-foreground mb-4">{listing.profiles?.business_name ?? "Unknown Supplier"}</p>
+        <p className="text-xs text-muted-foreground mb-3">{listing.profiles?.business_name ?? "Unknown Supplier"}</p>
 
-        <div className="grid grid-cols-2 gap-3 mb-4">
+        <div className="grid grid-cols-2 gap-2 mb-3">
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <Weight className="h-3.5 w-3.5 shrink-0" />
             <span>{listing.quantity_kg.toLocaleString()} kg</span>
@@ -161,11 +189,17 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
             <MapPin className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{areaName || "—"}</span>
           </div>
+          {listing.expiry_date && (
+            <div className={`flex items-center gap-2 text-sm col-span-2 ${isExpiringSoon ? "text-destructive" : "text-muted-foreground"}`}>
+              <CalendarDays className="h-3.5 w-3.5 shrink-0" />
+              <span>Expires {format(new Date(listing.expiry_date), "d MMM yyyy")}</span>
+            </div>
+          )}
         </div>
 
-        {/* Transportation badge */}
-        <div className="mb-3">
-          {(listing as any).transportation_available ? (
+        {/* Transport & badges row */}
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          {listing.transportation_available ? (
             <Badge variant="outline" className="text-[11px] gap-1 bg-primary/10 text-primary border-primary/20">
               <Truck className="h-3 w-3" /> Transport Available
             </Badge>
@@ -183,14 +217,11 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
           </div>
         )}
 
-        <div className="mt-auto pt-4 border-t border-border/50 flex items-end justify-between">
+        <div className="mt-auto pt-3 border-t border-border/50 flex items-end justify-between">
           <div>
             <span className="text-xs text-muted-foreground line-through">RM {listing.original_price.toFixed(2)}/kg</span>
             <div className="font-display text-xl font-bold text-primary">RM {listing.discounted_price.toFixed(2)}/kg</div>
           </div>
-          {discount > 0 && (
-            <Badge className="bg-primary/15 text-primary border-primary/30 hover:bg-primary/20">-{discount}%</Badge>
-          )}
         </div>
       </div>
 
@@ -208,13 +239,13 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
           <DialogHeader>
             <DialogTitle>Contact Seller — {listing.product_name}</DialogTitle>
             <DialogDescription>
-              {(listing as any).transportation_available
+              {listing.transportation_available
                 ? "This seller provides transportation for this item."
                 : "This item does not include transportation. How would you like to handle delivery?"}
             </DialogDescription>
           </DialogHeader>
 
-          {(listing as any).transportation_available ? (
+          {listing.transportation_available ? (
             <div className="space-y-4">
               <div className="rounded-lg bg-primary/10 p-3 flex items-center gap-2">
                 <Truck className="h-4 w-4 text-primary" />
@@ -294,11 +325,9 @@ const Match = () => {
 
   const listingsWithDistance = useMemo(() => {
     return (listings ?? []).map((l) => {
-      const lat = (l as any).location_lat as number | null;
-      const lng = (l as any).location_lng as number | null;
       let dist: number | null = null;
-      if (userLocation && lat && lng) {
-        dist = haversineDistance(userLocation.lat, userLocation.lng, lat, lng);
+      if (userLocation && l.location_lat && l.location_lng) {
+        dist = haversineDistance(userLocation.lat, userLocation.lng, l.location_lat, l.location_lng);
       }
       return { ...l, _distance: dist };
     });
@@ -308,11 +337,10 @@ const Match = () => {
     const matchSearch = l.product_name.toLowerCase().includes(search.toLowerCase()) ||
       (l.profiles?.business_name ?? "").toLowerCase().includes(search.toLowerCase());
     const matchCategory = category === "All" || l.category === category;
-    const matchState = !stateFilter || ((l as any).location_label || l.profiles?.location_state || "").toLowerCase().includes(stateFilter.toLowerCase());
+    const matchState = !stateFilter || (l.location_label || l.profiles?.location_state || "").toLowerCase().includes(stateFilter.toLowerCase());
     return matchSearch && matchCategory && matchState;
   });
 
-  // Sort by distance if GPS is available
   const sorted = useMemo(() => {
     if (!userLocation) return filtered;
     return [...filtered].sort((a, b) => {
@@ -328,23 +356,32 @@ const Match = () => {
 
   const FilterBar = () => (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="glass-card p-4 mb-6">
-      <div className="flex flex-col md:flex-row gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input placeholder="Search products, suppliers, or locations..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-background/60" />
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input placeholder="Search products, suppliers..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9 bg-background/60" />
+          </div>
+          <select
+            value={stateFilter || "All States"}
+            onChange={(e) => setStateFilter(e.target.value === "All States" ? "" : e.target.value)}
+            className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring min-w-[160px]"
+          >
+            {MALAYSIA_STATES.map((s) => <option key={s} value={s}>{s}</option>)}
+          </select>
           <Button
             variant={userLocation ? "default" : "outline"}
             size="sm"
-            className="text-xs h-8 gap-1"
+            className="text-xs h-10 gap-1"
             onClick={requestLocation}
             disabled={gpsLoading}
           >
             <Navigation className="h-3.5 w-3.5" />
             {gpsLoading ? "Locating..." : userLocation ? "Nearby" : "Use GPS"}
           </Button>
-          <SlidersHorizontal className="h-4 w-4 text-muted-foreground hidden md:block" />
+        </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
           {categories.map((cat) => (
             <Button key={cat} variant={category === cat ? "default" : "outline"} size="sm" onClick={() => setCategory(cat)} className="text-xs h-8">
               {cat}
@@ -416,12 +453,12 @@ const Match = () => {
         </motion.div>
 
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <TabsList className="grid w-full max-w-xs grid-cols-2 mb-6">
+          <TabsList className="grid w-full max-w-sm grid-cols-2 mb-6">
             <TabsTrigger value="buy" className="gap-2">
-              <ShoppingCart className="h-4 w-4" /> Buy
+              <ShoppingCart className="h-4 w-4" /> Buy (Demand)
             </TabsTrigger>
             <TabsTrigger value="sell" className="gap-2">
-              <Store className="h-4 w-4" /> Sell
+              <Store className="h-4 w-4" /> Sell (Supply)
             </TabsTrigger>
           </TabsList>
 
@@ -441,7 +478,6 @@ const Match = () => {
                 <AddListingModal onSuccess={() => queryClient.invalidateQueries({ queryKey: ["surplus_listings"] })} />
               </div>
 
-              {/* Show user's own listings below */}
               <div>
                 <h3 className="font-display text-lg font-semibold mb-4">All Active Listings</h3>
                 <FilterBar />
