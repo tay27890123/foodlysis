@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     const { query, user_id } = parsed.data
 
     // Call Lovable AI Gateway
-    const aiResponse = await fetch('https://ai-gateway.lovable.dev/v1/chat/completions', {
+    const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${LOVABLE_API_KEY}`,
