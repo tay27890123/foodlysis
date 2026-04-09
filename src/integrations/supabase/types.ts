@@ -14,30 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      market_insights: {
-        Row: {
-          created_at: string
-          id: string
-          query: string
-          summary: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          query: string
-          summary: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          query?: string
-          summary?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           business_name: string
@@ -67,9 +43,7 @@ export type Database = {
           category: string
           created_at: string
           discounted_price: number
-          expiry_date: string | null
           id: string
-          image_url: string | null
           location_label: string | null
           location_lat: number | null
           location_lng: number | null
@@ -85,9 +59,7 @@ export type Database = {
           category: string
           created_at?: string
           discounted_price: number
-          expiry_date?: string | null
           id?: string
-          image_url?: string | null
           location_label?: string | null
           location_lat?: number | null
           location_lng?: number | null
@@ -103,9 +75,7 @@ export type Database = {
           category?: string
           created_at?: string
           discounted_price?: number
-          expiry_date?: string | null
           id?: string
-          image_url?: string | null
           location_label?: string | null
           location_lat?: number | null
           location_lng?: number | null
