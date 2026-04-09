@@ -10,12 +10,14 @@ interface DropdownItem {
 }
 
 const marketItems: DropdownItem[] = [
-  { label: "Marketplace", to: "/match" },
+  { label: "Marketplace", to: "/marketplace" },
+  { label: "Match (Legacy)", to: "/match" },
   { label: "Market", to: "/dashboard" },
 ];
 
 const dataItems: DropdownItem[] = [
-  { label: "Food Data Map", to: "/food-map" },
+  { label: "Food Data Map", to: "/food-data-map" },
+  { label: "Food Supply Map", to: "/food-map" },
   { label: "Transit Monitor", to: "/logistics" },
   { label: "Insights", to: "/insights" },
 ];
