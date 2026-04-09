@@ -255,7 +255,7 @@ export async function fetchStateMetrics(): Promise<StateMetrics[]> {
 
 // ── Choropleth intensity calculation ───────────────────────────────────────────
 
-export function getChoroplethValue(state: StateMetrics, layer: DataLayer): number {
+export function getChoroplethValue(state: StateMetrics, layer: DataLayer, priceData?: Map<string, StatePriceData>): number {
   switch (layer) {
     case "foodSupply":
       return state.production;
@@ -265,6 +265,8 @@ export function getChoroplethValue(state: StateMetrics, layer: DataLayer): numbe
       return state.ppiIndex ?? 100;
     case "ssl":
       return state.demand > 0 ? (state.production / state.demand) * 100 : 0;
+    case "price":
+      return priceData?.get(state.id)?.avgPrice ?? 0;
   }
 }
 
@@ -301,10 +303,17 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
         stroke: `hsl(${hue} 60% 48% / 0.85)`,
       };
     }
+    case "price": {
+      const hue = 152 - t * 120;
+      return {
+        fill: `hsl(${hue} 60% 30% / 0.45)`,
+        stroke: `hsl(${hue} 60% 48% / 0.85)`,
+      };
+    }
   }
 }
 
-export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): string {
+export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer, priceData?: Map<string, StatePriceData>): string {
   switch (layer) {
     case "foodSupply":
       return `${state.production.toLocaleString()} kg`;
@@ -318,6 +327,10 @@ export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): stri
     case "ssl": {
       const ssl = state.demand > 0 ? (state.production / state.demand) * 100 : 0;
       return `SSL ${ssl.toFixed(1)}%`;
+    }
+    case "price": {
+      const pd = priceData?.get(state.id);
+      return pd ? `Avg RM ${pd.avgPrice.toFixed(2)} (${pd.itemCount} items)` : "No data";
     }
   }
 }
