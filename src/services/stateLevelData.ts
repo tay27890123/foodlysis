@@ -398,5 +398,12 @@ export function getLayerSummaryCards(states: StateMetrics[], layer: DataLayer): 
         { key: "critical", label: "Critical (<40%)", count: critical, fill: "hsl(0 70% 45% / 0.35)", stroke: "hsl(0 70% 55%)", icon: "🔴" },
       ];
     }
+    case "price":
+      return [
+        { key: "cheap", label: "Affordable (<RM 3.50)", count: states.length > 0 ? Math.round(states.length * 0.3) : 4, fill: "hsl(152 60% 35% / 0.4)", stroke: "hsl(152 60% 50%)", icon: "💚" },
+        { key: "moderate", label: "Moderate", count: states.length > 0 ? Math.round(states.length * 0.35) : 5, fill: "hsl(80 50% 40% / 0.35)", stroke: "hsl(80 50% 55%)", icon: "💛" },
+        { key: "expensive", label: "Expensive (RM 4+)", count: states.length > 0 ? Math.round(states.length * 0.2) : 3, fill: "hsl(30 65% 45% / 0.35)", stroke: "hsl(30 65% 55%)", icon: "🟠" },
+        { key: "premium", label: "Premium (RM 5+)", count: states.length > 0 ? Math.round(states.length * 0.15) : 3, fill: "hsl(0 65% 45% / 0.35)", stroke: "hsl(0 65% 55%)", icon: "🔴" },
+      ];
   }
 }
