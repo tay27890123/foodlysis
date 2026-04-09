@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAllInsights, type DynamicInsight, type InsightTopic } from "@/services/openDOSM";
 import { useMemo, useState } from "react";
+import CropInsightForm from "@/components/CropInsightForm";
 
 const categoryConfig: Record<string, { icon: typeof Store; className: string }> = {
   Seller: { icon: Store, className: "bg-primary/20 text-primary border-primary/30" },
