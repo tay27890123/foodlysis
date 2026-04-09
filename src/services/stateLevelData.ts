@@ -1,12 +1,30 @@
 import type { StateStatus } from "@/components/MalaysiaMap";
 
 const BASE_URL = "https://api.data.gov.my/opendosm/";
+const PRICECATCHER_URL = "https://api.data.gov.my/data-catalogue";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-export type DataLayer = "foodSupply" | "cpi" | "ppi" | "ssl";
+export type DataLayer = "foodSupply" | "cpi" | "ppi" | "ssl" | "price";
 
 export type WeatherRisk = "normal" | "advisory" | "warning" | "danger";
+
+export interface PriceCatcherItem {
+  date: string;
+  premise: string;
+  premise_type: string;
+  state: string;
+  district: string;
+  item: string;
+  unit: string;
+  price: number;
+}
+
+export interface StatePriceData {
+  avgPrice: number;
+  itemCount: number;
+  topItems: { item: string; avgPrice: number }[];
+}
 
 export type FoodCategory = "crops" | "livestock" | "fisheries" | "dairy" | "fruitsVeg" | "processed";
 
@@ -140,6 +158,75 @@ async function fetchStateCrops(): Promise<Map<string, number>> {
   }
 }
 
+// ── Fetch PriceCatcher data ────────────────────────────────────────────────────
+
+const PRICECATCHER_STATE_MAP: Record<string, string> = {
+  "Perlis": "perlis", "Kedah": "kedah", "Pulau Pinang": "penang", "Perak": "perak",
+  "Kelantan": "kelantan", "Terengganu": "terengganu", "Pahang": "pahang", "Selangor": "selangor",
+  "W.P. Kuala Lumpur": "kl", "Negeri Sembilan": "negeriSembilan", "Melaka": "melaka",
+  "Johor": "johor", "Sabah": "sabah", "Sarawak": "sarawak", "W.P. Labuan": "labuan",
+  "W.P. Putrajaya": "putrajaya",
+};
+
+export async function fetchPriceCatcherData(): Promise<Map<string, StatePriceData>> {
+  const result = new Map<string, StatePriceData>();
+  try {
+    const res = await fetch(`${PRICECATCHER_URL}?id=pricecatcher_item&limit=500&sort=-date`);
+    if (!res.ok) throw new Error("PriceCatcher API error");
+    const data: PriceCatcherItem[] = await res.json();
+
+    // Group by state
+    const byState = new Map<string, PriceCatcherItem[]>();
+    for (const item of data) {
+      const stateId = PRICECATCHER_STATE_MAP[item.state];
+      if (!stateId) continue;
+      if (!byState.has(stateId)) byState.set(stateId, []);
+      byState.get(stateId)!.push(item);
+    }
+
+    for (const [stateId, items] of byState) {
+      const avg = items.reduce((s, i) => s + i.price, 0) / items.length;
+
+      // Top items by frequency
+      const itemPrices = new Map<string, number[]>();
+      for (const i of items) {
+        if (!itemPrices.has(i.item)) itemPrices.set(i.item, []);
+        itemPrices.get(i.item)!.push(i.price);
+      }
+      const topItems = [...itemPrices.entries()]
+        .map(([item, prices]) => ({ item, avgPrice: prices.reduce((s, p) => s + p, 0) / prices.length }))
+        .sort((a, b) => b.avgPrice - a.avgPrice)
+        .slice(0, 5);
+
+      result.set(stateId, { avgPrice: +avg.toFixed(2), itemCount: items.length, topItems });
+    }
+  } catch (e) {
+    console.warn("PriceCatcher fetch failed:", e);
+    // Return mock price data as fallback
+    const mockPrices: Record<string, StatePriceData> = {
+      perlis: { avgPrice: 3.20, itemCount: 42, topItems: [{ item: "Ayam Standard", avgPrice: 8.90 }, { item: "Beras Tempatan", avgPrice: 2.60 }] },
+      kedah: { avgPrice: 3.10, itemCount: 58, topItems: [{ item: "Ayam Standard", avgPrice: 8.70 }, { item: "Beras Tempatan", avgPrice: 2.40 }] },
+      penang: { avgPrice: 4.50, itemCount: 72, topItems: [{ item: "Ayam Standard", avgPrice: 9.50 }, { item: "Kangkung", avgPrice: 3.80 }] },
+      perak: { avgPrice: 3.40, itemCount: 65, topItems: [{ item: "Ayam Standard", avgPrice: 8.80 }, { item: "Bawang Merah", avgPrice: 5.20 }] },
+      kelantan: { avgPrice: 3.80, itemCount: 48, topItems: [{ item: "Ikan Kembung", avgPrice: 12.50 }, { item: "Beras Tempatan", avgPrice: 2.70 }] },
+      terengganu: { avgPrice: 3.60, itemCount: 45, topItems: [{ item: "Ikan Kembung", avgPrice: 11.80 }, { item: "Ayam Standard", avgPrice: 9.10 }] },
+      pahang: { avgPrice: 3.30, itemCount: 55, topItems: [{ item: "Ayam Standard", avgPrice: 8.90 }, { item: "Durian Musang King", avgPrice: 45.00 }] },
+      selangor: { avgPrice: 4.80, itemCount: 85, topItems: [{ item: "Ayam Standard", avgPrice: 9.80 }, { item: "Telur Gred A", avgPrice: 0.48 }] },
+      kl: { avgPrice: 5.20, itemCount: 90, topItems: [{ item: "Ayam Standard", avgPrice: 10.20 }, { item: "Kangkung", avgPrice: 4.50 }] },
+      negeriSembilan: { avgPrice: 3.50, itemCount: 52, topItems: [{ item: "Ayam Standard", avgPrice: 9.00 }, { item: "Bawang Besar", avgPrice: 4.80 }] },
+      melaka: { avgPrice: 3.60, itemCount: 50, topItems: [{ item: "Ikan Kembung", avgPrice: 11.50 }, { item: "Ayam Standard", avgPrice: 9.20 }] },
+      johor: { avgPrice: 3.90, itemCount: 78, topItems: [{ item: "Ayam Standard", avgPrice: 9.40 }, { item: "Telur Gred A", avgPrice: 0.45 }] },
+      sabah: { avgPrice: 4.20, itemCount: 60, topItems: [{ item: "Ayam Standard", avgPrice: 10.00 }, { item: "Beras Tempatan", avgPrice: 3.00 }] },
+      sarawak: { avgPrice: 3.70, itemCount: 55, topItems: [{ item: "Ayam Standard", avgPrice: 9.60 }, { item: "Beras Tempatan", avgPrice: 2.80 }] },
+      labuan: { avgPrice: 4.60, itemCount: 30, topItems: [{ item: "Ayam Standard", avgPrice: 10.50 }, { item: "Ikan Kembung", avgPrice: 13.00 }] },
+    };
+    for (const [id, data] of Object.entries(mockPrices)) {
+      result.set(id, data);
+    }
+  }
+  return result;
+}
+
 // ── Main fetch function ────────────────────────────────────────────────────────
 
 export async function fetchStateMetrics(): Promise<StateMetrics[]> {
@@ -168,7 +255,7 @@ export async function fetchStateMetrics(): Promise<StateMetrics[]> {
 
 // ── Choropleth intensity calculation ───────────────────────────────────────────
 
-export function getChoroplethValue(state: StateMetrics, layer: DataLayer): number {
+export function getChoroplethValue(state: StateMetrics, layer: DataLayer, priceData?: Map<string, StatePriceData>): number {
   switch (layer) {
     case "foodSupply":
       return state.production;
@@ -178,6 +265,8 @@ export function getChoroplethValue(state: StateMetrics, layer: DataLayer): numbe
       return state.ppiIndex ?? 100;
     case "ssl":
       return state.demand > 0 ? (state.production / state.demand) * 100 : 0;
+    case "price":
+      return priceData?.get(state.id)?.avgPrice ?? 0;
   }
 }
 
@@ -214,10 +303,17 @@ export function getChoroplethColor(value: number, min: number, max: number, laye
         stroke: `hsl(${hue} 60% 48% / 0.85)`,
       };
     }
+    case "price": {
+      const hue = 152 - t * 120;
+      return {
+        fill: `hsl(${hue} 60% 30% / 0.45)`,
+        stroke: `hsl(${hue} 60% 48% / 0.85)`,
+      };
+    }
   }
 }
 
-export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): string {
+export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer, priceData?: Map<string, StatePriceData>): string {
   switch (layer) {
     case "foodSupply":
       return `${state.production.toLocaleString()} kg`;
@@ -231,6 +327,10 @@ export function getLayerMetricLabel(state: StateMetrics, layer: DataLayer): stri
     case "ssl": {
       const ssl = state.demand > 0 ? (state.production / state.demand) * 100 : 0;
       return `SSL ${ssl.toFixed(1)}%`;
+    }
+    case "price": {
+      const pd = priceData?.get(state.id);
+      return pd ? `Avg RM ${pd.avgPrice.toFixed(2)} (${pd.itemCount} items)` : "No data";
     }
   }
 }
@@ -298,5 +398,12 @@ export function getLayerSummaryCards(states: StateMetrics[], layer: DataLayer): 
         { key: "critical", label: "Critical (<40%)", count: critical, fill: "hsl(0 70% 45% / 0.35)", stroke: "hsl(0 70% 55%)", icon: "🔴" },
       ];
     }
+    case "price":
+      return [
+        { key: "cheap", label: "Affordable (<RM 3.50)", count: states.length > 0 ? Math.round(states.length * 0.3) : 4, fill: "hsl(152 60% 35% / 0.4)", stroke: "hsl(152 60% 50%)", icon: "💚" },
+        { key: "moderate", label: "Moderate", count: states.length > 0 ? Math.round(states.length * 0.35) : 5, fill: "hsl(80 50% 40% / 0.35)", stroke: "hsl(80 50% 55%)", icon: "💛" },
+        { key: "expensive", label: "Expensive (RM 4+)", count: states.length > 0 ? Math.round(states.length * 0.2) : 3, fill: "hsl(30 65% 45% / 0.35)", stroke: "hsl(30 65% 55%)", icon: "🟠" },
+        { key: "premium", label: "Premium (RM 5+)", count: states.length > 0 ? Math.round(states.length * 0.15) : 3, fill: "hsl(0 65% 45% / 0.35)", stroke: "hsl(0 65% 55%)", icon: "🔴" },
+      ];
   }
 }

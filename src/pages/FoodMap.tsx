@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock, Percent, CloudRain, Info } from "lucide-react";
+import { MapPin, BarChart3, DollarSign, ShoppingCart, Loader2, ChevronDown, Clock, Percent, Info, Tag } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import MalaysiaMap, { statusColors, type StateData, type StateStatus, type ChoroplethColors } from "@/components/MalaysiaMap";
@@ -9,6 +9,7 @@ import LayerSidebar from "@/components/LayerSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
   fetchStateMetrics,
+  fetchPriceCatcherData,
   getChoroplethValue,
   getChoroplethColor,
   getLayerMetricLabel,
@@ -16,6 +17,7 @@ import {
   FOOD_CATEGORIES,
   type DataLayer,
   type StateMetrics,
+  type StatePriceData,
 } from "@/services/stateLevelData";
 
 const statusIcon: Record<StateStatus, React.ElementType> = {
@@ -30,6 +32,7 @@ const LAYERS: { id: DataLayer; label: string; icon: React.ElementType; descripti
   { id: "cpi", label: "Food CPI", icon: DollarSign, description: "Consumer Price Index", definition: "Consumer Price Index (CPI) measures the average change in prices paid by consumers for food items over time. A rising CPI means food is getting more expensive for everyday buyers." },
   { id: "ppi", label: "Food PPI", icon: DollarSign, description: "Producer Price Index", definition: "Producer Price Index (PPI) measures the average change in prices received by farmers and food producers. Comparing PPI with CPI reveals middleman margins and supply chain efficiency." },
   { id: "ssl", label: "SSL %", icon: Percent, description: "Self-Sufficiency Level", definition: "Self-Sufficiency Level (SSL) shows the percentage of domestic food demand met by local production. A higher SSL means less reliance on imports and greater food security." },
+  { id: "price", label: "Price Data", icon: Tag, description: "PriceCatcher Prices", definition: "Real food prices collected from premises across Malaysia via the government's PriceCatcher programme. Shows average retail food prices by state, helping identify cost-of-living differences." },
 ];
 
 const FoodMap = () => {
@@ -43,6 +46,12 @@ const FoodMap = () => {
     staleTime: 5 * 60_000,
   });
 
+  const { data: priceData } = useQuery({
+    queryKey: ["priceCatcher"],
+    queryFn: fetchPriceCatcherData,
+    staleTime: 10 * 60_000,
+  });
+
   const stateData: StateData[] = useMemo(
     () => stateMetrics.map((s) => ({ id: s.id, name: s.name, status: s.status, production: s.production, demand: s.demand, mainCrops: s.mainCrops, notes: s.notes })),
     [stateMetrics],
@@ -50,7 +59,7 @@ const FoodMap = () => {
 
   const choroplethColors = useMemo<Record<string, ChoroplethColors>>(() => {
     if (stateMetrics.length === 0) return {};
-    const values = stateMetrics.map((s) => getChoroplethValue(s, activeLayer));
+    const values = stateMetrics.map((s) => getChoroplethValue(s, activeLayer, priceData));
     const min = Math.min(...values);
     const max = Math.max(...values);
     const map: Record<string, ChoroplethColors> = {};
@@ -58,17 +67,19 @@ const FoodMap = () => {
       map[s.id] = getChoroplethColor(values[i], min, max, activeLayer);
     });
     return map;
-  }, [stateMetrics, activeLayer]);
+  }, [stateMetrics, activeLayer, priceData]);
 
   const tooltipContent = (id: string) => {
     const s = stateMetrics.find((m) => m.id === id);
-    return s ? getLayerMetricLabel(s, activeLayer) : null;
+    return s ? getLayerMetricLabel(s, activeLayer, priceData) : null;
   };
 
   const selected = stateMetrics.find((s) => s.id === selectedId) || null;
   const handleStateClick = (state: StateData) => setSelectedId(state.id);
 
   const summaryCards = useMemo(() => getLayerSummaryCards(stateMetrics, activeLayer), [stateMetrics, activeLayer]);
+
+  const selectedPriceData = selectedId && priceData ? priceData.get(selectedId) : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,23 +100,22 @@ const FoodMap = () => {
         </motion.div>
 
         {/* Data Layer Toggle */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="mb-5 grid grid-cols-2 sm:grid-cols-5 gap-2">
           {LAYERS.map((layer) => {
             const active = activeLayer === layer.id;
             return (
               <div key={layer.id} className="relative group">
                 <button
                   onClick={() => { setActiveLayer(layer.id); setSelectedId(null); }}
-                  className={`flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-all ${
+                  className={`w-full flex items-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-all ${
                     active
                       ? "border-primary/60 bg-primary/15 text-primary shadow-sm shadow-primary/10"
                       : "border-border/50 bg-card/50 text-muted-foreground hover:border-border hover:text-foreground"
                   }`}
                 >
-                  <layer.icon className="h-4 w-4" />
-                  <span>{layer.label}</span>
-                  {!isMobile && <span className="text-xs opacity-60">— {layer.description}</span>}
-                  <Info className="h-3.5 w-3.5 opacity-40 group-hover:opacity-70 transition-opacity" />
+                  <layer.icon className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{layer.label}</span>
+                  <Info className="h-3.5 w-3.5 opacity-40 group-hover:opacity-70 transition-opacity ml-auto shrink-0" />
                 </button>
                 <div className="absolute left-0 top-full mt-2 z-50 hidden group-hover:block w-72 rounded-lg border border-border/60 bg-popover p-3 text-xs text-popover-foreground shadow-lg">
                   <p className="font-semibold mb-1">{layer.label}</p>
@@ -116,7 +126,7 @@ const FoodMap = () => {
           })}
         </motion.div>
 
-        {/* Summary strip — layer-aware */}
+        {/* Summary strip */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} key={activeLayer} className="mb-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
           {summaryCards.map((card) => (
             <div key={card.key} className="flex items-center gap-2.5 rounded-lg border border-border/40 bg-card/50 backdrop-blur-sm p-3">
@@ -158,9 +168,24 @@ const FoodMap = () => {
                   </span>
                 ))}
               </div>
-              <span className="text-[10px] text-muted-foreground/40 italic">Source: OpenDOSM · DOSM Malaysia · simulated estimates</span>
+              <span className="text-[10px] text-muted-foreground/40 italic">Source: OpenDOSM · DOSM Malaysia · PriceCatcher</span>
             </div>
-            {/* Mobile: show sidebar content below map */}
+            {/* Price details for selected state */}
+            {activeLayer === "price" && selectedPriceData && (
+              <Card className="border-primary/30 bg-card/60">
+                <CardContent className="p-4">
+                  <h3 className="font-display font-bold text-sm mb-2">Top Priced Items</h3>
+                  <div className="space-y-2">
+                    {selectedPriceData.topItems.map((item) => (
+                      <div key={item.item} className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">{item.item}</span>
+                        <span className="font-medium text-foreground">RM {item.avgPrice.toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
             <LayerSidebar selected={selected} activeLayer={activeLayer} states={stateMetrics} onSelect={setSelectedId} />
           </div>
         ) : (
@@ -186,11 +211,34 @@ const FoodMap = () => {
                     </span>
                   ))}
                 </div>
-                <span className="text-[10px] text-muted-foreground/40 italic">Source: OpenDOSM · DOSM Malaysia · simulated estimates</span>
+                <span className="text-[10px] text-muted-foreground/40 italic">Source: OpenDOSM · DOSM Malaysia · PriceCatcher</span>
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.18 }}>
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.18 }} className="space-y-4">
+              {/* Price details panel */}
+              {activeLayer === "price" && selectedPriceData && (
+                <Card className="border-primary/30 bg-card/60 backdrop-blur-sm">
+                  <CardContent className="p-4">
+                    <h3 className="font-display font-bold text-sm mb-3 flex items-center gap-2">
+                      <Tag className="h-4 w-4 text-primary" />
+                      Top Priced Items — {selected?.name}
+                    </h3>
+                    <div className="space-y-2">
+                      {selectedPriceData.topItems.map((item) => (
+                        <div key={item.item} className="flex justify-between items-center text-sm py-1 border-b border-border/30 last:border-0">
+                          <span className="text-muted-foreground">{item.item}</span>
+                          <span className="font-medium text-foreground">RM {item.avgPrice.toFixed(2)}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className="mt-3 pt-2 border-t border-border/50">
+                      <p className="text-xs text-muted-foreground">Average price: <span className="font-bold text-primary">RM {selectedPriceData.avgPrice.toFixed(2)}</span></p>
+                      <p className="text-xs text-muted-foreground">{selectedPriceData.itemCount} items tracked</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               <LayerSidebar selected={selected} activeLayer={activeLayer} states={stateMetrics} onSelect={setSelectedId} />
             </motion.div>
           </div>

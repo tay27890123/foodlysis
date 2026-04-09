@@ -17,6 +17,8 @@ export interface SurplusListing {
   location_lng: number | null;
   location_label: string | null;
   transportation_available: boolean;
+  image_url: string | null;
+  expiry_date: string | null;
   profiles: {
     business_name: string;
     location_state: string;
