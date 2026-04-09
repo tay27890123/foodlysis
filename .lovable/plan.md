@@ -1,40 +1,44 @@
 
 
-## Plan: Transportation Option, Processing Fee Notice & Contact Flow
+## Plan: Add AI-Powered Insights to Insights Page
 
-### Summary
-Add a "transportation available" toggle for sellers, show it as a label on listings, enhance the contact flow for buyers with a transport help option, and display processing fee + membership note before posting.
+### What You'll Get
+A new "AI Analysis" section on the Insights page where AI reads your live OpenDOSM data and generates a smart summary — market trends, risk alerts, and actionable recommendations for sellers and buyers. One-click "Analyze" button triggers it.
+
+### How It Works
+
+```text
+User clicks "AI Analysis"
+       ↓
+Frontend sends current OpenDOSM insights data
+       ↓
+Edge Function (supabase/functions/ai-insights/index.ts)
+  → Calls Lovable AI Gateway with the data + system prompt
+  → Returns AI-generated analysis
+       ↓
+Frontend displays the AI summary in a styled card
+```
 
 ### Changes
 
-#### 1. Database Migration
-- Add `transportation_available` boolean column (default `false`) to `surplus_listings` table
+#### 1. Create Edge Function `supabase/functions/ai-insights/index.ts`
+- Receives the current insights data (titles, values, statuses) as context
+- Calls Lovable AI Gateway (`google/gemini-3-flash-preview`) with a system prompt like: *"You are a Malaysia food supply chain analyst. Given the following market data, provide a concise analysis with: 1) Key trends, 2) Risk alerts, 3) Recommendations for sellers, 4) Recommendations for buyers. Use bullet points. Be specific with numbers."*
+- Returns the AI response text
+- Handles 429/402 errors gracefully
 
-#### 2. AddListingModal — Seller Form Updates
-- Add a toggle/switch for "Transportation Available" (yes/no)
-- Before the submit button, add a small notice:
-  - *"A 1% processing fee will be charged on total revenue per transaction."*
-  - *"Join as a member to have all processing fees waived."* (smaller, muted text)
-- Include `transportation_available` in the insert/update payload
-- When editing, pre-fill the toggle from existing data
+#### 2. Update `src/pages/Insights.tsx`
+- Add a new "AI Analysis" card/section at the top of the page
+- "Generate AI Analysis" button that sends the current insights data to the edge function
+- Display the AI response with markdown rendering (`react-markdown`)
+- Show loading spinner while generating
+- Cache the result so it doesn't re-fetch on every click (store in state)
 
-#### 3. SurplusCard — Transportation Badge
-- Show a small badge/label like "🚛 Transport Available" or "📦 Self-pickup" on each listing card based on the `transportation_available` field
+#### 3. Install `react-markdown` dependency
+- For rendering the AI response with proper formatting
 
-#### 4. Contact Seller Flow (Buy tab)
-- Replace the simple toast with a dialog when clicking "Contact Seller"
-- If the listing has `transportation_available = true`: show seller contact info/message prompt directly
-- If `transportation_available = false`: show two options:
-  1. **"Get help from platform"** — shows a message like "Our logistics partners will assist with delivery. Platform coordination fees may apply."
-  2. **"I'll arrange transport myself"** — proceeds to contact seller directly
-- Both options end with a toast confirmation for now (no actual messaging backend yet)
-
-#### 5. Type Updates
-- Add `transportation_available` to the `SurplusListing` interface in `useSurplusListings.ts`
-
-### Files to modify
-- **Migration**: Add `transportation_available` column
-- `src/hooks/useSurplusListings.ts` — add field to interface
-- `src/components/AddListingModal.tsx` — toggle + fee notice
-- `src/pages/Match.tsx` — transport badge on card + contact dialog with transport options
+### Files
+- **New**: `supabase/functions/ai-insights/index.ts`
+- **Edit**: `src/pages/Insights.tsx` — add AI analysis section
+- **Edit**: `package.json` — add `react-markdown`
 
