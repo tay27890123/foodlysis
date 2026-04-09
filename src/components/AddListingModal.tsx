@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { SurplusListing } from "@/hooks/useSurplusListings";
+import { useAuth } from "@/hooks/useAuth";
 
 const categories = ["Vegetables", "Fruits", "Grains", "Seafood", "Poultry", "Dairy", "Other"] as const;
 const urgencies = ["Low", "Medium", "High"] as const;
@@ -42,6 +43,7 @@ const defaultForm = {
 };
 
 const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
+  const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -211,7 +213,7 @@ const AddListingModal = ({ onSuccess, editListing, trigger }: Props) => {
       } else {
         const { error } = await supabase.from("surplus_listings").insert({
           ...payload,
-          supplier_id: "00000000-0000-0000-0000-000000000000",
+          supplier_id: user?.id ?? null,
         });
         if (error) throw error;
         toast.success("Listing posted successfully!");
