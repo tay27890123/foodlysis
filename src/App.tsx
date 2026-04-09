@@ -13,6 +13,8 @@ import Admin from "./pages/Admin.tsx";
 import Insights from "./pages/Insights.tsx";
 import FoodMap from "./pages/FoodMap.tsx";
 import Auth from "./pages/Auth.tsx";
+import Marketplace from "./pages/Marketplace.tsx";
+import FoodDataMap from "./pages/FoodDataMap.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -33,6 +35,8 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/insights" element={<Insights />} />
             <Route path="/food-map" element={<FoodMap />} />
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/food-data-map" element={<FoodDataMap />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

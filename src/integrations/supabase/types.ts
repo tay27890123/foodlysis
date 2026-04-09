@@ -43,7 +43,9 @@ export type Database = {
           category: string
           created_at: string
           discounted_price: number
+          expiry_date: string | null
           id: string
+          image_url: string | null
           location_label: string | null
           location_lat: number | null
           location_lng: number | null
@@ -59,7 +61,9 @@ export type Database = {
           category: string
           created_at?: string
           discounted_price: number
+          expiry_date?: string | null
           id?: string
+          image_url?: string | null
           location_label?: string | null
           location_lat?: number | null
           location_lng?: number | null
@@ -75,7 +79,9 @@ export type Database = {
           category?: string
           created_at?: string
           discounted_price?: number
+          expiry_date?: string | null
           id?: string
+          image_url?: string | null
           location_label?: string | null
           location_lat?: number | null
           location_lng?: number | null
