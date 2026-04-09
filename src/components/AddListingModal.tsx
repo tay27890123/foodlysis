@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import type { SurplusListing } from "@/hooks/useSurplusListings";
+import { useAuth } from "@/hooks/useAuth";
 
 const categories = ["Vegetables", "Fruits", "Grains", "Seafood", "Poultry", "Dairy", "Other"] as const;
 const urgencies = ["Low", "Medium", "High"] as const;
