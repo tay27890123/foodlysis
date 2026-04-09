@@ -1,6 +1,7 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown, ArrowLeft } from "lucide-react";
+import { Leaf, Menu, X, ShoppingBag, Database, ChevronDown, ArrowLeft, LogIn, LogOut, User } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -75,6 +76,7 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isLanding = location.pathname === "/";
+  const { user, profile, loading, signOut } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-xl">
@@ -98,6 +100,25 @@ const Navbar = () => {
         <div className="hidden md:flex items-center gap-3">
           <NavDropdown label="Global Market" icon={ShoppingBag} items={marketItems} />
           <NavDropdown label="Data Center" icon={Database} items={dataItems} />
+          {!loading && (
+            user ? (
+              <div className="flex items-center gap-2 ml-2">
+                <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
+                  <User className="h-4 w-4" />
+                  <span className="max-w-[120px] truncate">{profile?.business_name || user.email}</span>
+                </div>
+                <Button variant="ghost" size="sm" className="gap-1.5" onClick={signOut}>
+                  <LogOut className="h-4 w-4" /> Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Link to="/auth">
+                <Button variant="default" size="sm" className="gap-1.5 ml-2">
+                  <LogIn className="h-4 w-4" /> Sign In
+                </Button>
+              </Link>
+            )
+          )}
         </div>
 
         <button className="md:hidden text-foreground" onClick={() => setMobileOpen(!mobileOpen)}>
@@ -129,6 +150,22 @@ const Navbar = () => {
                   {item.label}
                 </Link>
               ))}
+              <div className="border-t border-border/50 my-2" />
+              {!loading && (
+                user ? (
+                  <div className="flex items-center justify-between px-3 py-2.5">
+                    <span className="text-sm text-muted-foreground truncate">{profile?.business_name || user.email}</span>
+                    <Button variant="ghost" size="sm" className="gap-1.5" onClick={() => { signOut(); setMobileOpen(false); }}>
+                      <LogOut className="h-4 w-4" /> Sign Out
+                    </Button>
+                  </div>
+                ) : (
+                  <Link to="/auth" onClick={() => setMobileOpen(false)}
+                    className="px-3 py-2.5 text-sm font-medium text-primary hover:bg-accent rounded-md transition-colors flex items-center gap-2">
+                    <LogIn className="h-4 w-4" /> Sign In / Sign Up
+                  </Link>
+                )
+              )}
             </div>
           </motion.div>
         )}

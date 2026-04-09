@@ -64,6 +64,11 @@ const HeroSection = () => {
                 Food Map
               </Button>
             </Link>
+            <Link to="/auth">
+              <Button size="lg" variant="secondary" className="gap-2">
+                Get Started
+              </Button>
+            </Link>
           </motion.div>
 
           <motion.div
