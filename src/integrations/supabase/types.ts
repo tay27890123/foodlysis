@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      market_insights: {
+        Row: {
+          created_at: string
+          id: string
+          query: string
+          summary: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          query: string
+          summary: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          query?: string
+          summary?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           business_name: string
