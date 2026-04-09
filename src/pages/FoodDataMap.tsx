@@ -164,7 +164,7 @@ const StateDetail = ({ state }: { state: StatePrice | null }) => {
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} key={state.id} className="glass-card p-5 space-y-4">
       <div className="flex items-center justify-between">
         <h3 className="font-display text-lg font-bold">{state.name}</h3>
-        <Badge variant="outline" className={`text-xs ${statusColors[state.status].badge}`}>
+        <Badge variant="outline" className={`text-xs`}>
           {statusColors[state.status].label}
         </Badge>
       </div>

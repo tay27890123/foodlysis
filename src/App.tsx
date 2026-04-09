@@ -13,6 +13,8 @@ import Admin from "./pages/Admin.tsx";
 import Insights from "./pages/Insights.tsx";
 import FoodMap from "./pages/FoodMap.tsx";
 import Auth from "./pages/Auth.tsx";
+import Marketplace from "./pages/Marketplace.tsx";
+import FoodDataMap from "./pages/FoodDataMap.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
