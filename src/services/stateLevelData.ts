@@ -1,12 +1,30 @@
 import type { StateStatus } from "@/components/MalaysiaMap";
 
 const BASE_URL = "https://api.data.gov.my/opendosm/";
+const PRICECATCHER_URL = "https://api.data.gov.my/data-catalogue";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
-export type DataLayer = "foodSupply" | "cpi" | "ppi" | "ssl";
+export type DataLayer = "foodSupply" | "cpi" | "ppi" | "ssl" | "price";
 
 export type WeatherRisk = "normal" | "advisory" | "warning" | "danger";
+
+export interface PriceCatcherItem {
+  date: string;
+  premise: string;
+  premise_type: string;
+  state: string;
+  district: string;
+  item: string;
+  unit: string;
+  price: number;
+}
+
+export interface StatePriceData {
+  avgPrice: number;
+  itemCount: number;
+  topItems: { item: string; avgPrice: number }[];
+}
 
 export type FoodCategory = "crops" | "livestock" | "fisheries" | "dairy" | "fruitsVeg" | "processed";
 
