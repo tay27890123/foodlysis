@@ -272,7 +272,7 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start gap-4 h-auto px-5 py-4"
+                className="w-full justify-start gap-4 h-auto px-5 py-4 whitespace-normal text-left"
                 onClick={() => { setContactOpen(false); toast.success("Contact request sent to seller!"); }}
               >
                 <PackageCheck className="h-6 w-6 text-muted-foreground shrink-0" />
