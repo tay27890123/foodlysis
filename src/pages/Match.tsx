@@ -235,7 +235,7 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
 
       {/* Contact Seller Dialog */}
       <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-lg">Contact Seller — {listing.product_name}</DialogTitle>
             <DialogDescription className="text-sm leading-relaxed">
