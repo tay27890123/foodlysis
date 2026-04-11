@@ -261,7 +261,7 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
             <div className="space-y-4">
               <Button
                 variant="outline"
-                className="w-full justify-start gap-4 h-auto px-5 py-4"
+                className="w-full justify-start gap-4 h-auto px-5 py-4 whitespace-normal text-left"
                 onClick={() => { setContactOpen(false); toast.success("Platform logistics team will reach out to coordinate delivery."); }}
               >
                 <Truck className="h-6 w-6 text-primary shrink-0" />
