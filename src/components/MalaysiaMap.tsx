@@ -130,7 +130,7 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
         {label}
       </span>
       <ZoomControls onZoomIn={zoom.zoomIn} onZoomOut={zoom.zoomOut} onReset={zoom.reset} scale={zoom.state.scale} />
-      <div {...zoom.containerProps} className="w-full overflow-hidden select-none" style={{ maxHeight: 560 }}>
+      <div {...zoom.containerProps} className="w-full overflow-hidden select-none">
         <div style={zoom.transformStyle}>
           <ComposableMap
             projection="geoMercator"
