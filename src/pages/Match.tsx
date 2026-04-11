@@ -235,7 +235,7 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
 
       {/* Contact Seller Dialog */}
       <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-md w-[calc(100%-2rem)] overflow-hidden">
           <DialogHeader>
             <DialogTitle className="text-lg">Contact Seller — {listing.product_name}</DialogTitle>
             <DialogDescription className="text-sm leading-relaxed">
@@ -261,7 +261,7 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
             <div className="space-y-4">
               <Button
                 variant="outline"
-                className="w-full justify-start gap-4 h-auto px-5 py-4"
+                className="w-full justify-start gap-4 h-auto px-5 py-4 whitespace-normal text-left"
                 onClick={() => { setContactOpen(false); toast.success("Platform logistics team will reach out to coordinate delivery."); }}
               >
                 <Truck className="h-6 w-6 text-primary shrink-0" />
@@ -272,7 +272,7 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start gap-4 h-auto px-5 py-4"
+                className="w-full justify-start gap-4 h-auto px-5 py-4 whitespace-normal text-left"
                 onClick={() => { setContactOpen(false); toast.success("Contact request sent to seller!"); }}
               >
                 <PackageCheck className="h-6 w-6 text-muted-foreground shrink-0" />
