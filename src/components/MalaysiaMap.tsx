@@ -162,7 +162,7 @@ const MalaysiaMap = ({ stateData, onStateClick, selectedState, choroplethColors,
     <div className="relative w-full">
       <div className="flex items-stretch w-full gap-3">
         {renderPanel("Peninsular Malaysia", WEST_STATES, westZoom, { scale: 3800, center: [101.5, 3.5] }, { width: 400, height: 600 }, { text: "STRAIT OF MALACCA", x: 20, y: 580 })}
-        {renderPanel("East Malaysia", EAST_STATES, eastZoom, { scale: 3500, center: [115.5, 3.8] }, { width: 400, height: 600 }, { text: "SOUTH CHINA SEA", x: 120, y: 30 })}
+        {renderPanel("East Malaysia", EAST_STATES, eastZoom, { scale: 2400, center: [114.5, 3.5] }, { width: 500, height: 600 }, { text: "SOUTH CHINA SEA", x: 160, y: 30 })}
       </div>
 
       <AnimatePresence>
