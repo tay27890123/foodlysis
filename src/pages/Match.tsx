@@ -235,10 +235,10 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
 
       {/* Contact Seller Dialog */}
       <Dialog open={contactOpen} onOpenChange={setContactOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Contact Seller — {listing.product_name}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-lg">Contact Seller — {listing.product_name}</DialogTitle>
+            <DialogDescription className="text-sm leading-relaxed">
               {listing.transportation_available
                 ? "This seller provides transportation for this item."
                 : "This item does not include transportation. How would you like to handle delivery?"}
@@ -247,8 +247,8 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
 
           {listing.transportation_available ? (
             <div className="space-y-4">
-              <div className="rounded-lg bg-primary/10 p-3 flex items-center gap-2">
-                <Truck className="h-4 w-4 text-primary" />
+              <div className="rounded-lg bg-primary/10 p-4 flex items-center gap-3">
+                <Truck className="h-5 w-5 text-primary shrink-0" />
                 <p className="text-sm">🚛 Transport is included with this listing.</p>
               </div>
               <DialogFooter>
@@ -258,27 +258,27 @@ const SurplusCard = ({ listing, index, distance, mode, onRefresh }: SurplusCardP
               </DialogFooter>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <Button
                 variant="outline"
-                className="w-full justify-start gap-3 h-auto py-3"
+                className="w-full justify-start gap-4 h-auto px-5 py-4"
                 onClick={() => { setContactOpen(false); toast.success("Platform logistics team will reach out to coordinate delivery."); }}
               >
-                <Truck className="h-5 w-5 text-primary shrink-0" />
-                <div className="text-left">
+                <Truck className="h-6 w-6 text-primary shrink-0" />
+                <div className="text-left min-w-0">
                   <p className="font-medium text-sm">Get help from platform</p>
-                  <p className="text-xs text-muted-foreground">Our logistics partners will assist with delivery. Platform coordination fees may apply.</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">Our logistics partners will assist with delivery. Platform coordination fees may apply.</p>
                 </div>
               </Button>
               <Button
                 variant="outline"
-                className="w-full justify-start gap-3 h-auto py-3"
+                className="w-full justify-start gap-4 h-auto px-5 py-4"
                 onClick={() => { setContactOpen(false); toast.success("Contact request sent to seller!"); }}
               >
-                <PackageCheck className="h-5 w-5 text-muted-foreground shrink-0" />
-                <div className="text-left">
+                <PackageCheck className="h-6 w-6 text-muted-foreground shrink-0" />
+                <div className="text-left min-w-0">
                   <p className="font-medium text-sm">I'll arrange transport myself</p>
-                  <p className="text-xs text-muted-foreground">Contact the seller directly and handle pickup/delivery on your own.</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-1">Contact the seller directly and handle pickup or delivery on your own.</p>
                 </div>
               </Button>
             </div>
